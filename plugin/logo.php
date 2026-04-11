@@ -125,12 +125,7 @@ header.custom-header-main {
             <li><a href="#"><i class="fa fa-globe"></i></a></li>
             <li><a href="#"><i class="fa fa-instagram"></i></a></li>
         </ul>
-        <div class="dikti-logo">
-            <span style="color:#fff; font-weight:800; font-size:16px; line-height:1.2; text-align:right;">
-                <span style="color:#ffcc00;">DIKTISAINTEK</span><br>
-                <span style="color:#42a5f5;">BERDAMPAK</span>
-            </span>
-        </div>
+
     </div>
 </div>
 ';

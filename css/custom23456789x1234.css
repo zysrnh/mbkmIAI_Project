@@ -1997,10 +1997,12 @@ a.scroll-top {
 	display: none;
 	right: 20px;
 	bottom: 20px;
-	background-color: #007092;
+	background-color: #618D4F;
+	box-shadow: 0 4px 16px rgba(97,141,79,.35);
+	transition: background .25s ease;
 }
 a.scroll-top:hover {
-	background: #ff9600;
+	background: #306238;
 }
 
 /* ================================================== */
