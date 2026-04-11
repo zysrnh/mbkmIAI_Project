@@ -2,7 +2,7 @@
 /**
  * Admin Panel - Manajemen Flipbook / E-Book Pedoman
  * File: modul/flipbook/admin/admin_flipbook.php
- * Dipanggil via: admin.php?pilih=admin_flipbook
+ * Dipanggil via: admin.php?pilih=flipbook&modul=yes
  */
 
 if (!defined('cms-ADMINISTRATOR')) {
@@ -122,7 +122,7 @@ if ($aksi === 'toggle') {
         $new_status = $row['status'] == 1 ? 0 : 1;
         $koneksi_db->sql_query("UPDATE mod_data_flipbook SET status='$new_status' WHERE id='$id'");
     }
-    header("location:admin.php?pilih=admin_flipbook");
+    header("location:admin.php?pilih=flipbook&modul=yes");
     exit;
 }
 
@@ -172,7 +172,7 @@ if ($aksi === 'edit' && isset($_POST['submit'])) {
 // ─────────────────────── RENDER HTML ──────────────────────────────
 $admin .= '<div style="background:var(--white); padding:30px; border-radius:12px; box-shadow:var(--shadow-md);">';
 $admin .= '<h3 style="color:var(--moss-dark); font-weight:bold; margin-top:0; margin-bottom:20px; font-size:24px;">Manajemen E-Book / Flipbook</h3>';
-$admin .= '<p style="margin-bottom:25px;"><a href="admin.php?pilih=admin_flipbook" style="display:inline-block; padding:8px 16px; background:#f4f4f4; color:#333; text-decoration:none; border-radius:4px; font-weight:600; margin-right:10px;">📋 Daftar Buku</a> <a href="admin.php?pilih=admin_flipbook&aksi=tambah" style="display:inline-block; padding:8px 16px; background:var(--moss-dark); color:white; text-decoration:none; border-radius:4px; font-weight:600;">&#43; Tambah Buku</a></p>';
+$admin .= '<p style="margin-bottom:25px;"><a href="admin.php?pilih=flipbook&modul=yes" style="display:inline-block; padding:8px 16px; background:#f4f4f4; color:#333; text-decoration:none; border-radius:4px; font-weight:600; margin-right:10px;">📋 Daftar Buku</a> <a href="admin.php?pilih=flipbook&modul=yes&aksi=tambah" style="display:inline-block; padding:8px 16px; background:var(--moss-dark); color:white; text-decoration:none; border-radius:4px; font-weight:600;">&#43; Tambah Buku</a></p>';
 
 if ($msg)   $admin .= '<div class="sukses">' . $msg . '</div>';
 if ($error) $admin .= '<div class="error">' . $error . '</div>';
@@ -180,9 +180,9 @@ if ($error) $admin .= '<div class="error">' . $error . '</div>';
 // ──── FORM TAMBAH ─────
 if ($aksi === 'tambah') {
     $admin .= '
-    <div style="max-width:600px;">
-    <h4>Tambah Buku Baru</h4>
-    <form method="POST" action="" enctype="multipart/form-data">
+    <div style="border:1px solid #ddd; padding:20px; border-radius:8px; background:#fafafa; margin-bottom:30px;">
+        <h4 style="margin-top:0; font-weight:bold;">Tambah Buku Baru</h4>
+        <form method="post" action="admin.php?pilih=flipbook&modul=yes&aksi=tambah" enctype="multipart/form-data">
         <table width="100%" cellpadding="6">
             <tr>
                 <td width="150">Judul Buku <span style="color:red">*</span></td>
@@ -214,7 +214,7 @@ if ($aksi === 'tambah') {
                 <td></td>
                 <td>
                     <input type="submit" name="submit" value="Simpan Buku" class="btn btn-primary">
-                    <a href="admin.php?pilih=admin_flipbook" class="btn btn-default">Batal</a>
+                    <a href="admin.php?pilih=flipbook&modul=yes" class="btn btn-default">Batal</a>
                 </td>
             </tr>
         </table>
@@ -223,17 +223,17 @@ if ($aksi === 'tambah') {
 }
 
 // ──── FORM EDIT ─────
-elseif ($aksi === 'edit' && !isset($_POST['submit'])) {
-    $id  = (int)$_GET['id'];
+elseif ($aksi === 'edit' && isset($_GET['id'])) {
+    $id = (int)$_GET['id'];
     $row = $koneksi_db->sql_fetchrow($koneksi_db->sql_query("SELECT * FROM mod_data_flipbook WHERE id='$id'"));
     if ($row) {
         $jdl  = htmlspecialchars($row['judul']);
         $dsk  = htmlspecialchars($row['deskripsi']);
         $kat  = htmlspecialchars($row['kategori']);
         $admin .= '
-        <div style="max-width:600px;">
-        <h4>Edit Buku: ' . $jdl . '</h4>
-        <form method="POST" action="" enctype="multipart/form-data">
+        <div style="border:1px solid #ddd; padding:20px; border-radius:8px; background:#fafafa; margin-bottom:30px;">
+            <h4 style="margin-top:0; font-weight:bold;">Edit Buku</h4>
+            <form method="post" action="admin.php?pilih=flipbook&modul=yes&aksi=edit" enctype="multipart/form-data">
             <input type="hidden" name="id" value="' . $id . '">
             <table width="100%" cellpadding="6">
                 <tr>
@@ -323,9 +323,9 @@ else {
                 <td style="font-size:12px;">' . date('d M Y', strtotime($r['tanggal'])) . '</td>
                 <td>' . $status_label . '</td>
                 <td>
-                    <a href="admin.php?pilih=admin_flipbook&aksi=edit&id=' . $r['id'] . '" class="btn btn-xs btn-warning">Edit</a>
-                    <a href="admin.php?pilih=admin_flipbook&aksi=toggle&id=' . $r['id'] . '" class="btn btn-xs btn-info">' . ($r['status']==1 ? 'Nonaktifkan' : 'Aktifkan') . '</a>
-                    <a href="admin.php?pilih=admin_flipbook&aksi=hapus&id=' . $r['id'] . '" class="btn btn-xs btn-danger" onclick="return confirm(\'Yakin hapus buku ini?\')">Hapus</a>
+                    <a href="admin.php?pilih=flipbook&modul=yes&aksi=edit&id=' . $r['id'] . '" class="btn btn-xs btn-warning" style="margin:2px;">Edit</a>
+                    <a href="admin.php?pilih=flipbook&modul=yes&aksi=toggle&id=' . $r['id'] . '" class="btn btn-xs btn-info" style="margin:2px;">' . ($r['status']==1 ? 'Nonaktifkan' : 'Aktifkan') . '</a>
+                    <a href="admin.php?pilih=flipbook&modul=yes&aksi=hapus&id=' . $r['id'] . '" class="btn btn-xs btn-danger" style="margin:2px;" onclick="return confirm(\'Yakin hapus buku ini?\')">Hapus</a>
                 </td>
             </tr>';
     }
