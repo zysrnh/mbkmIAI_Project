@@ -519,11 +519,138 @@ document.addEventListener('keydown', function(e) {
     </div>
 </section>
 
-        <!-- End How Study Section --> 
 
+<!-- Hanya Berita Kampus yang relevan untuk MBKM -->
+<style>
+.mbkm-news-section {
+    padding: 60px 0;
+    background: #fff;
+}
+.mbkm-news-section .section-label {
+    color: #42a5f5;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 8px;
+}
+.mbkm-news-section h2 {
+    color: #0d47a1;
+    font-size: 32px;
+    font-weight: 800;
+    margin: 0 0 40px 0;
+}
+.news-card-mbkm {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+}
+.news-card-mbkm:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+}
+.news-card-mbkm .news-img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+}
+.news-card-mbkm .news-img-placeholder {
+    width: 100%;
+    height: 200px;
+    background: linear-gradient(135deg, #0d47a1, #1976d2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,0.5);
+    font-size: 40px;
+}
+.news-card-mbkm .news-body {
+    padding: 20px;
+}
+.news-card-mbkm .news-date {
+    font-size: 12px;
+    color: #999;
+    margin-bottom: 8px;
+}
+.news-card-mbkm h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 0 0 10px 0;
+    line-height: 1.4;
+}
+.news-card-mbkm h3 a {
+    color: inherit;
+    text-decoration: none;
+}
+.news-card-mbkm h3 a:hover { color: #0d47a1; }
+.news-card-mbkm .news-views {
+    font-size: 12px;
+    color: #aaa;
+}
+.news-more-btn {
+    display: inline-block;
+    margin-top: 30px;
+    background: transparent;
+    border: 2px solid #0d47a1;
+    color: #0d47a1;
+    padding: 10px 28px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+.news-more-btn:hover {
+    background: #0d47a1;
+    color: #fff;
+    text-decoration: none;
+}
+</style>
 
-
-
+<section class="mbkm-news-section">
+    <div class="container">
+        <span class="section-label">Berita dan Informasi</span>
+        <h2>BERITA KAMPUS</h2>
+        <div class="row">
+            <?php
+            $query_news = $koneksi_db->sql_query("SELECT * FROM `artikel` WHERE publikasi=1 AND topik=1 ORDER BY `id` DESC LIMIT 3");
+            while ($data = $koneksi_db->sql_fetchrow($query_news)) {
+                $gambar = $data['gambar'];
+                $url = str_replace(" ", "-", $data[1]);
+                $url = preg_replace('/[^A-Za-z0-9\-]/', '', $url);
+                $url = trim(preg_replace('/-+/', '-', $url), '-');
+                if (empty($url)) $url = 'artikel-'.$data[0];
+                $image_src = !empty($gambar) ? 'images/artikel/'.$gambar : '';
+                echo '
+                <div class="col-sm-4" style="margin-bottom:30px;">
+                    <div class="news-card-mbkm">';
+                if ($image_src) {
+                    echo '<img src="'.$image_src.'" class="news-img" alt="'.htmlspecialchars($data[1]).'">';
+                } else {
+                    echo '<div class="news-img-placeholder">&#128240;</div>';
+                }
+                echo '
+                        <div class="news-body">
+                            <div class="news-date">&#128197; '.datetimess($data[5]).'</div>
+                            <h3><a href="artikel/'.$data[0].'/'.$url.'.html">'.htmlspecialchars($data[1]).'</a></h3>
+                            <div class="news-views">&#128065; '.$data['hits'].' views</div>
+                        </div>
+                    </div>
+                </div>';
+            }
+            ?>
+        </div>
+        <div style="text-align:center;">
+            <a href="kategori/1/Berita-Kampus.html" class="news-more-btn">Berita Kampus Lainnya &raquo;</a>
+        </div>
+    </div>
+</section>
 
 
 		
