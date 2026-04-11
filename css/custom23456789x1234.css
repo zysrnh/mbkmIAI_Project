@@ -6506,3 +6506,23 @@ a.btn-circle:hover {
  		padding: 0 8px;
 	}
 }
+
+/* ============================================================
+   FLIPBOOK MODULE — Full-Width Layout Override
+   Sembunyikan sidebar kanan, blog-left jadi full-width
+   ============================================================ */
+body.page-flipbook .blog-right,
+.flipbook-fullwidth .blog-right { display: none !important; }
+.flipbook-fullwidth .blog-left  { width: 100% !important; max-width: 100% !important; float: none !important; }
+
+/* Saat ada elemen .fb-hero di halaman, sembunyikan sidebar */
+.blog-wrapper:has(.fb-hero) .blog-right { display: none !important; }
+.blog-wrapper:has(.fb-hero) .blog-left  {
+    width: 100% !important;
+    max-width: 100% !important;
+    float: none !important;
+    padding: 0 !important;
+}
+.blog-wrapper:has(.fb-hero) { padding: 0 !important; }
+.blog-wrapper:has(.fb-hero) > .container { max-width: 100% !important; padding: 0 !important; }
+.blog-wrapper:has(.fb-hero) > .container > .row { margin: 0 !important; }

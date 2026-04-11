@@ -50,6 +50,7 @@ echo '
 <li><a   href="admin.php?pilih=meta&modul=yes"> SEO Meta Pages</a></li>  
        <li><a href="admin.php?pilih=pengaduan&modul=yes"> Pengaduan</a></li>  
 	        <li><a href="admin.php?pilih=stat&modul=yes"> Statistik Layanan</a></li> 
+			<li><a href="admin.php?pilih=flipbook&modul=yes">&#128218; E-Book / Flipbook</a></li>
             </ul>
         </li>
 		
