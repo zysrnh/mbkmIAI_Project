@@ -169,8 +169,10 @@ if ($aksi === 'edit' && isset($_POST['submit'])) {
 }
 
 // ─────────────────────── RENDER HTML ──────────────────────────────
-$admin .= '<h3 class="garis">Manajemen E-Book / Flipbook Pedoman</h3>';
-$admin .= '<p><a href="admin.php?pilih=admin_flipbook"><b>Daftar Buku</b></a> | <a href="admin.php?pilih=admin_flipbook&aksi=tambah"><b>+ Tambah Buku</b></a></p>';
+// ─────────────────────── RENDER HTML ──────────────────────────────
+$admin .= '<div style="background:var(--white); padding:30px; border-radius:12px; box-shadow:var(--shadow-md);">';
+$admin .= '<h3 style="color:var(--moss-dark); font-weight:bold; margin-top:0; margin-bottom:20px; font-size:24px;">Manajemen E-Book / Flipbook</h3>';
+$admin .= '<p style="margin-bottom:25px;"><a href="admin.php?pilih=admin_flipbook" style="display:inline-block; padding:8px 16px; background:#f4f4f4; color:#333; text-decoration:none; border-radius:4px; font-weight:600; margin-right:10px;">📋 Daftar Buku</a> <a href="admin.php?pilih=admin_flipbook&aksi=tambah" style="display:inline-block; padding:8px 16px; background:var(--moss-dark); color:white; text-decoration:none; border-radius:4px; font-weight:600;">&#43; Tambah Buku</a></p>';
 
 if ($msg)   $admin .= '<div class="sukses">' . $msg . '</div>';
 if ($error) $admin .= '<div class="error">' . $error . '</div>';
@@ -331,5 +333,6 @@ else {
     $admin .= '</tbody></table></div>';
 }
 
+$admin .= '</div>'; // End wrapper div
 echo $admin;
 ?>
