@@ -100,8 +100,8 @@ header.custom-header-main {
 <div class="header-wrapper">
     <div class="custom-navbar">
         <a href="index.php" class="logo-left">
-            MBKM BERDAMPAK
-            <span>Universitas IAI PI Bandung</span>
+            MBKM IAI PI Bandung
+            <span>Institut Agama Islam Persis Bandung</span>
         </a>
         <ul class="nav-links">
             <li><a href="index.php" style="color: #ffcc00;">Beranda</a></li>

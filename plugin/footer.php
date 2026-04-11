@@ -152,7 +152,7 @@
                     <div class="f-icon-wrap">
                         <svg viewBox="0 0 24 24"><path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zm0 12.08L5.21 11 12 7.08 18.79 11 12 15.08zM1 17l11 6 11-6v-2L12 21 1 15v2z"/></svg>
                     </div>
-                    <div class="f-name"><?= !empty($data['nama']) ? htmlspecialchars($data['nama']) : 'MBKM IAI PI Bandung' ?></div>
+                    <div class="f-name">MBKM IAI PI Bandung</div>
                     <span class="f-sub">Merdeka Belajar Kampus Merdeka</span>
                     <div class="f-accent-line"></div>
                     <p class="f-desc">Menghadirkan pengalaman belajar autentik yang berdampak melalui 8 program MBKM resmi Kemdikbudristek RI.</p>
@@ -217,7 +217,7 @@
     <div class="footer-bar">
         <div class="container">
             <div class="footer-bar-row">
-                <p class="f-copy">&copy; <?= $tahun ?> <strong><?= !empty($data['nama']) ? htmlspecialchars($data['nama']) : 'IAI PI Bandung' ?></strong>. Hak cipta dilindungi undang-undang.</p>
+                <p class="f-copy">&copy; <?= $tahun ?> <strong>MBKM IAI PI Bandung</strong>. Hak cipta dilindungi undang-undang.</p>
                 <span class="f-badge">Program MBKM &mdash; Kemdikbudristek RI</span>
             </div>
         </div>
