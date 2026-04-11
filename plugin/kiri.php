@@ -170,41 +170,103 @@
 </style>
 
 <!-- ============================================================
-     SECTION 1: 8 PROGRAM MBKM
+     SECTION 1: 8 PROGRAM MBKM (dari database halaman)
      ============================================================ -->
-<section class="program-section">
-    <div class="container">
-        <span class="section-eyebrow">Program Unggulan</span>
-        <h2 class="section-title">8 PROGRAM MBKM</h2>
-        <div class="row" style="overflow:visible;">
+<style>
+section.about { padding-top:0!important; margin-top:0!important; }
+.kotak-wrapper { padding-top:20px; padding-bottom:50px; }
+.kotak-col { padding-left:10px; padding-right:10px; margin-bottom:50px; }
+.kotak-inner { position:relative; padding:30px 25px 55px 25px; min-height:230px; transition:transform 0.3s ease, box-shadow 0.3s ease; cursor:pointer; border-radius:12px; }
+.kotak-inner:hover { transform:translateY(-8px); box-shadow:0 15px 35px rgba(0,0,0,0.3); }
+.kotak-inner .k-icon { font-size:55px; color:#ffffff; margin-bottom:15px; display:block; transition:transform 0.3s ease; }
+.kotak-inner:hover .k-icon { transform:scale(1.15) rotate(5deg); }
+.kotak-inner h3 { color:#ffffff; font-size:18px; font-weight:bold; text-transform:uppercase; margin:0 0 12px 0; line-height:1.3; }
+.kotak-inner p { color:rgba(255,255,255,0.92); font-size:13px; line-height:1.7; margin:0; }
+.kotak-btn { position:absolute; bottom:-22px; left:50%; margin-left:-25px; width:50px; height:50px; background:#ffffff; border-radius:50%; display:block; text-align:center; line-height:48px; font-size:24px; font-weight:bold; text-decoration:none; box-shadow:0 3px 12px rgba(0,0,0,0.25); transition:box-shadow 0.3s ease; z-index:99; }
+.kotak-btn:hover { box-shadow:0 6px 20px rgba(0,0,0,0.35); opacity:0.85; text-decoration:none; }
+.kotak-row { overflow:visible!important; }
+</style>
 
-            <?php
-            $programs = [
-                ['icon'=>'🎓','title'=>'Pertukaran Mahasiswa','desc'=>'Program pertukaran antar perguruan tinggi untuk memperluas wawasan akademik mahasiswa.','color'=>'#1a3a5c','link'=>'#'],
-                ['icon'=>'💼','title'=>'Magang / Praktik Kerja','desc'=>'Magang di perusahaan dan industri terkemuka untuk pengalaman kerja nyata.','color'=>'#1a7a5c','link'=>'#'],
-                ['icon'=>'🏫','title'=>'Kampus Mengajar','desc'=>'Berkontribusi membantu mengajar di sekolah dasar dan menengah di seluruh Indonesia.','color'=>'#5a3a7c','link'=>'#'],
-                ['icon'=>'🔬','title'=>'Penelitian / Riset','desc'=>'Berpartisipasi aktif dalam kegiatan riset bersama dosen dan lembaga penelitian.','color'=>'#1a5c7a','link'=>'#'],
-                ['icon'=>'🤝','title'=>'Proyek Kemanusiaan','desc'=>'Terlibat dalam proyek kemanusiaan dan bela negara di wilayah terdampak.','color'=>'#7a3a1a','link'=>'#'],
-                ['icon'=>'💡','title'=>'Studi Independen','desc'=>'Program belajar mandiri melalui proyek dan studi yang dirancang mahasiswa sendiri.','color'=>'#3a1a7a','link'=>'#'],
-                ['icon'=>'🚀','title'=>'Kegiatan Wirausaha','desc'=>'Mengembangkan jiwa entrepreneurship melalui bimbingan wirausaha yang terstruktur.','color'=>'#7a1a3a','link'=>'#'],
-                ['icon'=>'🏘️','title'=>'Membangun Desa / KKNT','desc'=>'Kuliah Kerja Nyata Tematik untuk memajukan desa dan masyarakat sekitar kampus.','color'=>'#1a6a2a','link'=>'#'],
-            ];
-            foreach ($programs as $i => $p):
-                $col = ($i < 4) ? 'col-sm-3' : 'col-sm-3';
-            ?>
-            <div class="<?= $col ?> kotak-col" style="overflow:visible;">
-                <div class="prog-card" style="background-color:<?= $p['color'] ?>;">
-                    <span class="p-icon"><?= $p['icon'] ?></span>
-                    <h3><?= $p['title'] ?></h3>
-                    <p><?= $p['desc'] ?></p>
-                    <a href="<?= $p['link'] ?>" class="prog-btn" style="color:<?= $p['color'] ?>;">›</a>
-                </div>
-            </div>
-            <?php endforeach; ?>
+<section class="about">
+<div class="container kotak-wrapper" style="margin-top:0;">
 
-        </div>
-    </div>
+    <!-- BARIS 1 -->
+    <div class="row kotak-row" style="margin-bottom:30px;">
+
+        <?php $perintah="SELECT * FROM halaman WHERE id='2'"; $hasil=$koneksi_db->sql_query($perintah);
+        while($data=$koneksi_db->sql_fetchrow($hasil)){$urlkat=str_replace(" ","-",$data['judul']); echo '
+        <div class="col-sm-3 kotak-col"><div class="kotak-inner" style="background-color:#1a3a5c;">
+            <i class="fa fa-graduation-cap k-icon"></i><h3>'.$data[1].'</h3>
+            <p>'.limitTXT(strip_tags($data['konten']),130).'</p>
+            <a href="pages/'.$data['id'].'/'.$urlkat.'.html" class="kotak-btn" style="color:#1a3a5c;">&#8250;</a>
+        </div></div>'; } ?>
+
+        <?php $perintah="SELECT * FROM halaman WHERE id='3'"; $hasil=$koneksi_db->sql_query($perintah);
+        while($data=$koneksi_db->sql_fetchrow($hasil)){$urlkat=str_replace(" ","-",$data['judul']); echo '
+        <div class="col-sm-3 kotak-col"><div class="kotak-inner" style="background-color:#1a7a5c;">
+            <i class="fa fa-briefcase k-icon"></i><h3>'.$data[1].'</h3>
+            <p>'.limitTXT(strip_tags($data['konten']),130).'</p>
+            <a href="pages/'.$data['id'].'/'.$urlkat.'.html" class="kotak-btn" style="color:#1a7a5c;">&#8250;</a>
+        </div></div>'; } ?>
+
+        <?php $perintah="SELECT * FROM halaman WHERE id='4'"; $hasil=$koneksi_db->sql_query($perintah);
+        while($data=$koneksi_db->sql_fetchrow($hasil)){$urlkat=str_replace(" ","-",$data['judul']); echo '
+        <div class="col-sm-3 kotak-col"><div class="kotak-inner" style="background-color:#5a3a7c;">
+            <i class="fa fa-users k-icon"></i><h3>'.$data[1].'</h3>
+            <p>'.limitTXT(strip_tags($data['konten']),130).'</p>
+            <a href="pages/'.$data['id'].'/'.$urlkat.'.html" class="kotak-btn" style="color:#5a3a7c;">&#8250;</a>
+        </div></div>'; } ?>
+
+        <?php $perintah="SELECT * FROM halaman WHERE id='5'"; $hasil=$koneksi_db->sql_query($perintah);
+        while($data=$koneksi_db->sql_fetchrow($hasil)){$urlkat=str_replace(" ","-",$data['judul']); echo '
+        <div class="col-sm-3 kotak-col"><div class="kotak-inner" style="background-color:#1a5c7a;">
+            <i class="fa fa-flask k-icon"></i><h3>'.$data[1].'</h3>
+            <p>'.limitTXT(strip_tags($data['konten']),130).'</p>
+            <a href="pages/'.$data['id'].'/'.$urlkat.'.html" class="kotak-btn" style="color:#1a5c7a;">&#8250;</a>
+        </div></div>'; } ?>
+
+    </div><!-- end baris 1 -->
+
+    <!-- BARIS 2 -->
+    <div class="row kotak-row">
+
+        <?php $perintah="SELECT * FROM halaman WHERE id='6'"; $hasil=$koneksi_db->sql_query($perintah);
+        while($data=$koneksi_db->sql_fetchrow($hasil)){$urlkat=str_replace(" ","-",$data['judul']); echo '
+        <div class="col-sm-3 kotak-col"><div class="kotak-inner" style="background-color:#7a3a1a;">
+            <i class="fa fa-handshake-o k-icon"></i><h3>'.$data[1].'</h3>
+            <p>'.limitTXT(strip_tags($data['konten']),130).'</p>
+            <a href="pages/'.$data['id'].'/'.$urlkat.'.html" class="kotak-btn" style="color:#7a3a1a;">&#8250;</a>
+        </div></div>'; } ?>
+
+        <?php $perintah="SELECT * FROM halaman WHERE id='7'"; $hasil=$koneksi_db->sql_query($perintah);
+        while($data=$koneksi_db->sql_fetchrow($hasil)){$urlkat=str_replace(" ","-",$data['judul']); echo '
+        <div class="col-sm-3 kotak-col"><div class="kotak-inner" style="background-color:#3a1a7a;">
+            <i class="fa fa-lightbulb-o k-icon"></i><h3>'.$data[1].'</h3>
+            <p>'.limitTXT(strip_tags($data['konten']),130).'</p>
+            <a href="pages/'.$data['id'].'/'.$urlkat.'.html" class="kotak-btn" style="color:#3a1a7a;">&#8250;</a>
+        </div></div>'; } ?>
+
+        <?php $perintah="SELECT * FROM halaman WHERE id='8'"; $hasil=$koneksi_db->sql_query($perintah);
+        while($data=$koneksi_db->sql_fetchrow($hasil)){$urlkat=str_replace(" ","-",$data['judul']); echo '
+        <div class="col-sm-3 kotak-col"><div class="kotak-inner" style="background-color:#7a1a3a;">
+            <i class="fa fa-rocket k-icon"></i><h3>'.$data[1].'</h3>
+            <p>'.limitTXT(strip_tags($data['konten']),130).'</p>
+            <a href="pages/'.$data['id'].'/'.$urlkat.'.html" class="kotak-btn" style="color:#7a1a3a;">&#8250;</a>
+        </div></div>'; } ?>
+
+        <?php $perintah="SELECT * FROM halaman WHERE id='9'"; $hasil=$koneksi_db->sql_query($perintah);
+        while($data=$koneksi_db->sql_fetchrow($hasil)){$urlkat=str_replace(" ","-",$data['judul']); echo '
+        <div class="col-sm-3 kotak-col"><div class="kotak-inner" style="background-color:#1a6a2a;">
+            <i class="fa fa-home k-icon"></i><h3>'.$data[1].'</h3>
+            <p>'.limitTXT(strip_tags($data['konten']),130).'</p>
+            <a href="pages/'.$data['id'].'/'.$urlkat.'.html" class="kotak-btn" style="color:#1a6a2a;">&#8250;</a>
+        </div></div>'; } ?>
+
+    </div><!-- end baris 2 -->
+
+</div><!-- end container -->
 </section>
+
 
 <!-- ============================================================
      SECTION 2: SAMBUTAN
