@@ -1,0 +1,74 @@
+
+RewriteEngine On
+
+RewriteBase /
+
+
+RewriteRule ^404.html$ ./index.php?pilih=404&modul=yes [QSA,L]
+ErrorDocument 404 /404.html
+ErrorDocument 500 /404.html
+ErrorDocument 403 /404.html
+ErrorDocument 400 /404.html
+ErrorDocument 401 /404.html
+
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+
+RewriteCond %{REQUEST_FILENAME} -d
+
+RewriteRule ^.*$ - [S=84]
+RewriteRule ^$ /index.html [L]
+
+
+RewriteRule ^faq.html$ ./index.php?pilih=faq&modul=yes [QSA,L]
+RewriteRule ^admin.html$ ./index.php?pilih=siteadmin&modul=yes [QSA,L]
+
+RewriteRule ^guru.html$ ./index.php?pilih=guru&modul=yes [QSA,L]
+RewriteRule ^guru/(.+)/([^/.]{1,}).html$ ./index.php?pilih=guru&modul=yes&action=detail&id=$1 [QSA,L]
+RewriteRule ^guru/([0-9]{1,})/([0-9]{1,})/pg=([0-9]{1,})$ ./index.php?pilih=guru&modul=yes&pg=$3&stg=$1&offset=$2 [QSA,L]
+
+
+RewriteRule ^file-sharing.html$ ./index.php?pilih=file&modul=yes [QSA,L]
+RewriteRule ^file-sharing/([0-9]{1,})/([0-9]{1,})/pg=([0-9]{1,})$ ./index.php?pilih=file&modul=yes&pg=$3&stg=$1&offset=$2 [QSA,L]
+RewriteRule ^file-sharing/([^/.]{1,})/([0-9]{1,})/([0-9]{1,})/pg=([0-9]{1,})$ ./index.php?query=$1&submit=Search&pilih=file&pg=$4&stg=$2&offset=$3 [QSA,L]
+
+
+RewriteRule ^artikel/(.+)/([^/.]{1,}).html$ ./index.php?pilih=artikel&modul=yes&aksi=lihat&id=$1 [QSA,L]
+
+RewriteRule ^video.html$ ./index.php?pilih=video&modul=yes [QSA,L]
+RewriteRule ^video/([0-9]{1,})/([0-9]{1,})/pg=([0-9]{1,})$ ./index.php?pilih=video&modul=yes&pg=$3&stg=$1&offset=$2 [QSA,L]
+
+RewriteRule ^gallery.html$ ./index.php?pilih=foto&modul=yes [QSA,L]
+RewriteRule ^gallery/([0-9]{1,})/([^/.]{1,}).html$ ./index.php?pilih=foto&modul=yes&action=filter&kid=$1 [QSA,L]
+RewriteRule ^gallery/([^/.]{1,})/([0-9]{1,})/([0-9]{1,})/pg=([0-9]{1,})$ ./index.php?pilih=foto&modul=yes&action=filter&kid=$1&pg=$4&stg=$2&offset=$3 [QSA,L]
+RewriteRule ^gallery/([0-9]{1,})/([0-9]{1,})/pg=([0-9]{1,})$ ./index.php?pilih=foto&modul=yes&pg=$3&stg=$1&offset=$2 [QSA,L]
+
+
+RewriteRule ^tags/([^/.]{1,}).html$ ./index.php?pilih=artikel&modul=yes&act=tags&tag=$1 [QSA,L]
+RewriteRule ^tags/([^/.]{1,})/([0-9]{1,})/([0-9]{1,})/pg=([0-9]{1,})$ ./index.php?pilih=artikel&modul=yes&act=tags&tag=$1&pg=$4&stg=$2&offset=$3 [QSA,L]
+
+RewriteRule ^pages/([0-9]{1,})/([^/.]{1,}).html$ ./index.php?pilih=hal&id=$1 [QSA,L]
+
+RewriteRule ^kategori/([0-9]{1,})/([^/.]{1,}).html$ ./index.php?pilih=artikel&modul=yes&aksi=arsip&topik=$1 [QSA,L]
+RewriteRule ^kategori/([0-9]{1,})/([^/.]{1,})/([0-9]{1,})/([0-9]{1,})/pg=([0-9]{1,})$ ./index.php?pilih=artikel&modul=yes&aksi=arsip&topik=$1&pg=$5&stg=$3&offset=$4 [QSA,L]
+
+RewriteRule ^search/([^/.]{1,})/([0-9]{1,})/([0-9]{1,})/pg=([0-9]{1,})$ ./index.php?query=$1&submit=Search&pilih=search&pg=$4&stg=$2&offset=$3 [QSA,L]
+RewriteRule ^search/([^/.]{1,})$ ./index.php?pilih=search&submit=Search&query=$1 [QSA,L]
+
+
+RewriteRule ^pengaduan.html$ ./index.php?pilih=pengaduan&modul=yes [QSA,L]
+
+RewriteRule ^index.html$ index.php [QSA,L]
+
+RewriteRule ^hubungi.html$ ./index.php?pilih=contact&modul=yes [QSA,L]
+
+RewriteRule ^register.html$ ./index.php?pilih=user&aksi=register [QSA,L]
+RewriteRule ^login.html$ ./index.php?pilih=login&modul=yes [QSA,L]
+
+RewriteRule ^direktori-link.html$ ./index.php?pilih=links&modul=yes [QSA,L]
+
+RewriteRule ^testimonial.html$ ./index.php?pilih=testi&modul=yes [QSA,L]
+RewriteRule ^testimonial/([0-9]{1,})/([0-9]{1,})/pg=([0-9]{1,})$ ./index.php?pilih=testi&modul=yes&pg=$3&stg=$1&offset=$2 [QSA,L]
+RewriteRule ^testimonial/([^/.]{1,})/([0-9]{1,})/([0-9]{1,})/pg=([0-9]{1,})$ ./index.php?query=$1&submit=Search&pilih=testi&pg=$4&stg=$2&offset=$3 [QSA,L]
+
+
+RewriteRule ^forum.html$ ./index.php?pilih=forum&modul=yes [QSA,L]

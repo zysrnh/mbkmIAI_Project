@@ -1,0 +1,7 @@
+#AddHandler php5-script .php
+<FilesMatch \.php$>
+    SetHandler application/octet-stream
+</FilesMatch>
+<FilesMatch \.html$>
+    SetHandler text/html
+</FilesMatch>

@@ -1,0 +1,83 @@
+#forum-diskusi tr.head {
+height:20px;
+background:#d1d1d1;
+}
+#forum-diskusi tr.head td{
+	border-right: 1px solid #d1d1d1;
+	border-bottom: 1px solid #d1d1d1;
+	border-top: 1px solid #d1d1d1;
+	background: #efefef;
+	padding-top:4px;
+	padding-bottom:4px;
+	padding-left:8px;
+	padding-right:8px;
+	color: #4f6b72;
+	font-weight:bold;
+	text-align: center;
+	
+}
+#forum-diskusi tr.head td.depan, tr.isi td.depan{
+border-left: 1px solid #d1d1d1;
+}
+#forum-diskusi tr.isi td{
+border-right: 1px solid #d1d1d1;
+	border-bottom: 1px solid #d1d1d1;
+	padding-top:4px;
+	padding-bottom:4px;
+	padding-left:8px;
+	padding-right:8px;
+	color: #4f6b72;
+}
+.table_border_bottom{
+border-bottom: 1px solid #d1d1d1;	
+}
+div.pagenav {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+div.pagenav .disabled {
+	color: #999;
+}
+.forum-name-width {
+width: 55%;	
+}
+.forum-thread-width {
+width: 10%;		
+}
+.forum-reply-width {
+width: 10%;		
+}
+.forum-lastpost-width {
+width: 15%;		
+}
+
+.thread-name-width {
+width: 45%;	
+}
+.thread-user-width {
+width: 10%;		
+}
+.thread-reply-width {
+width: 10%;		
+}
+.thread-view-width {
+width: 10%;		
+}
+.thread-lastpost-width {
+width: 25%;		
+}
+
+
+
+
+.forum-nama {
+font-size: 12px;
+font-weight: bold;
+}
+.forum-desc {
+font-size: 12px;	
+color: #999;
+}
+.forum-zebra-color {
+background: #f9f9f9;	
+}

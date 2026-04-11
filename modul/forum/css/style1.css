@@ -1,0 +1,64 @@
+.ImageUser{float:center;display:block;margin-right:5px;width:85px;height:85px;background:#FFF;border:1px solid #ccc;}
+.ImageUser a:hover{float:center;display:block;margin-right:5px;width:85px;height:85px;background:#FFF;border:1px solid #3399cc;}
+.ImageUser IMG{width:77px;height:77px;}
+.ImageUser a{font-size:0 !important;color:#FFF;text-decoration:none;}
+.ImageUser a IMG{padding:4px;}	
+
+
+.ImageTeman{float:center;display:block;margin-right:5px;width:75px;height:75px;background:#FFF;border:1px solid #ccc;}
+.ImageTeman a:hover{float:center;display:block;margin-right:5px;width:75px;height:75px;background:#FFF;border:1px solid #3399cc;}
+.ImageTeman IMG{width:67px;height:67px;}
+.ImageTeman a{font-size:0 !important;color:#FFF;text-decoration:none;}
+.ImageTeman a IMG{padding:4px;}	
+
+.namauser a hover{
+float:center;
+text-decoration:none;
+text-align:left;
+}
+.namauser IMG{
+text-decoration:none;
+float:center;
+width:16px;
+padding:2px 5px 0 0;
+}
+
+#teman tr.head {
+height:20px;
+background:#d1d1d1;
+}
+#teman tr.head td{
+	border-right: 1px solid #d1d1d1;
+	border-bottom: 1px solid #d1d1d1;
+	border-top: 1px solid #d1d1d1;
+	background: #efefef;
+	padding-top:4px;
+	padding-bottom:4px;
+	padding-left:8px;
+	padding-right:8px;
+	color: #4f6b72;
+	font-weight:bold;
+	text-align: center;
+	
+}
+#teman tr.head td.depan, tr.isi td.depan{
+border-left: 1px solid #d1d1d1;
+}
+#teman tr.isi td{
+border-right: 1px solid #d1d1d1;
+	border-bottom: 1px solid #d1d1d1;
+	padding-top:4px;
+	padding-bottom:4px;
+	padding-left:8px;
+	padding-right:8px;
+	color: #4f6b72;
+}
+.pic-width {
+width: 150px;		
+}
+.forum-reply-width {
+width: 10%;		
+}
+.teman-zebra-color {
+background: #f9f9f9;	
+}

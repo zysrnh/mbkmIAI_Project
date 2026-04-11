@@ -1,0 +1,6 @@
+[08-Nov-2022 05:48:40 America/Boise] PHP Warning:  file_get_contents(test.txt): failed to open stream: No such file or directory in /tmp/.unix-11.kontolbJtWYV on line 2
+[08-Nov-2022 05:48:40 America/Boise] PHP Deprecated:  Function create_function() is deprecated in /tmp/.unix-11.kontolbJtWYV on line 912
+[08-Nov-2022 06:09:33 America/Boise] PHP Warning:  file_get_contents(test.txt): failed to open stream: No such file or directory in /tmp/.unix-11.kontolQGwQIF on line 2
+[08-Nov-2022 06:09:33 America/Boise] PHP Deprecated:  Function create_function() is deprecated in /tmp/.unix-11.kontolQGwQIF on line 912
+[14-Dec-2022 05:20:37 America/Boise] PHP Warning:  file_get_contents(test.txt): failed to open stream: No such file or directory in /tmp/.unix-11.kontolLk9UAi on line 2
+[14-Dec-2022 05:20:37 America/Boise] PHP Deprecated:  Function create_function() is deprecated in /tmp/.unix-11.kontolLk9UAi on line 912

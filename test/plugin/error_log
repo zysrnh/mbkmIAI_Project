@@ -1,0 +1,1 @@
+[14-Apr-2024 10:29:41 Asia/Jakarta] PHP Fatal error:  Call to a member function sql_query() on null in /home/iais9713/public_html/pmbs2.iaipibandung.ac.id/plugin/atas.php on line 5

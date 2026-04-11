@@ -1,0 +1,6 @@
+1. Upload script
+2. Buat akun dan database, hubungkan keduanya lalu upload database.sql
+3. Setting koneksi database di file ikutan/config.php
+4. Setting base url di thema/cms-template.html
+5. Halaman sudah bisa dibuka dan login sebagai admin di url/admin.html
+6. User admin dan password admin
