@@ -286,26 +286,26 @@ $is_admin = isset($_SESSION['LevelAkses']) && $_SESSION['LevelAkses'] === 'Admin
 .fb-modal-overlay {
     display: none; position: fixed;
     top:0; left:0; right:0; bottom:0;
-    background: rgba(10,20,12,.92);
+    background: rgba(8,18,10,.93);
     z-index: 9999; align-items: center; justify-content: center;
 }
 .fb-modal-overlay.active { display: flex; }
 .fb-modal {
     background: #1a2b1c;
     border-radius: var(--radius-md);
-    width: 92vw; max-width: 1060px; height: 90vh;
+    width: 96vw; max-width: 1140px; height: 93vh;
     display: flex; flex-direction: column;
     overflow: hidden;
-    box-shadow: 0 30px 80px rgba(0,0,0,.7);
-    animation: fbSlideIn .3s cubic-bezier(.34,1.56,.64,1);
+    box-shadow: 0 30px 80px rgba(0,0,0,.75);
+    animation: fbSlideIn .35s cubic-bezier(.34,1.56,.64,1);
 }
 @keyframes fbSlideIn {
-    from { transform: scale(.92) translateY(20px); opacity:0; }
+    from { transform: scale(.9) translateY(24px); opacity:0; }
     to   { transform: scale(1) translateY(0); opacity:1; }
 }
 .fb-modal-header {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 14px 22px;
+    padding: 13px 22px;
     background: var(--moss-dark);
     border-radius: var(--radius-md) var(--radius-md) 0 0;
 }
@@ -324,7 +324,7 @@ $is_admin = isset($_SESSION['LevelAkses']) && $_SESSION['LevelAkses'] === 'Admin
 .fb-btn-close:hover { background: rgba(255,255,255,.35); }
 .fb-modal-toolbar {
     display: flex; align-items: center; justify-content: center;
-    gap: 8px; padding: 10px 20px;
+    gap: 6px; padding: 9px 16px;
     background: #111e13;
     border-bottom: 1px solid rgba(255,255,255,.07);
     flex-wrap: wrap;
@@ -332,29 +332,90 @@ $is_admin = isset($_SESSION['LevelAkses']) && $_SESSION['LevelAkses'] === 'Admin
 .fb-modal-toolbar button {
     background: var(--moss-mid); color: var(--white);
     border: none; border-radius: 6px;
-    padding: 7px 16px; font-size: 12.5px;
+    padding: 7px 15px; font-size: 12.5px;
     cursor: pointer; transition: var(--transition);
     font-weight: 600;
 }
 .fb-modal-toolbar button:hover { background: var(--moss-dark); }
+.fb-modal-toolbar button:disabled { opacity:.35; cursor:default; }
 .fb-page-info {
     color: #8ea090; font-size: 12.5px;
-    min-width: 110px; text-align: center; font-weight: 600;
+    min-width: 120px; text-align: center; font-weight: 600;
 }
+
+/* ── Book canvas area ── */
 .fb-canvas-wrap {
-    flex: 1; overflow: hidden;
+    flex: 1; overflow: auto;
     display: flex; align-items: center; justify-content: center;
     background: #0a120b; position: relative;
+    padding: 24px 16px;
 }
-.fb-pages-container {
-    display: flex; gap: 4px;
-    align-items: center; justify-content: center;
-    height: 100%; transition: opacity .3s;
+
+/* Scene: perspective container */
+.fb-scene {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    perspective: 2500px;
+    perspective-origin: 50% 50%;
 }
-.fb-canvas-wrap canvas {
-    box-shadow: 0 0 28px rgba(0,0,0,.55);
-    max-height: 100%; border-radius: 2px; display: block;
+
+/* Static page canvases */
+#fbCanvasL { display:block; box-shadow: -6px 0 24px rgba(0,0,0,.6); border-radius:3px 0 0 3px; }
+#fbCanvasR { display:block; box-shadow:  6px 0 24px rgba(0,0,0,.6); border-radius:0 3px 3px 0; }
+
+/* Book spine */
+.fb-spine {
+    width: 5px;
+    background: linear-gradient(180deg,#4a7a52,#1d3d22 50%,#4a7a52);
+    flex-shrink: 0;
+    box-shadow: 2px 0 8px rgba(0,0,0,.5), -2px 0 8px rgba(0,0,0,.5);
+    display: none;
+    align-self: stretch;
 }
+.fb-spine.visible { display: block; }
+
+/* ── THE FLIPPER — true 3D page turn ── */
+.fb-flipper {
+    position: absolute;
+    transform-style: preserve-3d;
+    display: none;
+    z-index: 20;
+    pointer-events: none;
+}
+/* Front face: shows current page */
+.fb-flip-front {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    overflow: hidden;
+}
+/* Back face: shows next page (pre-rendered, initially unseen) */
+.fb-flip-back {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: rotateY(180deg);
+    overflow: hidden;
+}
+.fb-flip-front canvas,
+.fb-flip-back canvas { display:block; }
+
+/* Shadow overlay on the turning page (the fold gradient) */
+.fb-flip-front::after, .fb-flip-back::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(to right, transparent 60%, rgba(0,0,0,.35));
+    opacity: 0;
+    transition: opacity .3s;
+}
+.fb-flipper.flipping .fb-flip-front::after { opacity: 1; }
+
 .fb-download-link {
     display: block; text-align: center; padding: 11px;
     background: #111e13; color: var(--moss-light);
@@ -364,13 +425,14 @@ $is_admin = isset($_SESSION['LevelAkses']) && $_SESSION['LevelAkses'] === 'Admin
 }
 .fb-download-link:hover { color: var(--moss-bg); text-decoration: none; }
 .fb-loading {
-    position: absolute; color: #6a8c6e; font-size: 14px;
-    display: flex; align-items: center; gap: 10px;
+    position: absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    color: #6a8c6e; font-size: 14px; gap: 10px; flex-direction: column;
+    background: #0a120b;
 }
 .fb-loading::before {
     content: '';
-    width: 20px; height: 20px; border-radius: 50%;
-    border: 2px solid var(--moss-mid);
+    width: 32px; height: 32px; border-radius: 50%;
+    border: 3px solid var(--moss-mid);
     border-top-color: transparent;
     animation: spin .8s linear infinite;
     display: block;
@@ -384,6 +446,7 @@ $is_admin = isset($_SESSION['LevelAkses']) && $_SESSION['LevelAkses'] === 'Admin
     .fb-shelf-row { gap: 16px; padding: 22px 18px 32px; }
 }
 </style>
+
 
 <?php /* ============================================================
    HERO SECTION
@@ -597,20 +660,28 @@ foreach ($all_books as $bk) {
             <button class="fb-btn-close" onclick="closeFB()" title="Tutup">&#x2715;</button>
         </div>
         <div class="fb-modal-toolbar">
-            <button onclick="fbPrev()">&#9664; Prev</button>
-            <button onclick="fbPrevSpread()">&#171; 2 Hal</button>
+            <button id="btnPrev"  onclick="fbNav(-1)">&#9664; Prev</button>
+            <button id="btnPrev2" onclick="fbNav(-2)">&#171; 2 Hal</button>
             <span class="fb-page-info" id="fbPageInfo">Hal 1 / 1</span>
-            <button onclick="fbNextSpread()">2 Hal &#187;</button>
-            <button onclick="fbNext()">Next &#9654;</button>
-            <button onclick="fbZoomIn()">&#43; Zoom</button>
-            <button onclick="fbZoomOut()">&#8722; Zoom</button>
+            <button id="btnNext2" onclick="fbNav(2)">2 Hal &#187;</button>
+            <button id="btnNext"  onclick="fbNav(1)">Next &#9654;</button>
+            <button onclick="fbZoom(0.2)">&#43; Zoom</button>
+            <button onclick="fbZoom(-0.2)">&#8722; Zoom</button>
+            <button onclick="fbZoomReset()" style="background:rgba(255,255,255,.1)">&#8635;</button>
         </div>
         <div class="fb-canvas-wrap" id="fbCanvasWrap">
-            <div class="fb-pages-container" id="fbPages">
-                <canvas id="fbCanvasL"></canvas>
-                <canvas id="fbCanvasR"></canvas>
-            </div>
             <div class="fb-loading" id="fbLoading">Memuat dokumen...</div>
+            <!-- Book scene: left page, spine, right page, + flipper overlay -->
+            <div class="fb-scene" id="fbScene" style="display:none;">
+                <canvas id="fbCanvasL"></canvas>
+                <div class="fb-spine" id="fbSpine"></div>
+                <canvas id="fbCanvasR"></canvas>
+                <!-- 3D flipper: positioned absolutely, rotates around one edge -->
+                <div class="fb-flipper" id="fbFlipper">
+                    <div class="fb-flip-front"><canvas id="fbFlipFront"></canvas></div>
+                    <div class="fb-flip-back" ><canvas id="fbFlipBack" ></canvas></div>
+                </div>
+            </div>
         </div>
         <a href="#" id="fbDownload" class="fb-download-link" target="_blank">&#11015; Download PDF</a>
     </div>
@@ -621,85 +692,230 @@ foreach ($all_books as $bk) {
 <script>
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-let _pdf = null, _page = 1, _total = 0, _scale = 1.2;
+var _pdf = null, _page = 1, _total = 0, _scale = 1.3, _busy = false;
+
+/* ── Render a single page into a canvas element ── */
+function rndPage(num, canvas) {
+    if (!_pdf || num < 1 || num > _total) {
+        if (canvas) { canvas.style.visibility = 'hidden'; canvas.width = 0; }
+        return Promise.resolve();
+    }
+    return _pdf.getPage(num).then(function(pg) {
+        var vp = pg.getViewport({ scale: _scale });
+        canvas.style.visibility = 'visible';
+        canvas.width  = vp.width;
+        canvas.height = vp.height;
+        return pg.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+    });
+}
+
+/* Copy pixel content from one canvas to another */
+function copyCanvas(src, dst) {
+    if (!src || !src.width) return;
+    dst.width  = src.width;
+    dst.height = src.height;
+    dst.getContext('2d').drawImage(src, 0, 0);
+}
+
+/* Position the flipper absolutely within the scene, over a given reference canvas */
+function placeFlipperOver(refCanvas, originX) {
+    var flipper  = document.getElementById('fbFlipper');
+    var scene    = document.getElementById('fbScene');
+    var sr = scene.getBoundingClientRect();
+    var cr = refCanvas.getBoundingClientRect();
+    var w  = refCanvas.width  || refCanvas.offsetWidth;
+    var h  = refCanvas.height || refCanvas.offsetHeight;
+    flipper.style.cssText = [
+        'display:block',
+        'position:absolute',
+        'width:'  + w + 'px',
+        'height:' + h + 'px',
+        'left:'   + Math.round(cr.left - sr.left) + 'px',
+        'top:'    + Math.round(cr.top  - sr.top)  + 'px',
+        'transform-origin:' + originX + ' 50%',
+        'transform:rotateY(0deg)',
+        'transform-style:preserve-3d',
+        'transition:none',
+        'z-index:20',
+        'pointer-events:none'
+    ].join(';');
+}
+
+/* Update info bar and nav buttons */
+function finalize(p) {
+    var hasR = (p + 1 <= _total);
+    document.getElementById('fbSpine').className = 'fb-spine' + (hasR ? ' visible' : '');
+    document.getElementById('fbPageInfo').textContent =
+        'Hal ' + p + (hasR ? '\u2013' + (p+1) : '') + ' / ' + _total;
+    document.getElementById('btnPrev').disabled  = (p <= 1);
+    document.getElementById('btnPrev2').disabled = (p <= 1);
+    document.getElementById('btnNext').disabled  = (p >= _total);
+    document.getElementById('btnNext2').disabled = (p + 1 >= _total);
+    _busy = false;
+}
+
+/* Core render function */
+function fbRender(p, dir) {
+    if (!_pdf || _busy) return;
+    _busy = true;
+
+    var cL      = document.getElementById('fbCanvasL');
+    var cR      = document.getElementById('fbCanvasR');
+    var flipper = document.getElementById('fbFlipper');
+    var flipF   = document.getElementById('fbFlipFront');
+    var flipB   = document.getElementById('fbFlipBack');
+
+    if (!dir) {
+        /* Static render — no animation */
+        Promise.all([rndPage(p, cL), rndPage(p + 1, cR)]).then(function() {
+            finalize(p);
+        });
+        return;
+    }
+
+    var FLIP_MS = 750; // total animation duration in ms
+
+    if (dir === 'next') {
+        /* RIGHT page flips to the LEFT (spine = left edge of right page) */
+        if (!cR.width) { _busy = false; fbRender(p, null); return; }
+
+        /* 1. Copy current right page to front face of flipper */
+        copyCanvas(cR, flipF);
+
+        /* 2. Place flipper exactly over cR, origin at LEFT edge (spine side) */
+        placeFlipperOver(cR, '0%');
+        cR.style.visibility = 'hidden';
+
+        /* 3. Pre-render NEW left page on back face */
+        rndPage(p, flipB).then(function() {
+            /* 4. Pre-render new right page on cR (hidden under flipper) */
+            rndPage(p + 1, cR);
+
+            /* 5. Trigger 3D flip: rotate -180° around LEFT edge → page lands on LEFT side */
+            flipper.classList.add('flipping');
+            requestAnimationFrame(function() {
+                requestAnimationFrame(function() {
+                    flipper.style.transition = 'transform ' + FLIP_MS + 'ms cubic-bezier(0.77,0,0.175,1)';
+                    flipper.style.transform  = 'rotateY(-180deg)';
+                });
+            });
+
+            /* 6. After animation: update static left canvas and show everything */
+            setTimeout(function() {
+                flipper.style.transition = 'none';
+                flipper.style.display    = 'none';
+                flipper.classList.remove('flipping');
+                cR.style.visibility = 'visible';
+                /* Update left canvas with new page */
+                rndPage(p, cL).then(function() {
+                    rndPage(p + 1, cR).then(function() {
+                        finalize(p);
+                    });
+                });
+            }, FLIP_MS + 60);
+        });
+
+    } else { /* dir === 'prev' */
+        /* LEFT page flips to the RIGHT (spine = right edge of left page) */
+        if (!cL.width) { _busy = false; fbRender(p, null); return; }
+
+        /* 1. Copy current left page to front face */
+        copyCanvas(cL, flipF);
+
+        /* 2. Place flipper over cL, origin at RIGHT edge (spine side) */
+        placeFlipperOver(cL, '100%');
+        cL.style.visibility = 'hidden';
+
+        /* 3. Pre-render NEW right page on back face */
+        rndPage(p + 1, flipB).then(function() {
+            rndPage(p, cL); /* pre-render new left page */
+
+            flipper.classList.add('flipping');
+            requestAnimationFrame(function() {
+                requestAnimationFrame(function() {
+                    flipper.style.transition = 'transform ' + FLIP_MS + 'ms cubic-bezier(0.77,0,0.175,1)';
+                    flipper.style.transform  = 'rotateY(180deg)';
+                });
+            });
+
+            setTimeout(function() {
+                flipper.style.transition = 'none';
+                flipper.style.display    = 'none';
+                flipper.classList.remove('flipping');
+                cL.style.visibility = 'visible';
+                rndPage(p, cL).then(function() {
+                    rndPage(p + 1, cR).then(function() {
+                        finalize(p);
+                    });
+                });
+            }, FLIP_MS + 60);
+        });
+    }
+}
 
 function openFB(url, title) {
     document.getElementById('fbTitle').textContent = title;
     document.getElementById('fbDownload').href = url;
     document.getElementById('fbOverlay').classList.add('active');
     document.getElementById('fbLoading').style.display = 'flex';
-    document.getElementById('fbPages').style.opacity = '0';
-    _page = 1;
+    document.getElementById('fbScene').style.display = 'none';
+    document.body.style.overflow = 'hidden';
+    _page = 1; _busy = false;
     pdfjsLib.getDocument(url).promise.then(function(pdf) {
-        _pdf = pdf;
-        _total = pdf.numPages;
+        _pdf = pdf; _total = pdf.numPages;
         document.getElementById('fbLoading').style.display = 'none';
-        document.getElementById('fbPages').style.opacity = '1';
-        fbRender(_page);
+        document.getElementById('fbScene').style.display = 'flex';
+        fbRender(1, null);
     }).catch(function(err) {
-        document.getElementById('fbLoading').textContent = '⚠ Gagal memuat PDF. Cek koneksi & path file.';
-        console.error(err);
+        document.getElementById('fbLoading').innerHTML =
+            '&#9888; Gagal memuat PDF<br><small style="opacity:.6">' + err.message + '</small>';
     });
 }
+
 function closeFB() {
     document.getElementById('fbOverlay').classList.remove('active');
-    _pdf = null;
-    ['fbCanvasL','fbCanvasR'].forEach(function(id) {
+    document.body.style.overflow = '';
+    document.getElementById('fbFlipper').style.display = 'none';
+    _pdf = null; _busy = false;
+    ['fbCanvasL','fbCanvasR','fbFlipFront','fbFlipBack'].forEach(function(id) {
         var c = document.getElementById(id);
-        c.getContext('2d').clearRect(0,0,c.width,c.height);
+        c.getContext('2d').clearRect(0, 0, c.width, c.height);
+        c.width = 0;
     });
 }
-function fbRenderPage(num, id) {
-    if (!_pdf || num < 1 || num > _total) {
-        document.getElementById(id).style.display = 'none';
-        return Promise.resolve();
-    }
-    return _pdf.getPage(num).then(function(page) {
-        var vp = page.getViewport({ scale: _scale });
-        var c  = document.getElementById(id);
-        c.style.display = 'block';
-        c.width = vp.width; c.height = vp.height;
-        return page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
-    });
+
+function fbNav(delta) {
+    if (!_pdf || _busy) return;
+    var isNext  = delta > 0;
+    var newPage = Math.max(1, Math.min(_total, _page + delta));
+    if (newPage === _page) return;
+    _page = newPage;
+    fbRender(_page, isNext ? 'next' : 'prev');
 }
-function fbRender(p) {
-    if (!_pdf) return;
-    fbRenderPage(p, 'fbCanvasL');
-    if (p + 1 <= _total) {
-        fbRenderPage(p + 1, 'fbCanvasR');
-    } else {
-        document.getElementById('fbCanvasR').style.display = 'none';
-    }
-    var right = (p + 1 <= _total) ? '-' + (p+1) : '';
-    document.getElementById('fbPageInfo').textContent = 'Hal ' + p + right + ' / ' + _total;
-}
-function fbNext()       { if (_pdf && _page < _total) { _page++; fbRender(_page); } }
-function fbPrev()       { if (_pdf && _page > 1) { _page--; fbRender(_page); } }
-function fbNextSpread() { if (_pdf && _page + 2 <= _total) { _page += 2; fbRender(_page); } }
-function fbPrevSpread() { if (_pdf && _page - 2 >= 1) { _page -= 2; fbRender(_page); } }
-function fbZoomIn()     { _scale += 0.2; if (_pdf) fbRender(_page); }
-function fbZoomOut()    { if (_scale > 0.4) { _scale -= 0.2; if (_pdf) fbRender(_page); } }
+
+function fbZoom(d)   { _scale = Math.max(0.4, Math.min(4, _scale + d)); if (_pdf) { _busy=false; fbRender(_page, null); } }
+function fbZoomReset(){ _scale = 1.3; if (_pdf) { _busy=false; fbRender(_page, null); } }
 
 document.getElementById('fbOverlay').addEventListener('click', function(e) {
     if (e.target === this) closeFB();
 });
 document.addEventListener('keydown', function(e) {
     if (!document.getElementById('fbOverlay').classList.contains('active')) return;
-    if (e.key === 'ArrowRight') fbNext();
-    if (e.key === 'ArrowLeft')  fbPrev();
-    if (e.key === 'Escape')     closeFB();
+    if (e.key==='ArrowRight') fbNav(1);
+    if (e.key==='ArrowLeft')  fbNav(-1);
+    if (e.key==='Escape')     closeFB();
+    if (e.key==='+')          fbZoom(0.2);
+    if (e.key==='-')          fbZoom(-0.2);
 });
 
-// Filter buku berdasarkan kategori
+/* ── Category filter ── */
 function filterBooks(cat, btn) {
     document.querySelectorAll('.fb-filter-btn').forEach(function(b) { b.classList.remove('active'); });
     btn.classList.add('active');
     document.querySelectorAll('.fb-shelf-row').forEach(function(row) {
-        if (cat === 'all') {
-            row.style.display = 'flex';
-        } else {
-            row.style.display = (row.dataset.cat === cat) ? 'flex' : 'none';
-        }
+        row.style.display = (cat === 'all' || row.dataset.cat === cat) ? 'flex' : 'none';
     });
 }
 </script>
+
+

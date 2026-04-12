@@ -29,18 +29,24 @@ $koneksi_db->sql_query("
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ");
 
-// Folder upload
-$upload_dir_pdf   = '../files/flipbook/';   // path relatif dari root
-$upload_dir_cover = '../images/flipbook/';
+// Folder upload — pakai absolute path agar benar saat di-include dari admin.php
+$doc_root         = rtrim($_SERVER['DOCUMENT_ROOT'], '/\\');
+$upload_dir_pdf   = $doc_root . '/files/flipbook/';
+$upload_dir_cover = $doc_root . '/images/flipbook/';
 
 // Pastikan folder ada
 if (!is_dir($upload_dir_pdf))   @mkdir($upload_dir_pdf, 0755, true);
 if (!is_dir($upload_dir_cover)) @mkdir($upload_dir_cover, 0755, true);
 
+
 $aksi   = isset($_GET['aksi'])  ? $_GET['aksi']  : '';
 $msg    = '';
 $error  = '';
 $admin  = '';
+
+// Pesan dari redirect (hapus, toggle)
+if (isset($_GET['msg']) && $_GET['msg'] === 'hapus_ok') $msg = '🗑 Buku berhasil dihapus.';
+
 
 // ──────────────────────────────────────────────
 // ACTION: TAMBAH
@@ -85,9 +91,24 @@ if ($aksi === 'tambah' && isset($_POST['submit'])) {
         $error = 'File PDF wajib diupload.';
     }
 
-    // Upload Cover (opsional)
+    // Upload Cover (opsional) — bisa dari cropper (base64) atau file langsung
     $cover_name = '';
-    if (!$error && isset($_FILES['cover']) && $_FILES['cover']['error'] === 0) {
+    $cover_b64  = isset($_POST['cover_base64']) ? trim($_POST['cover_base64']) : '';
+
+    if (!$error && !empty($cover_b64) && strpos($cover_b64, 'data:image') === 0) {
+        // Proses base64 dari cropper
+        $b64_data    = preg_replace('#^data:image/\w+;base64,#', '', $cover_b64);
+        $img_binary  = base64_decode($b64_data);
+        if ($img_binary === false) {
+            $error = 'Data gambar cover tidak valid.';
+        } else {
+            $cover_name = 'cover_' . time() . '.jpg';
+            if (file_put_contents($upload_dir_cover . $cover_name, $img_binary) === false) {
+                $error = 'Gagal menyimpan cover ke server.';
+            }
+        }
+    } elseif (!$error && isset($_FILES['cover']) && $_FILES['cover']['error'] === 0) {
+        // Fallback: upload file biasa
         $ext_img = strtolower(pathinfo($_FILES['cover']['name'], PATHINFO_EXTENSION));
         if (!in_array($ext_img, ['jpg','jpeg','png','webp'])) {
             $error = 'Cover harus berformat JPG/PNG/WEBP.';
@@ -98,6 +119,7 @@ if ($aksi === 'tambah' && isset($_POST['submit'])) {
             }
         }
     }
+
 
     if (!$error) {
         $pdf_path = 'files/flipbook/' . $pdf_name;
@@ -117,16 +139,33 @@ if ($aksi === 'tambah' && isset($_POST['submit'])) {
 // ACTION: HAPUS
 // ──────────────────────────────────────────────
 if ($aksi === 'hapus') {
-    $id = (int)$_GET['id'];
+    // Support GET (link) dan POST (form submit dari custom modal)
+    $id  = (int)(isset($_REQUEST['id']) ? $_REQUEST['id'] : 0);
+
     $row = $koneksi_db->sql_fetchrow($koneksi_db->sql_query("SELECT * FROM mod_data_flipbook WHERE id='$id'"));
     if ($row) {
-        // Hapus file
-        if (!empty($row['file_pdf'])  && file_exists('../' . $row['file_pdf']))  @unlink('../' . $row['file_pdf']);
-        if (!empty($row['cover'])    && file_exists($upload_dir_cover . $row['cover'])) @unlink($upload_dir_cover . $row['cover']);
+        // Hapus file PDF
+        if (!empty($row['file_pdf'])) {
+            $pdf_abs = $doc_root . '/' . ltrim($row['file_pdf'], '/');
+            if (file_exists($pdf_abs)) @unlink($pdf_abs);
+        }
+        // Hapus file Cover
+        if (!empty($row['cover'])) {
+            $cover_abs = $upload_dir_cover . $row['cover'];
+            if (file_exists($cover_abs)) @unlink($cover_abs);
+        }
         $koneksi_db->sql_query("DELETE FROM mod_data_flipbook WHERE id='$id'");
-        $msg = 'Buku berhasil dihapus.';
     }
-    $aksi = '';
+    // Redirect bersih agar aksi tidak terulang saat refresh
+    $redirect_url = 'admin.php?pilih=flipbook&modul=yes&msg=hapus_ok';
+    if (!headers_sent()) {
+        header("Location: $redirect_url");
+        exit;
+    } else {
+        // Fallback JS redirect jika header sudah terlanjur dikirim
+        echo '<script>window.location.href="' . $redirect_url . '";</script>';
+        exit;
+    }
 }
 
 // ──────────────────────────────────────────────
@@ -334,29 +373,95 @@ ob_start();
 <?php
 // ──── FORM TAMBAH ─────
 if ($aksi === 'tambah'): ?>
+<!-- Cropper.js CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+<style>
+.adm-two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+@media(max-width:640px){ .adm-two-col { grid-template-columns:1fr; } }
+.adm-cover-crop-wrap {
+    border:1.5px dashed #c8ddb8; border-radius:10px;
+    padding:12px; background:#f7faf4; text-align:center;
+    min-height:180px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+}
+.adm-crop-preview-box { max-width:220px; max-height:300px; overflow:hidden; border-radius:6px; margin:10px auto 0; }
+.adm-crop-preview-box img { display:block; max-width:100%; }
+.adm-crop-btn {
+    display:inline-block; margin-top:10px; padding:7px 18px;
+    background:var(--moss-mid); color:#fff; border:none; border-radius:20px;
+    font-size:12.5px; font-weight:700; cursor:pointer;
+}
+#cropModal {
+    display:none; position:fixed; inset:0; z-index:99999;
+    background:rgba(0,0,0,.85); align-items:center; justify-content:center;
+}
+#cropModal.open { display:flex; }
+#cropModal .crop-box {
+    background:#1e2e20; border-radius:14px; padding:24px;
+    max-width:90vw; width:540px; display:flex; flex-direction:column; align-items:center; gap:16px;
+}
+#cropModal .crop-box h5 { color:#fff; margin:0; font-size:16px; }
+#cropImgEl { max-width:100%; max-height:55vh; display:block; }
+#cropModal .crop-actions { display:flex; gap:10px; }
+#cropModal .crop-actions button {
+    padding:9px 22px; border:none; border-radius:20px; font-weight:700; cursor:pointer; font-size:13px;
+}
+.crop-ok  { background:var(--moss-dark); color:#fff; }
+.crop-cancel { background:#444; color:#ccc; }
+</style>
+
+<!-- Crop Modal -->
+<div id="cropModal">
+    <div class="crop-box">
+        <h5>✂️ Potong Gambar Cover</h5>
+        <img id="cropImgEl" src="">
+        <div class="crop-actions">
+            <button class="crop-ok"     onclick="applyCrop()">✔ Pakai</button>
+            <button class="crop-cancel" onclick="cancelCrop()">✖ Batal</button>
+        </div>
+    </div>
+</div>
+
     <h4>Tambah Buku Baru</h4>
-    <form method="post" action="admin.php?pilih=flipbook&modul=yes&aksi=tambah" enctype="multipart/form-data">
-        <div class="adm-form-group">
-            <label>Judul Buku <span style="color:red">*</span></label>
-            <input type="text" name="judul" placeholder="Nama buku..." required>
-        </div>
-        <div class="adm-form-group">
-            <label>Kategori</label>
-            <input type="text" name="kategori" placeholder="Contoh: Magang, Pertukaran Mahasiswa, dll">
-        </div>
-        <div class="adm-form-group">
-            <label>Deskripsi</label>
-            <textarea name="deskripsi" rows="3" placeholder="Deskripsi singkat buku..."></textarea>
-        </div>
-        <div class="adm-form-group">
-            <label>Upload File PDF <span style="color:red">*</span></label>
-            <input type="file" name="file_pdf" accept=".pdf" required style="padding:8px;">
-            <div class="adm-file-hint">Format: PDF | Maks sesuai batas server</div>
-        </div>
-        <div class="adm-form-group">
-            <label>Cover Buku <small style="font-weight:400;color:#888">(opsional)</small></label>
-            <input type="file" name="cover" accept=".jpg,.jpeg,.png,.webp" style="padding:8px;">
-            <div class="adm-file-hint">Format: JPG/PNG | Rekomendasi: 220×300px</div>
+    <form id="frmTambah" method="post" action="admin.php?pilih=flipbook&modul=yes&aksi=tambah" enctype="multipart/form-data">
+        <div class="adm-two-col">
+            <div>
+                <div class="adm-form-group">
+                    <label>Judul Buku <span style="color:red">*</span></label>
+                    <input type="text" name="judul" placeholder="Nama buku..." required>
+                </div>
+                <div class="adm-form-group">
+                    <label>Kategori</label>
+                    <input type="text" name="kategori" placeholder="Contoh: Magang, Pertukaran Mahasiswa, dll">
+                </div>
+                <div class="adm-form-group">
+                    <label>Deskripsi</label>
+                    <textarea name="deskripsi" rows="4" placeholder="Deskripsi singkat buku..."></textarea>
+                </div>
+                <div class="adm-form-group">
+                    <label>Upload File PDF <span style="color:red">*</span></label>
+                    <input type="file" name="file_pdf" accept=".pdf" required style="padding:8px;">
+                    <div class="adm-file-hint">Format: PDF | Maks sesuai batas server</div>
+                </div>
+            </div>
+            <div>
+                <div class="adm-form-group">
+                    <label>Cover Buku <small style="font-weight:400;color:#888">(opsional)</small></label>
+                    <div class="adm-cover-crop-wrap" id="coverWrap">
+                        <div style="color:#9eac9e;font-size:13px;">📷 Pilih gambar untuk dipotong</div>
+                        <button type="button" class="adm-crop-btn" onclick="document.getElementById('rawCoverInput').click()">Pilih Gambar</button>
+                        <input type="file" id="rawCoverInput" accept="image/*" style="display:none" onchange="initCrop(this)">
+                        <div class="adm-crop-preview-box" id="coverPreviewBox" style="display:none;">
+                            <img id="coverPreviewImg" src="" alt="Preview Cover">
+                        </div>
+                        <div id="coverPreviewLabel" style="font-size:11px;color:#aaa;margin-top:6px;display:none;">220 × 300 px (rasio buku)</div>
+                    </div>
+                    <!-- hidden field: hasil crop dalam base64 -->
+                    <input type="hidden" name="cover_base64" id="coverBase64">
+                    <div class="adm-file-hint">Akan dipotong otomatis ke rasio 220:300 (portrait buku)</div>
+                </div>
+            </div>
         </div>
         <div class="adm-form-actions">
             <button type="submit" name="submit" class="adm-submit">💾 Simpan Buku</button>
@@ -364,7 +469,48 @@ if ($aksi === 'tambah'): ?>
         </div>
     </form>
 
+<script>
+var _cropper = null;
+function initCrop(input) {
+    if (!input.files || !input.files[0]) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        var img = document.getElementById('cropImgEl');
+        img.src = e.target.result;
+        document.getElementById('cropModal').classList.add('open');
+        if (_cropper) _cropper.destroy();
+        img.onload = function() {
+            _cropper = new Cropper(img, {
+                aspectRatio: 220 / 300,
+                viewMode: 1, dragMode: 'move',
+                autoCropArea: 0.9, movable: true, zoomable: true,
+                guides: true, highlight: true,
+            });
+        };
+    };
+    reader.readAsDataURL(input.files[0]);
+}
+function applyCrop() {
+    if (!_cropper) return;
+    var canvas = _cropper.getCroppedCanvas({ width: 440, height: 600, imageSmoothingQuality: 'high' });
+    var b64 = canvas.toDataURL('image/jpeg', 0.88);
+    document.getElementById('coverBase64').value = b64;
+    // Show preview
+    document.getElementById('coverPreviewImg').src = b64;
+    document.getElementById('coverPreviewBox').style.display = 'block';
+    document.getElementById('coverPreviewLabel').style.display = 'block';
+    document.getElementById('coverWrap').querySelector('div:first-child').style.display = 'none';
+    cancelCrop();
+}
+function cancelCrop() {
+    document.getElementById('cropModal').classList.remove('open');
+    if (_cropper) { _cropper.destroy(); _cropper = null; }
+    document.getElementById('rawCoverInput').value = '';
+}
+</script>
+
 <?php
+
 // ──── FORM EDIT ─────
 elseif ($aksi === 'edit' && isset($_GET['id'])):
     $id  = (int)$_GET['id'];
@@ -397,7 +543,7 @@ elseif ($aksi === 'edit' && isset($_GET['id'])):
         <div class="adm-form-group">
             <label>Ganti Cover <small style="font-weight:400;color:#888">(kosongkan jika tidak diganti)</small></label>
             <?php if (!empty($row['cover'])): ?>
-                <img src="../images/flipbook/<?= htmlspecialchars($row['cover']) ?>" height="80" style="border-radius:6px;margin-bottom:10px;display:block;">
+                <img src="/images/flipbook/<?= htmlspecialchars($row['cover']) ?>" height="80" style="border-radius:6px;margin-bottom:10px;display:block;">
             <?php endif; ?>
             <input type="file" name="cover" accept=".jpg,.jpeg,.png,.webp" style="padding:8px;">
         </div>
@@ -441,7 +587,7 @@ else:
         <tbody>
         <?php foreach ($rows as $i => $r):
             $thumb = !empty($r['cover'])
-                ? '<img src="../images/flipbook/' . htmlspecialchars($r['cover']) . '" height="50" style="border-radius:4px;">'
+                ? '<img src="/images/flipbook/' . htmlspecialchars($r['cover']) . '" height="50" style="border-radius:4px;">'
                 : '<span style="color:#ccc;font-size:22px;">📄</span>';
             $status = $r['status'] == 1
                 ? '<span class="adm-badge-aktif">✔ Aktif</span>'
@@ -458,7 +604,7 @@ else:
             <td>
                 <a href="admin.php?pilih=flipbook&modul=yes&aksi=edit&id=<?= $r['id'] ?>" class="adm-action-btn adm-btn-edit">✏ Edit</a>
                 <a href="admin.php?pilih=flipbook&modul=yes&aksi=toggle&id=<?= $r['id'] ?>" class="adm-action-btn adm-btn-toggle"><?= $r['status']==1 ? '⏸ Non' : '▶ Aktif' ?></a>
-                <a href="admin.php?pilih=flipbook&modul=yes&aksi=hapus&id=<?= $r['id'] ?>" class="adm-action-btn adm-btn-del" onclick="return confirm('Yakin hapus buku ini?')">🗑 Hapus</a>
+                <button type="button" onclick="showHapusModal(<?= $r['id'] ?>, '<?= addslashes(htmlspecialchars($r['judul'])) ?>')" class="adm-action-btn adm-btn-del">🗑 Hapus</button>
             </td>
         </tr>
         <?php endforeach; ?>
@@ -471,6 +617,64 @@ else:
 </div><!-- /.adm-card -->
 </div><!-- /.container -->
 </div><!-- /.adm-body -->
+
+<!-- ── Custom Hapus Confirm Modal ── -->
+<div id="hapusModal" style="
+    display:none; position:fixed; inset:0; z-index:99990;
+    background:rgba(0,0,0,.55); align-items:center; justify-content:center;">
+    <div style="
+        background:#fff; border-radius:16px; padding:32px 28px; max-width:380px; width:92%;
+        box-shadow:0 20px 60px rgba(0,0,0,.3); text-align:center; animation:fbSlideIn .25s ease;">
+        <div style="font-size:48px; margin-bottom:12px;">🗑️</div>
+        <h3 style="margin:0 0 8px; color:#1b2e1c; font-size:18px;">Hapus Buku?</h3>
+        <p id="hapusModalText" style="color:#666; font-size:13.5px; margin:0 0 24px; line-height:1.6;"></p>
+        <div style="display:flex; gap:10px; justify-content:center;">
+            <button onclick="closeHapusModal()"
+                style="padding:10px 24px; border-radius:20px; border:1.5px solid #ddd;
+                       background:#f5f5f5; color:#555; font-weight:700; cursor:pointer; font-size:14px;">
+                Batal
+            </button>
+            <button id="hapusConfirmBtn"
+                style="padding:10px 24px; border-radius:20px; border:none;
+                       background:#e53935; color:#fff; font-weight:700; cursor:pointer; font-size:14px;">
+                Ya, Hapus!
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden form untuk POST hapus -->
+<form id="hapusForm" method="post" action="" style="display:none;">
+    <input type="hidden" name="do_hapus" value="1">
+</form>
+
+<script>
+var _hapusId = 0;
+function showHapusModal(id, judul) {
+    _hapusId = id;
+    document.getElementById('hapusModalText').textContent = 'Buku "' + judul + '" akan dihapus permanen beserta filenya.';
+    document.getElementById('hapusModal').style.display = 'flex';
+    document.getElementById('hapusConfirmBtn').onclick = function() {
+        doHapus(id);
+    };
+}
+function closeHapusModal() {
+    document.getElementById('hapusModal').style.display = 'none';
+}
+function doHapus(id) {
+    var url = 'admin.php?pilih=flipbook&modul=yes&aksi=hapus&id=' + id;
+    document.getElementById('hapusConfirmBtn').textContent = 'Menghapus...';
+    document.getElementById('hapusConfirmBtn').disabled = true;
+    // Gunakan form POST untuk lebih reliable
+    var form = document.getElementById('hapusForm');
+    form.action = url;
+    form.submit();
+}
+// Tutup modal kalau klik backdrop
+document.getElementById('hapusModal').addEventListener('click', function(e) {
+    if (e.target === this) closeHapusModal();
+});
+</script>
 
 <?php
 $admin = ob_get_clean();
