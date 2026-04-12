@@ -346,10 +346,27 @@ $is_admin = isset($_SESSION['LevelAkses']) && $_SESSION['LevelAkses'] === 'Admin
 /* ── Book canvas area ── */
 .fb-canvas-wrap {
     flex: 1; overflow: auto;
-    display: flex; align-items: center; justify-content: center;
+    display: flex;
+    align-items:      safe center; /* ← "safe" = fallback ke flex-start saat overflow */
+    justify-content:  safe center; /* ← mencegah kiri terpotong saat zoom */
     background: #0a120b; position: relative;
     padding: 24px 16px;
+    /* Custom black grab cursor */
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 24 24'%3E%3Cpath fill='%23111' stroke='%23fff' stroke-width='.4' d='M9 3.5C9 2.67 8.33 2 7.5 2S6 2.67 6 3.5v8.32C5.53 11.3 4.86 11 4.5 11c-.83 0-1.5.67-1.5 1.5v2.41C3 17.53 5.47 20 8.59 20H11c1.45 0 2.78-.59 3.74-1.54l4.26-4.26-1.07-1.07c-.39-.39-1.02-.39-1.41 0L15 14.65V5.5C15 4.67 14.33 4 13.5 4S12 4.67 12 5.5V3.5C12 2.67 11.33 2 10.5 2S9 2.67 9 3.5z'/%3E%3C/svg%3E") 14 4, grab;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
+.fb-canvas-wrap::-webkit-scrollbar { display: none; }
+/* Grabbing cursor (while dragging) */
+.fb-canvas-wrap.is-dragging,
+.fb-canvas-wrap.is-dragging * {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 24 24'%3E%3Cpath fill='%23111' stroke='%23fff' stroke-width='.4' d='M17 8c-.55 0-1 .45-1 1 0-.55-.45-1-1-1s-1 .45-1 1V7c0-.55-.45-1-1-1s-1 .45-1 1v-1c0-.55-.45-1-1-1s-1 .45-1 1v6l-1.79-1.79a1 1 0 0 0-1.41 0l-.01.01a1 1 0 0 0 0 1.41L9 16c1 1.5 2.6 2.5 4.5 2.5H15c2.76 0 5-2.24 5-5v-3.5c0-.55-.45-1-1-1s-1 .45-1 1V9c0-.55-.45-1-1-1z'/%3E%3C/svg%3E") 14 4, grabbing !important;
+}
+/* Apply cursor to scene and canvases */
+.fb-scene, .fb-scene canvas {
+    cursor: inherit;
+}
+
 
 /* Scene: perspective container */
 .fb-scene {
@@ -359,6 +376,8 @@ $is_admin = isset($_SESSION['LevelAkses']) && $_SESSION['LevelAkses'] === 'Admin
     justify-content: center;
     perspective: 2500px;
     perspective-origin: 50% 50%;
+    flex-shrink: 0;          /* jangan diperkecil oleh flex parent */
+    min-width: max-content;  /* selalu minimal selebar konten */
 }
 
 /* Static page canvases */
@@ -694,37 +713,50 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs
 
 var _pdf = null, _page = 1, _total = 0, _scale = 1.3, _busy = false;
 
-/* ── Render a single page into a canvas element ── */
+/* ── Render a single page into a canvas element (DPR-aware) ── */
 function rndPage(num, canvas) {
     if (!_pdf || num < 1 || num > _total) {
-        if (canvas) { canvas.style.visibility = 'hidden'; canvas.width = 0; }
+        if (canvas) {
+            canvas.style.visibility = 'hidden';
+            canvas.width = 0;
+            canvas.style.width = ''; canvas.style.height = '';
+        }
         return Promise.resolve();
     }
+    var dpr = window.devicePixelRatio || 1;
     return _pdf.getPage(num).then(function(pg) {
-        var vp = pg.getViewport({ scale: _scale });
+        /* Render at physical pixel resolution for crispness */
+        var vp = pg.getViewport({ scale: _scale * dpr });
         canvas.style.visibility = 'visible';
-        canvas.width  = vp.width;
+        canvas.width  = vp.width;   /* physical px buffer */
         canvas.height = vp.height;
+        /* Scale DOWN the CSS display size to logical pixels */
+        canvas.style.width  = Math.round(vp.width  / dpr) + 'px';
+        canvas.style.height = Math.round(vp.height / dpr) + 'px';
         return pg.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
     });
 }
 
-/* Copy pixel content from one canvas to another */
+/* Copy pixel content from one canvas to another (preserves CSS display size) */
 function copyCanvas(src, dst) {
     if (!src || !src.width) return;
     dst.width  = src.width;
     dst.height = src.height;
+    /* Copy CSS display size so the flipper face matches exactly */
+    dst.style.width  = src.style.width  || src.offsetWidth  + 'px';
+    dst.style.height = src.style.height || src.offsetHeight + 'px';
     dst.getContext('2d').drawImage(src, 0, 0);
 }
 
 /* Position the flipper absolutely within the scene, over a given reference canvas */
 function placeFlipperOver(refCanvas, originX) {
-    var flipper  = document.getElementById('fbFlipper');
-    var scene    = document.getElementById('fbScene');
+    var flipper = document.getElementById('fbFlipper');
+    var scene   = document.getElementById('fbScene');
     var sr = scene.getBoundingClientRect();
     var cr = refCanvas.getBoundingClientRect();
-    var w  = refCanvas.width  || refCanvas.offsetWidth;
-    var h  = refCanvas.height || refCanvas.offsetHeight;
+    /* Use CSS (logical) size — offsetWidth accounts for DPR scaling */
+    var w = refCanvas.offsetWidth  || cr.width;
+    var h = refCanvas.offsetHeight || cr.height;
     flipper.style.cssText = [
         'display:block',
         'position:absolute',
@@ -916,6 +948,111 @@ function filterBooks(cat, btn) {
         row.style.display = (cat === 'all' || row.dataset.cat === cat) ? 'flex' : 'none';
     });
 }
+
+/* ── Drag-to-pan (momentum scrolling, event bound to document) ── */
+(function() {
+    var wrap = document.getElementById('fbCanvasWrap');
+    var isDown = false;
+    var lastX, lastY;
+    var velX = 0, velY = 0;
+    var rafId = null;
+    var FRICTION = 0.88;
+
+    function cancelMomentum() {
+        if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    }
+
+    function applyMomentum() {
+        velX *= FRICTION;
+        velY *= FRICTION;
+        wrap.scrollLeft -= velX;
+        wrap.scrollTop  -= velY;
+        if (Math.abs(velX) > 0.5 || Math.abs(velY) > 0.5) {
+            rafId = requestAnimationFrame(applyMomentum);
+        } else {
+            rafId = null;
+        }
+    }
+
+    function onDown(e) {
+        if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A') return;
+        cancelMomentum();
+        isDown = true;
+        var pt = e.touches ? e.touches[0] : e;
+        lastX = pt.clientX;
+        lastY = pt.clientY;
+        velX = 0; velY = 0;
+        wrap.classList.add('is-dragging');
+        wrap.style.userSelect = 'none';
+        e.preventDefault();
+    }
+
+    function onMove(e) {
+        if (!isDown) return;
+        e.preventDefault();
+        var pt = e.touches ? e.touches[0] : e;
+        var dx = pt.clientX - lastX;
+        var dy = pt.clientY - lastY;
+        velX = velX * 0.4 + dx * 0.6;
+        velY = velY * 0.4 + dy * 0.6;
+        wrap.scrollLeft -= dx;
+        wrap.scrollTop  -= dy;
+        lastX = pt.clientX;
+        lastY = pt.clientY;
+    }
+
+    function onUp() {
+        if (!isDown) return;
+        isDown = false;
+        wrap.classList.remove('is-dragging');
+        wrap.style.userSelect = '';
+        if (Math.abs(velX) > 1.5 || Math.abs(velY) > 1.5) {
+            rafId = requestAnimationFrame(applyMomentum);
+        }
+    }
+
+    /* mousedown on wrap, move+up on document — drag never stops */
+    wrap.addEventListener('mousedown', onDown, { passive: false });
+    document.addEventListener('mousemove', onMove, { passive: false });
+    document.addEventListener('mouseup', onUp);
+
+    /* Touch */
+    wrap.addEventListener('touchstart',  onDown, { passive: false });
+    wrap.addEventListener('touchmove',   onMove, { passive: false });
+    wrap.addEventListener('touchend',    onUp);
+    /* touchcancel */
+    wrap.addEventListener('touchcancel', onUp);
+
+    /* ── Mouse Wheel Zoom (zoom-to-cursor) ── */
+    wrap.addEventListener('wheel', function(e) {
+        e.preventDefault();
+        if (!_pdf) return;
+        cancelMomentum();
+
+        var STEP   = 0.15;
+        var oldScale = _scale;
+        _scale = Math.max(0.4, Math.min(4.0, _scale + (e.deltaY < 0 ? STEP : -STEP)));
+        if (_scale === oldScale) return;
+
+        /* Zoom-to-cursor: keep the point under the mouse cursor fixed */
+        var wRect  = wrap.getBoundingClientRect();
+        /* where the cursor is in the scroll viewport */
+        var curX   = e.clientX - wRect.left + wrap.scrollLeft;
+        var curY   = e.clientY - wRect.top  + wrap.scrollTop;
+        var ratio  = _scale / oldScale;
+
+        _busy = false;
+        fbRender(_page, null);
+        /* After re-render: adjust scroll so cursor stays over same content point */
+        /* Use a small rAF delay to let the DOM update first */
+        requestAnimationFrame(function() {
+            wrap.scrollLeft = Math.round(curX * ratio - (e.clientX - wRect.left));
+            wrap.scrollTop  = Math.round(curY * ratio - (e.clientY - wRect.top));
+        });
+    }, { passive: false });
+})();
+
+
 </script>
 
 
