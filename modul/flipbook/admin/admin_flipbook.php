@@ -169,128 +169,249 @@ if ($aksi === 'edit' && isset($_POST['submit'])) {
 }
 
 // ─────────────────────── RENDER HTML ──────────────────────────────
-// ─────────────────────── RENDER HTML ──────────────────────────────
-$admin .= '<div style="background:var(--white); padding:30px; border-radius:12px; box-shadow:var(--shadow-md);">';
-$admin .= '<h3 style="color:var(--moss-dark); font-weight:bold; margin-top:0; margin-bottom:20px; font-size:24px;">Manajemen E-Book / Flipbook</h3>';
-$admin .= '<p style="margin-bottom:25px;"><a href="admin.php?pilih=flipbook&modul=yes" style="display:inline-block; padding:8px 16px; background:#f4f4f4; color:#333; text-decoration:none; border-radius:4px; font-weight:600; margin-right:10px;">📋 Daftar Buku</a> <a href="admin.php?pilih=flipbook&modul=yes&aksi=tambah" style="display:inline-block; padding:8px 16px; background:var(--moss-dark); color:white; text-decoration:none; border-radius:4px; font-weight:600;">&#43; Tambah Buku</a></p>';
+ob_start();
+?>
+<style>
+/* ─── Layout override ─── */
+.blog-right { display:none !important; }
+.col-sm-8.blog-left { width:100% !important; padding:0 !important; }
+.blog-wrapper { background:transparent !important; padding:0 !important; margin-top:0 !important; }
 
-if ($msg)   $admin .= '<div class="sukses">' . $msg . '</div>';
-if ($error) $admin .= '<div class="error">' . $error . '</div>';
+/* ─── CSS Variables ─── */
+:root {
+    --moss-dark : #306238; --moss-mid : #618D4F; --moss-light: #9EBB97;
+    --moss-bg   : #DDE5CD; --moss-olive: #545837; --white: #ffffff;
+    --shadow-sm : 0 2px 12px rgba(48,98,56,.10);
+    --shadow-md : 0 6px 28px rgba(48,98,56,.16);
+    --radius-md : 14px; --transition: all .28s cubic-bezier(.4,0,.2,1);
+}
 
+/* ─── Admin Hero ─── */
+.adm-hero {
+    background: linear-gradient(135deg, var(--moss-dark) 0%, var(--moss-olive) 100%);
+    padding: 40px 0 32px; text-align: center; margin-bottom: 0;
+    position: relative; overflow: hidden;
+}
+.adm-hero::before {
+    content:''; position:absolute; top:-60px; right:-60px;
+    width:260px; height:260px; border-radius:50%;
+    background: rgba(255,255,255,.04);
+}
+.adm-hero-label {
+    display:inline-block; color:var(--moss-bg);
+    font-size:10.5px; font-weight:700; text-transform:uppercase;
+    letter-spacing:3px; background:rgba(255,255,255,.1);
+    padding:3px 14px; border-radius:20px; margin-bottom:12px;
+}
+.adm-hero h1 {
+    color:#fff; font-size:26px; font-weight:900;
+    margin:0 0 20px; letter-spacing:-0.5px;
+}
+.adm-btns { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+.adm-btn {
+    display:inline-flex; align-items:center; gap:7px;
+    padding:10px 22px; border-radius:30px;
+    font-weight:700; font-size:13px; text-decoration:none;
+    transition:var(--transition); box-shadow:0 3px 12px rgba(0,0,0,.2);
+}
+.adm-btn:hover { transform:translateY(-2px); text-decoration:none; }
+.adm-btn-primary { background:#fff; color:var(--moss-dark); }
+.adm-btn-primary:hover { background:var(--moss-bg); color:var(--moss-dark); }
+.adm-btn-add { background:var(--moss-mid); color:#fff; }
+.adm-btn-add:hover { background:#7fad6e; color:#fff; }
+.adm-btn-view { background:rgba(255,255,255,.15); color:#fff; border:1px solid rgba(255,255,255,.3); }
+.adm-btn-view:hover { background:rgba(255,255,255,.25); color:#fff; }
+
+/* ─── Content area ─── */
+.adm-body { background:linear-gradient(180deg,#f0f4ed,#e8ece4); min-height:50vh; padding:36px 0 60px; }
+.adm-card {
+    background:#fff; border-radius:var(--radius-md);
+    box-shadow:var(--shadow-md); padding:32px;
+}
+.adm-card h4 {
+    color:var(--moss-dark); font-size:18px; font-weight:800;
+    margin:0 0 22px; padding-bottom:14px;
+    border-bottom:2px solid var(--moss-bg);
+}
+
+/* ─── Form fields ─── */
+.adm-form-group { margin-bottom:18px; }
+.adm-form-group label {
+    display:block; font-size:13px; font-weight:700;
+    color:#444; margin-bottom:6px;
+}
+.adm-form-group input[type=text],
+.adm-form-group textarea,
+.adm-form-group select {
+    width:100%; padding:10px 14px;
+    border:1.5px solid #d8e4d0; border-radius:8px;
+    font-size:14px; color:#333; background:#fafef9;
+    transition:var(--transition); box-sizing:border-box;
+}
+.adm-form-group input:focus,
+.adm-form-group textarea:focus { border-color:var(--moss-mid); outline:none; }
+.adm-file-hint { font-size:11.5px; color:#888; margin-top:5px; }
+.adm-form-actions { display:flex; gap:10px; margin-top:24px; flex-wrap:wrap; }
+.adm-submit {
+    padding:11px 28px; background:var(--moss-dark); color:#fff;
+    border:none; border-radius:30px; font-weight:700; font-size:14px;
+    cursor:pointer; transition:var(--transition);
+}
+.adm-submit:hover { background:var(--moss-mid); }
+.adm-cancel {
+    padding:11px 24px; background:#f0f4ed; color:var(--moss-dark);
+    border-radius:30px; font-weight:600; font-size:14px;
+    text-decoration:none; transition:var(--transition);
+}
+.adm-cancel:hover { background:var(--moss-bg); text-decoration:none; color:var(--moss-dark); }
+
+/* ─── Table ─── */
+.adm-table { width:100%; border-collapse:collapse; font-size:13.5px; }
+.adm-table thead tr { background:var(--moss-dark); color:#fff; }
+.adm-table th { padding:12px 14px; font-weight:700; text-align:left; }
+.adm-table tbody tr { border-bottom:1px solid #eef3e8; transition:background .15s; }
+.adm-table tbody tr:hover { background:#f7faf4; }
+.adm-table td { padding:11px 14px; vertical-align:middle; }
+.adm-badge-aktif  { color:#2e7d32; font-weight:700; font-size:12px; }
+.adm-badge-nonaktif { color:#c62828; font-weight:700; font-size:12px; }
+.adm-action-btn {
+    display:inline-block; padding:5px 12px; border-radius:20px;
+    font-size:11.5px; font-weight:700; text-decoration:none;
+    margin:2px; transition:var(--transition);
+}
+.adm-btn-edit   { background:#fff3cd; color:#856404; }
+.adm-btn-edit:hover   { background:#ffc107; color:#fff; text-decoration:none; }
+.adm-btn-toggle { background:#e3f2fd; color:#1565c0; }
+.adm-btn-toggle:hover { background:#2196f3; color:#fff; text-decoration:none; }
+.adm-btn-del    { background:#ffebee; color:#c62828; }
+.adm-btn-del:hover    { background:#f44336; color:#fff; text-decoration:none; }
+
+.adm-msg-ok  { background:#e8f5e9; border-left:4px solid var(--moss-mid); color:#2e7d32; padding:14px 18px; border-radius:8px; margin-bottom:20px; font-weight:600; }
+.adm-msg-err { background:#ffebee; border-left:4px solid #f44336; color:#c62828; padding:14px 18px; border-radius:8px; margin-bottom:20px; font-weight:600; }
+.adm-empty { text-align:center; padding:60px 20px; color:#9eac9e; font-size:14px; }
+.adm-empty span { display:block; font-size:48px; margin-bottom:12px; }
+</style>
+
+<!-- ADMIN HERO -->
+<div class="adm-hero">
+    <div class="container">
+        <span class="adm-hero-label">Panel Admin</span>
+        <h1>📚 Manajemen E-Book &amp; Flipbook</h1>
+        <div class="adm-btns">
+            <a href="admin.php?pilih=flipbook&modul=yes" class="adm-btn adm-btn-primary">📋 Daftar Buku</a>
+            <a href="admin.php?pilih=flipbook&modul=yes&aksi=tambah" class="adm-btn adm-btn-add">&#43; Tambah Buku</a>
+            <a href="index.php?pilih=flipbook&modul=yes" target="_blank" class="adm-btn adm-btn-view">👁 Lihat Halaman Publik</a>
+        </div>
+    </div>
+</div>
+
+<!-- ADMIN BODY -->
+<div class="adm-body">
+<div class="container">
+<div class="adm-card">
+
+<?php if ($msg):   ?><div class="adm-msg-ok"><?= $msg ?></div><?php endif; ?>
+<?php if ($error): ?><div class="adm-msg-err"><?= $error ?></div><?php endif; ?>
+
+<?php
 // ──── FORM TAMBAH ─────
-if ($aksi === 'tambah') {
-    $admin .= '
-    <div style="border:1px solid #ddd; padding:20px; border-radius:8px; background:#fafafa; margin-bottom:30px;">
-        <h4 style="margin-top:0; font-weight:bold;">Tambah Buku Baru</h4>
-        <form method="post" action="admin.php?pilih=flipbook&modul=yes&aksi=tambah" enctype="multipart/form-data">
-        <table width="100%" cellpadding="6">
-            <tr>
-                <td width="150">Judul Buku <span style="color:red">*</span></td>
-                <td><input type="text" name="judul" style="width:100%;" required></td>
-            </tr>
-            <tr>
-                <td>Kategori</td>
-                <td><input type="text" name="kategori" style="width:100%;" placeholder="Contoh: Magang, Pertukaran, dll"></td>
-            </tr>
-            <tr>
-                <td>Deskripsi</td>
-                <td><textarea name="deskripsi" rows="3" style="width:100%;"></textarea></td>
-            </tr>
-            <tr>
-                <td>Upload PDF <span style="color:red">*</span></td>
-                <td>
-                    <input type="file" name="file_pdf" accept=".pdf" required>
-                    <br><small style="color:#999">Format: PDF | Max: sesuai php.ini</small>
-                </td>
-            </tr>
-            <tr>
-                <td>Cover Buku</td>
-                <td>
-                    <input type="file" name="cover" accept=".jpg,.jpeg,.png,.webp">
-                    <br><small style="color:#999">Opsional. Format: JPG/PNG. Rekomendasi: 220x300px</small>
-                </td>
-            </tr>
-            <tr>
-                <td></td>
-                <td>
-                    <input type="submit" name="submit" value="Simpan Buku" class="btn btn-primary">
-                    <a href="admin.php?pilih=flipbook&modul=yes" class="btn btn-default">Batal</a>
-                </td>
-            </tr>
-        </table>
+if ($aksi === 'tambah'): ?>
+    <h4>Tambah Buku Baru</h4>
+    <form method="post" action="admin.php?pilih=flipbook&modul=yes&aksi=tambah" enctype="multipart/form-data">
+        <div class="adm-form-group">
+            <label>Judul Buku <span style="color:red">*</span></label>
+            <input type="text" name="judul" placeholder="Nama buku..." required>
+        </div>
+        <div class="adm-form-group">
+            <label>Kategori</label>
+            <input type="text" name="kategori" placeholder="Contoh: Magang, Pertukaran Mahasiswa, dll">
+        </div>
+        <div class="adm-form-group">
+            <label>Deskripsi</label>
+            <textarea name="deskripsi" rows="3" placeholder="Deskripsi singkat buku..."></textarea>
+        </div>
+        <div class="adm-form-group">
+            <label>Upload File PDF <span style="color:red">*</span></label>
+            <input type="file" name="file_pdf" accept=".pdf" required style="padding:8px;">
+            <div class="adm-file-hint">Format: PDF | Maks sesuai batas server</div>
+        </div>
+        <div class="adm-form-group">
+            <label>Cover Buku <small style="font-weight:400;color:#888">(opsional)</small></label>
+            <input type="file" name="cover" accept=".jpg,.jpeg,.png,.webp" style="padding:8px;">
+            <div class="adm-file-hint">Format: JPG/PNG | Rekomendasi: 220×300px</div>
+        </div>
+        <div class="adm-form-actions">
+            <button type="submit" name="submit" class="adm-submit">💾 Simpan Buku</button>
+            <a href="admin.php?pilih=flipbook&modul=yes" class="adm-cancel">Batal</a>
+        </div>
     </form>
-    </div>';
-}
 
+<?php
 // ──── FORM EDIT ─────
-elseif ($aksi === 'edit' && isset($_GET['id'])) {
-    $id = (int)$_GET['id'];
+elseif ($aksi === 'edit' && isset($_GET['id'])):
+    $id  = (int)$_GET['id'];
     $row = $koneksi_db->sql_fetchrow($koneksi_db->sql_query("SELECT * FROM mod_data_flipbook WHERE id='$id'"));
-    if ($row) {
-        $jdl  = htmlspecialchars($row['judul']);
-        $dsk  = htmlspecialchars($row['deskripsi']);
-        $kat  = htmlspecialchars($row['kategori']);
-        $admin .= '
-        <div style="border:1px solid #ddd; padding:20px; border-radius:8px; background:#fafafa; margin-bottom:30px;">
-            <h4 style="margin-top:0; font-weight:bold;">Edit Buku</h4>
-            <form method="post" action="admin.php?pilih=flipbook&modul=yes&aksi=edit" enctype="multipart/form-data">
-            <input type="hidden" name="id" value="' . $id . '">
-            <table width="100%" cellpadding="6">
-                <tr>
-                    <td width="150">Judul Buku</td>
-                    <td><input type="text" name="judul" value="' . $jdl . '" style="width:100%;" required></td>
-                </tr>
-                <tr>
-                    <td>Kategori</td>
-                    <td><input type="text" name="kategori" value="' . $kat . '" style="width:100%;"></td>
-                </tr>
-                <tr>
-                    <td>Deskripsi</td>
-                    <td><textarea name="deskripsi" rows="3" style="width:100%;">' . $dsk . '</textarea></td>
-                </tr>
-                <tr>
-                    <td>Ganti PDF</td>
-                    <td>
-                        <input type="file" name="file_pdf" accept=".pdf">
-                        <br><small style="color:#999">Kosongkan jika tidak ingin mengganti. File saat ini: <b>' . htmlspecialchars($row['file_pdf']) . '</b></small>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Ganti Cover</td>
-                    <td>
-                        ' . (!empty($row['cover']) ? '<img src="../images/flipbook/' . htmlspecialchars($row['cover']) . '" height="80" style="margin-bottom:8px;display:block;"><br>' : '') . '
-                        <input type="file" name="cover" accept=".jpg,.jpeg,.png,.webp">
-                        <br><small style="color:#999">Kosongkan jika tidak ingin mengganti.</small>
-                    </td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td>
-                        <input type="submit" name="submit" value="Update Buku" class="btn btn-primary">
-                        <a href="admin.php?pilih=admin_flipbook" class="btn btn-default">Batal</a>
-                    </td>
-                </tr>
-            </table>
-        </form>
-        </div>';
-    } else {
-        $admin .= '<div class="error">Data tidak ditemukan.</div>';
-    }
-}
+    if ($row):
+        $jdl = htmlspecialchars($row['judul']);
+        $dsk = htmlspecialchars($row['deskripsi']);
+        $kat = htmlspecialchars($row['kategori']);
+?>
+    <h4>Edit Buku</h4>
+    <form method="post" action="admin.php?pilih=flipbook&modul=yes&aksi=edit" enctype="multipart/form-data">
+        <input type="hidden" name="id" value="<?= $id ?>">
+        <div class="adm-form-group">
+            <label>Judul Buku</label>
+            <input type="text" name="judul" value="<?= $jdl ?>" required>
+        </div>
+        <div class="adm-form-group">
+            <label>Kategori</label>
+            <input type="text" name="kategori" value="<?= $kat ?>">
+        </div>
+        <div class="adm-form-group">
+            <label>Deskripsi</label>
+            <textarea name="deskripsi" rows="3"><?= $dsk ?></textarea>
+        </div>
+        <div class="adm-form-group">
+            <label>Ganti PDF <small style="font-weight:400;color:#888">(kosongkan jika tidak diganti)</small></label>
+            <input type="file" name="file_pdf" accept=".pdf" style="padding:8px;">
+            <div class="adm-file-hint">File saat ini: <b><?= htmlspecialchars($row['file_pdf']) ?></b></div>
+        </div>
+        <div class="adm-form-group">
+            <label>Ganti Cover <small style="font-weight:400;color:#888">(kosongkan jika tidak diganti)</small></label>
+            <?php if (!empty($row['cover'])): ?>
+                <img src="../images/flipbook/<?= htmlspecialchars($row['cover']) ?>" height="80" style="border-radius:6px;margin-bottom:10px;display:block;">
+            <?php endif; ?>
+            <input type="file" name="cover" accept=".jpg,.jpeg,.png,.webp" style="padding:8px;">
+        </div>
+        <div class="adm-form-actions">
+            <button type="submit" name="submit" class="adm-submit">💾 Update Buku</button>
+            <a href="admin.php?pilih=flipbook&modul=yes" class="adm-cancel">Batal</a>
+        </div>
+    </form>
+<?php
+    else: ?>
+    <div class="adm-msg-err">Data tidak ditemukan.</div>
+<?php endif;
 
 // ──── LIST DATA ─────
-else {
+else:
     $rows = [];
     $q_list = $koneksi_db->sql_query("SELECT * FROM mod_data_flipbook ORDER BY ordering ASC, id DESC");
     while ($r = $koneksi_db->sql_fetchrow($q_list)) $rows[] = $r;
-
-    $admin .= '
-    <div class="table-responsive">
-    <table class="table table-hover table-bordered">
+?>
+    <h4>Daftar Buku (<?= count($rows) ?> buku)</h4>
+    <?php if (empty($rows)): ?>
+    <div class="adm-empty">
+        <span>📚</span>
+        Belum ada buku. Klik <b>+ Tambah Buku</b> untuk mulai upload.
+    </div>
+    <?php else: ?>
+    <div style="overflow-x:auto;">
+    <table class="adm-table">
         <thead>
             <tr>
-                <th>No</th>
-                <th>Cover</th>
+                <th style="width:40px">No</th>
+                <th style="width:70px">Cover</th>
                 <th>Judul</th>
                 <th>Kategori</th>
                 <th>PDF</th>
@@ -299,40 +420,42 @@ else {
                 <th>Aksi</th>
             </tr>
         </thead>
-        <tbody>';
+        <tbody>
+        <?php foreach ($rows as $i => $r):
+            $thumb = !empty($r['cover'])
+                ? '<img src="../images/flipbook/' . htmlspecialchars($r['cover']) . '" height="50" style="border-radius:4px;">'
+                : '<span style="color:#ccc;font-size:22px;">📄</span>';
+            $status = $r['status'] == 1
+                ? '<span class="adm-badge-aktif">✔ Aktif</span>'
+                : '<span class="adm-badge-nonaktif">✘ Non</span>';
+        ?>
+        <tr>
+            <td><?= $i+1 ?></td>
+            <td><?= $thumb ?></td>
+            <td><b><?= htmlspecialchars($r['judul']) ?></b></td>
+            <td><small><?= htmlspecialchars($r['kategori']) ?: '-' ?></small></td>
+            <td><a href="../<?= htmlspecialchars($r['file_pdf']) ?>" target="_blank" class="adm-action-btn" style="background:#e8f5e9;color:var(--moss-dark);">📄 Lihat</a></td>
+            <td style="font-size:12px;"><?= date('d M Y', strtotime($r['tanggal'])) ?></td>
+            <td><?= $status ?></td>
+            <td>
+                <a href="admin.php?pilih=flipbook&modul=yes&aksi=edit&id=<?= $r['id'] ?>" class="adm-action-btn adm-btn-edit">✏ Edit</a>
+                <a href="admin.php?pilih=flipbook&modul=yes&aksi=toggle&id=<?= $r['id'] ?>" class="adm-action-btn adm-btn-toggle"><?= $r['status']==1 ? '⏸ Non' : '▶ Aktif' ?></a>
+                <a href="admin.php?pilih=flipbook&modul=yes&aksi=hapus&id=<?= $r['id'] ?>" class="adm-action-btn adm-btn-del" onclick="return confirm('Yakin hapus buku ini?')">🗑 Hapus</a>
+            </td>
+        </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
+    </div>
+    <?php endif; ?>
+<?php endif; ?>
 
-    if (empty($rows)) {
-        $admin .= '<tr><td colspan="8" style="text-align:center;">Belum ada data.</td></tr>';
-    }
+</div><!-- /.adm-card -->
+</div><!-- /.container -->
+</div><!-- /.adm-body -->
 
-    foreach ($rows as $i => $r) {
-        $status_label = $r['status'] == 1
-            ? '<span style="color:green;">&#10004; Aktif</span>'
-            : '<span style="color:red;">&#10006; Nonaktif</span>';
-        $thumb = !empty($r['cover'])
-            ? '<img src="../images/flipbook/' . htmlspecialchars($r['cover']) . '" height="50" style="border-radius:3px;">'
-            : '<span style="color:#bbb; font-size:12px;">No Cover</span>';
-
-        $admin .= '
-            <tr>
-                <td>' . ($i+1) . '</td>
-                <td>' . $thumb . '</td>
-                <td><b>' . htmlspecialchars($r['judul']) . '</b></td>
-                <td>' . htmlspecialchars($r['kategori']) . '</td>
-                <td><a href="../' . htmlspecialchars($r['file_pdf']) . '" target="_blank" style="font-size:12px;">&#128196; Lihat PDF</a></td>
-                <td style="font-size:12px;">' . date('d M Y', strtotime($r['tanggal'])) . '</td>
-                <td>' . $status_label . '</td>
-                <td>
-                    <a href="admin.php?pilih=flipbook&modul=yes&aksi=edit&id=' . $r['id'] . '" class="btn btn-xs btn-warning" style="margin:2px;">Edit</a>
-                    <a href="admin.php?pilih=flipbook&modul=yes&aksi=toggle&id=' . $r['id'] . '" class="btn btn-xs btn-info" style="margin:2px;">' . ($r['status']==1 ? 'Nonaktifkan' : 'Aktifkan') . '</a>
-                    <a href="admin.php?pilih=flipbook&modul=yes&aksi=hapus&id=' . $r['id'] . '" class="btn btn-xs btn-danger" style="margin:2px;" onclick="return confirm(\'Yakin hapus buku ini?\')">Hapus</a>
-                </td>
-            </tr>';
-    }
-
-    $admin .= '</tbody></table></div>';
-}
-
-$admin .= '</div>'; // End wrapper div
+<?php
+$admin = ob_get_clean();
 echo $admin;
 ?>
+
