@@ -20,7 +20,7 @@ $_GET['aksi'] = !isset($_GET['aksi']) ? null : $_GET['aksi'];
 $cek = '';
 if (!cek_login ()){
    	$cek ='<div class="error"><font class="option">You Must Login First If Not Yet Have Account Please Register.</div>';
-   	header ("location:index.php");
+   	header ("location:admin.html");
 	    exit;
 
 }else{
