@@ -1699,7 +1699,7 @@ $_SESSION['UserName']= $data['user'];
 $_SESSION['LevelAkses']= $data['level'];
 $_SESSION['UserEmail']= $data['email'];
 if($_SESSION['LevelAkses']=="Administrator"){
-header ("location:admin.php");
+header ("location:dashboard.php");
 exit;
 }else{
 header ("location:index.php");
