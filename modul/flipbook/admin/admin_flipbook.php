@@ -46,25 +46,42 @@ $admin  = '';
 // ACTION: TAMBAH
 // ──────────────────────────────────────────────
 if ($aksi === 'tambah' && isset($_POST['submit'])) {
-    $judul     = isset($_POST['judul'])     ? trim(mysqli_real_escape_string($koneksi_db->_db_link, $_POST['judul'])) : '';
-    $deskripsi = isset($_POST['deskripsi']) ? trim(mysqli_real_escape_string($koneksi_db->_db_link, $_POST['deskripsi'])) : '';
-    $kategori  = isset($_POST['kategori']) ? trim(mysqli_real_escape_string($koneksi_db->_db_link, $_POST['kategori'])) : '';
+    $judul     = isset($_POST['judul'])     ? trim(cleantext($_POST['judul']))     : '';
+    $deskripsi = isset($_POST['deskripsi']) ? trim(cleantext($_POST['deskripsi'])) : '';
+    $kategori  = isset($_POST['kategori'])  ? trim(cleantext($_POST['kategori']))  : '';
+
 
     if (empty($judul)) { $error = 'Judul tidak boleh kosong.'; }
 
     // Upload PDF
     $pdf_name = '';
-    if (!$error && isset($_FILES['file_pdf']) && $_FILES['file_pdf']['error'] === 0) {
-        $ext_pdf = strtolower(pathinfo($_FILES['file_pdf']['name'], PATHINFO_EXTENSION));
-        if ($ext_pdf !== 'pdf') {
-            $error = 'File harus berformat PDF.';
-        } else {
-            $pdf_name = time() . '_' . preg_replace('/[^a-z0-9_.]/', '_', strtolower($_FILES['file_pdf']['name']));
-            if (!move_uploaded_file($_FILES['file_pdf']['tmp_name'], $upload_dir_pdf . $pdf_name)) {
-                $error = 'Gagal upload PDF. Periksa permission folder files/flipbook/';
+    $upload_errors = [
+        UPLOAD_ERR_INI_SIZE   => 'File PDF terlalu besar (melebihi batas upload_max_filesize server: ' . ini_get('upload_max_filesize') . ').',
+        UPLOAD_ERR_FORM_SIZE  => 'File PDF terlalu besar (melebihi batas form MAX_FILE_SIZE).',
+        UPLOAD_ERR_PARTIAL    => 'Upload PDF tidak lengkap, coba lagi.',
+        UPLOAD_ERR_NO_FILE    => 'File PDF wajib dipilih dan diupload.',
+        UPLOAD_ERR_NO_TMP_DIR => 'Folder temporary server tidak ditemukan.',
+        UPLOAD_ERR_CANT_WRITE => 'Gagal menulis file ke server.',
+        UPLOAD_ERR_EXTENSION  => 'Upload diblokir oleh ekstensi PHP.',
+    ];
+    if (!$error && isset($_FILES['file_pdf'])) {
+        $file_err_code = $_FILES['file_pdf']['error'];
+        if ($file_err_code === UPLOAD_ERR_OK) {
+            $ext_pdf = strtolower(pathinfo($_FILES['file_pdf']['name'], PATHINFO_EXTENSION));
+            if ($ext_pdf !== 'pdf') {
+                $error = 'File harus berformat PDF. File yang dipilih: <b>' . htmlspecialchars($_FILES['file_pdf']['name']) . '</b>';
+            } else {
+                $pdf_name = time() . '_' . preg_replace('/[^a-z0-9_.]/', '_', strtolower($_FILES['file_pdf']['name']));
+                if (!move_uploaded_file($_FILES['file_pdf']['tmp_name'], $upload_dir_pdf . $pdf_name)) {
+                    $error = 'Gagal menyimpan PDF ke folder <b>' . $upload_dir_pdf . '</b>. Periksa permission folder di server.';
+                }
             }
+        } else {
+            $error = isset($upload_errors[$file_err_code])
+                ? $upload_errors[$file_err_code]
+                : 'Upload gagal dengan kode error: ' . $file_err_code;
         }
-    } else if (!$error) {
+    } elseif (!$error) {
         $error = 'File PDF wajib diupload.';
     }
 
@@ -131,9 +148,10 @@ if ($aksi === 'toggle') {
 // ──────────────────────────────────────────────
 if ($aksi === 'edit' && isset($_POST['submit'])) {
     $id        = (int)$_POST['id'];
-    $judul     = trim(mysqli_real_escape_string($koneksi_db->_db_link, $_POST['judul']));
-    $deskripsi = trim(mysqli_real_escape_string($koneksi_db->_db_link, $_POST['deskripsi']));
-    $kategori  = trim(mysqli_real_escape_string($koneksi_db->_db_link, $_POST['kategori']));
+    $judul     = trim(cleantext($_POST['judul']));
+    $deskripsi = trim(cleantext($_POST['deskripsi']));
+    $kategori  = trim(cleantext($_POST['kategori']));
+
     $row       = $koneksi_db->sql_fetchrow($koneksi_db->sql_query("SELECT * FROM mod_data_flipbook WHERE id='$id'"));
 
     // Re-upload PDF (opsional, jika ada file baru)
