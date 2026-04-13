@@ -124,6 +124,20 @@ header.custom-header-main {
             <li><a href="#">Tautan</a></li>
             <li><a href="#"><i class="fa fa-globe"></i></a></li>
             <li><a href="#"><i class="fa fa-instagram"></i></a></li>
+';
+
+// Tambahkan tombol Dashboard jika admin login
+if (isset($_SESSION['LevelAkses']) && $_SESSION['LevelAkses'] === 'Administrator') {
+    echo '
+            <li>
+                <a href="admin.html" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);padding:8px 18px;border-radius:30px;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:6px;transition:all .3s">
+                    <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+                    Dashboard
+                </a>
+            </li>';
+}
+
+echo '
         </ul>
 
     </div>

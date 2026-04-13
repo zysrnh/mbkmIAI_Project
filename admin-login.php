@@ -1,7 +1,7 @@
 <?php
 /*
  * Modern Admin Login — Standalone Fullpage
- * Loaded via CMS routing: admin.html → index.php?pilih=siteadmin&modul=yes
+ * Pointed by .htaccess: admin.html → admin-login.php
  */
 
 // Session should already be started by CMS, but guard for standalone access
@@ -40,6 +40,7 @@ if (isset($_POST['submit_login']) && @$_POST['loguser'] == 1) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Admin — MBKM IAI PI Bandung</title>
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
@@ -265,27 +266,6 @@ if (isset($_POST['submit_login']) && @$_POST['loguser'] == 1) {
         </div>
         <h1>MBKM IAI PI Bandung</h1>
         <p>Sistem Informasi Merdeka Belajar Kampus Merdeka — Institut Agama Islam Persatuan Islam Bandung</p>
-
-        <div class="left-features">
-            <div class="left-feature">
-                <div class="left-feature-icon">
-                    <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
-                </div>
-                Kelola E-Book & Flipbook Digital
-            </div>
-            <div class="left-feature">
-                <div class="left-feature-icon">
-                    <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-                </div>
-                Manajemen Pengguna & Hak Akses
-            </div>
-            <div class="left-feature">
-                <div class="left-feature-icon">
-                    <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
-                </div>
-                Dashboard Analitik Realtime
-            </div>
-        </div>
     </div>
 </div>
 

@@ -20,7 +20,7 @@ RewriteRule ^$ /index.php [L]
 
 
 
-RewriteRule ^admin.html$ ./index.php?pilih=siteadmin&modul=yes [QSA,L]
+RewriteRule ^admin.html$ ./admin-login.php [QSA,L]
 
 RewriteRule ^dosen.html$ ./index.php?pilih=dosen&modul=yes [QSA,L]
 RewriteRule ^dosen/(.+)/([^/.]{1,}).html$ ./index.php?pilih=dosen&modul=yes&action=detail&id=$1 [QSA,L]
