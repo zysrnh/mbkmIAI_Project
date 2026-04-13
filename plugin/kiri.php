@@ -1,6 +1,5 @@
 <?php global $koneksi_db; ?>
 
-<!-- Tailwind CSS CDN (Play) — prefixed tw- to avoid conflicts -->
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
 tailwind.config = {
@@ -18,15 +17,34 @@ tailwind.config = {
 
 <style>
 /* ============================================================
-   LANDING PAGE MBKM IAI PI BANDUNG
-   Color Palette:
-   --moss-dark    : #306238  (Deep Moss Green)
-   --moss-mid     : #618D4F  (Middle Green)
-   --moss-light   : #9EBB97  (Laurel Green)
-   --moss-bg      : #DDE5CD  (Dirty White)
-   --moss-olive   : #545837  (Olive Drab Camouflage)
+   LANDING PAGE — MBKM IAI PI BANDUNG
+   Palette: --moss-dark #306238 | --moss-mid #618D4F |
+            --moss-light #9EBB97 | --moss-bg #DDE5CD | --moss-olive #545837
    ============================================================ */
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+    --moss-dark  : #306238;
+    --moss-mid   : #618D4F;
+    --moss-light : #9EBB97;
+    --moss-bg    : #DDE5CD;
+    --moss-olive : #545837;
+    --text-dark  : #1e2d20;
+    --text-muted : #5a6b5c;
+    --white      : #ffffff;
+    --shadow-sm  : 0 2px 12px rgba(48,98,56,.10);
+    --shadow-md  : 0 6px 28px rgba(48,98,56,.16);
+    --shadow-lg  : 0 14px 48px rgba(48,98,56,.22);
+    --radius-sm  : 8px;
+    --radius-md  : 14px;
+    --radius-lg  : 20px;
+    --ease-out   : cubic-bezier(.16,1,.3,1);
+    --ease-spring: cubic-bezier(.34,1.56,.64,1);
+}
+
+* { box-sizing: border-box; }
+body, section, div { font-family: 'Plus Jakarta Sans', sans-serif; }
+body { background: #fff; }
 
 a.scroll-top, .scroll-top {
     background: #618D4F !important; border-color: #618D4F !important;
@@ -38,85 +56,73 @@ a.scroll-top:hover, .scroll-top:hover { background: #306238 !important; border-c
 .blog-left, .blog-right { display: none !important; }
 .section-eyebrow { color: #618D4F !important; }
 .dokum-dot.active { background: #306238 !important; }
-body { background: #fff; }
 
-:root {
-    --moss-dark   : #306238;
-    --moss-mid    : #618D4F;
-    --moss-light  : #9EBB97;
-    --moss-bg     : #DDE5CD;
-    --moss-olive  : #545837;
-    --text-dark   : #1e2d20;
-    --text-muted  : #5a6b5c;
-    --white       : #ffffff;
-    --shadow-sm   : 0 2px 12px rgba(48,98,56,.10);
-    --shadow-md   : 0 6px 28px rgba(48,98,56,.16);
-    --shadow-lg   : 0 14px 48px rgba(48,98,56,.22);
-    --radius-sm   : 8px;
-    --radius-md   : 14px;
-    --radius-lg   : 20px;
-    --transition  : all .28s cubic-bezier(.4,0,.2,1);
-}
-
-* { box-sizing: border-box; }
-body, section, div { font-family: 'Inter', sans-serif; }
-
+/* ── Labels & Titles ── */
 .lp-label {
     display: block; color: var(--moss-mid);
-    font-size: 12px; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 3px; margin-bottom: 12px;
+    font-size: 11px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 3.5px; margin-bottom: 12px;
 }
 .lp-title {
-    color: var(--moss-dark); font-size: 34px; font-weight: 800;
-    line-height: 1.15; margin: 0 0 24px; letter-spacing: -.5px;
+    color: var(--moss-dark); font-size: 32px; font-weight: 900;
+    line-height: 1.12; margin: 0 0 24px; letter-spacing: -.8px;
 }
-.lp-title--lg { font-size: 42px; }
+.lp-title--lg { font-size: 40px; }
 .lp-divider {
-    width: 56px; height: 3.5px;
+    width: 48px; height: 3px;
     background: linear-gradient(90deg, var(--moss-dark), var(--moss-mid));
     border-radius: 3px; margin-bottom: 36px;
 }
 .lp-section { padding: 80px 0; }
 
-/* ── SECTION 1: PROGRAM CARDS ── */
+/* ══════════════════════════════════════════
+   SECTION 1: PROGRAM CARDS
+══════════════════════════════════════════ */
 .prog-section { background: var(--white); padding: 0 0 30px; }
 .prog-section-head { text-align: center; padding: 72px 0 50px; }
 
 .prog-card {
     background: var(--moss-dark); border-radius: var(--radius-lg);
-    padding: 32px 26px 28px; position: relative; cursor: pointer;
-    transition: var(--transition); overflow: hidden; min-height: 220px;
+    padding: 30px 24px 56px; position: relative; cursor: pointer;
+    transition: transform .35s var(--ease-out), box-shadow .35s var(--ease-out),
+                background .35s; overflow: hidden; min-height: 210px;
     height: 100%; border-top: 4px solid var(--moss-mid);
 }
-.prog-card::after {
-    content: ''; position: absolute; bottom: -20px; right: -20px;
-    width: 120px; height: 120px; background: rgba(255,255,255,.05); border-radius: 50%;
+.prog-card::before {
+    content: ''; position: absolute; bottom: -40px; right: -40px;
+    width: 140px; height: 140px; background: rgba(255,255,255,.04); border-radius: 50%;
+    transition: transform .5s var(--ease-out);
 }
-.prog-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); background: var(--moss-mid); }
+.prog-card:hover { transform: translateY(-10px); box-shadow: var(--shadow-lg); background: var(--moss-mid); }
+.prog-card:hover::before { transform: scale(1.4); }
 .prog-card--alt  { background: var(--moss-olive); }
 .prog-card--alt2 { background: var(--moss-mid); }
 .prog-card--alt3 { background: #3d5a2e; }
 
 .prog-card .pc-icon {
-    width: 52px; height: 52px; background: rgba(255,255,255,.15);
-    border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;
+    width: 50px; height: 50px; background: rgba(255,255,255,.14);
+    border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 18px;
+    transition: background .3s, transform .3s var(--ease-spring);
 }
-.prog-card .pc-icon svg { width: 26px; height: 26px; fill: #fff; }
+.prog-card:hover .pc-icon { background: rgba(255,255,255,.25); transform: scale(1.1) rotate(-4deg); }
+.prog-card .pc-icon svg { width: 24px; height: 24px; fill: #fff; }
 .prog-card h3 {
-    color: var(--white); font-size: 15px; font-weight: 700;
-    text-transform: uppercase; letter-spacing: .5px; margin: 0 0 12px; line-height: 1.45;
+    color: var(--white); font-size: 14px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: .8px; margin: 0 0 10px; line-height: 1.4;
 }
-.prog-card p { color: rgba(255,255,255,.80); font-size: 13px; line-height: 1.8; margin: 0; }
+.prog-card p { color: rgba(255,255,255,.78); font-size: 12.5px; line-height: 1.85; margin: 0; }
 .prog-card .pc-btn {
-    position: absolute; bottom: 16px; right: 16px; width: 40px; height: 40px;
-    border-radius: 50%; background: rgba(255,255,255,.18);
+    position: absolute; bottom: 16px; right: 16px; width: 38px; height: 38px;
+    border-radius: 50%; background: rgba(255,255,255,.16);
     display: flex; align-items: center; justify-content: center;
-    text-decoration: none; transition: var(--transition); z-index: 2;
+    text-decoration: none; transition: background .25s, transform .25s var(--ease-spring); z-index: 2;
 }
 .prog-card .pc-btn svg { width: 16px; height: 16px; fill: #fff; }
-.prog-card .pc-btn:hover { background: rgba(255,255,255,.35); transform: scale(1.12); text-decoration: none; }
+.prog-card .pc-btn:hover { background: rgba(255,255,255,.32); transform: scale(1.15); text-decoration: none; }
 
-/* ── SECTION 2: SAMBUTAN ── */
+/* ══════════════════════════════════════════
+   SECTION 2: SAMBUTAN
+══════════════════════════════════════════ */
 .sambutan-section { background: var(--moss-bg); padding: 80px 0; border-top: 1px solid rgba(97,141,79,.15); }
 .sambutan-media {
     border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-lg);
@@ -129,32 +135,39 @@ body, section, div { font-family: 'Inter', sans-serif; }
 }
 .sambutan-media-placeholder p { color: rgba(255,255,255,.5); margin: 12px 0 0; font-size: 13px; text-align: center; }
 .play-icon-wrap {
-    width: 72px; height: 72px; border-radius: 50%; background: rgba(255,255,255,.92);
+    width: 68px; height: 68px; border-radius: 50%; background: rgba(255,255,255,.92);
     display: flex; align-items: center; justify-content: center;
     position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-    text-decoration: none; transition: var(--transition); box-shadow: 0 8px 28px rgba(0,0,0,.25); backdrop-filter: blur(4px);
+    text-decoration: none; transition: transform .3s var(--ease-spring), box-shadow .3s;
+    box-shadow: 0 8px 28px rgba(0,0,0,.28); backdrop-filter: blur(4px);
 }
-.play-icon-wrap:hover { transform: translate(-50%,-50%) scale(1.12); box-shadow: 0 12px 40px rgba(0,0,0,.35); }
+.play-icon-wrap:hover { transform: translate(-50%,-50%) scale(1.14); box-shadow: 0 14px 42px rgba(0,0,0,.38); }
 .play-icon-wrap svg { width: 28px; height: 28px; fill: var(--moss-dark); margin-left: 4px; }
 .sambutan-text { padding-left: 48px; }
 @media (max-width: 767px) { .sambutan-text { padding-left: 0; margin-top: 30px; } }
 .sambutan-text .lp-title { font-size: 28px; }
-.sambutan-text p { color: var(--text-muted); line-height: 1.9; font-size: 15px; }
+.sambutan-text p { color: var(--text-muted); line-height: 1.95; font-size: 14.5px; }
+
 .btn-primary-lp {
-    display: inline-block; background: var(--moss-dark); color: var(--white);
-    padding: 12px 30px; border-radius: 30px; font-weight: 600; font-size: 14px;
-    text-decoration: none; letter-spacing: .2px; transition: var(--transition);
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--moss-dark); color: var(--white);
+    padding: 12px 28px; border-radius: 30px; font-weight: 700; font-size: 14px;
+    text-decoration: none; letter-spacing: .1px;
+    transition: background .28s, box-shadow .28s, transform .28s var(--ease-spring);
     margin-top: 24px; border: 2px solid var(--moss-dark);
 }
-.btn-primary-lp:hover { background: var(--moss-mid); border-color: var(--moss-mid); color: var(--white); text-decoration: none; box-shadow: var(--shadow-md); }
+.btn-primary-lp:hover { background: var(--moss-mid); border-color: var(--moss-mid); color: var(--white); text-decoration: none; box-shadow: var(--shadow-md); transform: translateY(-2px); }
 .btn-outline-lp {
-    display: inline-block; border: 2px solid var(--moss-dark); color: var(--moss-dark);
-    padding: 11px 28px; border-radius: 30px; font-weight: 600; font-size: 14px;
-    text-decoration: none; transition: var(--transition); margin-top: 28px;
+    display: inline-flex; align-items: center; gap: 8px;
+    border: 2px solid var(--moss-dark); color: var(--moss-dark);
+    padding: 11px 28px; border-radius: 30px; font-weight: 700; font-size: 14px;
+    text-decoration: none; transition: background .28s, transform .28s var(--ease-spring); margin-top: 28px;
 }
-.btn-outline-lp:hover { background: var(--moss-dark); color: var(--white); text-decoration: none; }
+.btn-outline-lp:hover { background: var(--moss-dark); color: var(--white); text-decoration: none; transform: translateY(-2px); }
 
-/* ── SECTION 3: STATISTIK ── */
+/* ══════════════════════════════════════════
+   SECTION 3: STATISTIK
+══════════════════════════════════════════ */
 .stats-section {
     background: linear-gradient(135deg, var(--moss-dark) 0%, var(--moss-olive) 100%);
     padding: 64px 0; position: relative; overflow: hidden;
@@ -170,26 +183,27 @@ body, section, div { font-family: 'Inter', sans-serif; }
 .stat-item { text-align: center; padding: 30px 20px; position: relative; z-index: 1; }
 .stat-item + .stat-item { border-left: 1px solid rgba(255,255,255,.12); }
 @media (max-width: 575px) { .stat-item + .stat-item { border-left: none; border-top: 1px solid rgba(255,255,255,.12); } }
-.stat-num { font-size: 56px; font-weight: 900; color: var(--moss-bg); display: block; line-height: 1; letter-spacing: -1px; }
-.stat-label { color: rgba(255,255,255,.75); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 8px; display: block; }
-.stat-line { width: 28px; height: 2px; background: var(--moss-light); margin: 10px auto 0; border-radius: 1px; opacity: .7; }
+.stat-num { font-size: 52px; font-weight: 900; color: var(--moss-bg); display: block; line-height: 1; letter-spacing: -2px; }
+.stat-label { color: rgba(255,255,255,.72); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin-top: 8px; display: block; }
+.stat-line { width: 28px; height: 2px; background: var(--moss-light); margin: 10px auto 0; border-radius: 1px; opacity: .6; }
 .stat-icon-wrap {
-    width: 46px; height: 46px; border-radius: 50%;
-    background: rgba(255,255,255,.12); border: 1.5px solid rgba(255,255,255,.18);
-    display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; transition: var(--transition);
+    width: 44px; height: 44px; border-radius: 50%;
+    background: rgba(255,255,255,.1); border: 1.5px solid rgba(255,255,255,.16);
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 14px;
+    transition: background .3s, transform .3s var(--ease-spring);
 }
-.stat-item:hover .stat-icon-wrap { background: rgba(255,255,255,.22); transform: scale(1.08); }
-.stat-icon-wrap svg { width: 22px; height: 22px; fill: var(--moss-bg); }
+.stat-item:hover .stat-icon-wrap { background: rgba(255,255,255,.2); transform: scale(1.1); }
+.stat-icon-wrap svg { width: 20px; height: 20px; fill: var(--moss-bg); }
 
-/* ── SECTION 4: DOKUMENTASI ── */
+/* ══════════════════════════════════════════
+   SECTION 4: DOKUMENTASI
+══════════════════════════════════════════ */
 .dokum-section { padding: 80px 0; background: var(--white); }
-.dokum-section .lp-title { text-align: center; }
-.dokum-section .lp-label { text-align: center; display: block; }
 .dokum-slider-wrap {
     position: relative; overflow: hidden; border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg); max-width: 900px; margin: 0 auto;
 }
-.dokum-slides { display: flex; transition: transform .5s ease; will-change: transform; }
+.dokum-slides { display: flex; transition: transform .55s var(--ease-out); will-change: transform; }
 .dokum-slide { min-width: 100%; position: relative; overflow: hidden; }
 .dokum-slide img { width: 100%; height: 480px; object-fit: cover; display: block; }
 .dokum-slide-ph {
@@ -197,135 +211,83 @@ body, section, div { font-family: 'Inter', sans-serif; }
     background: linear-gradient(135deg, var(--moss-dark), var(--moss-mid));
     display: flex; align-items: center; justify-content: center; flex-direction: column;
 }
-.dokum-slide-ph svg { width: 72px; height: 72px; fill: rgba(255,255,255,.25); }
-.dokum-slide-ph p { color: rgba(255,255,255,.45); margin: 12px 0 0; font-size: 14px; }
+.dokum-slide-ph svg { width: 72px; height: 72px; fill: rgba(255,255,255,.2); }
+.dokum-slide-ph p { color: rgba(255,255,255,.42); margin: 12px 0 0; font-size: 14px; }
 .dokum-slide-cap {
     position: absolute; bottom: 0; left: 0; right: 0;
-    background: linear-gradient(to top, rgba(30,45,32,.85), transparent);
-    padding: 48px 28px 22px; color: var(--white);
+    background: linear-gradient(to top, rgba(20,40,24,.9), transparent);
+    padding: 52px 28px 22px; color: var(--white);
 }
-.dokum-slide-cap h4 { margin: 0 0 4px; font-size: 17px; font-weight: 700; }
-.dokum-slide-cap p { margin: 0; font-size: 12.5px; opacity: .8; }
+.dokum-slide-cap h4 { margin: 0 0 4px; font-size: 17px; font-weight: 800; }
+.dokum-slide-cap p { margin: 0; font-size: 12.5px; opacity: .75; }
 .dokum-nav {
     position: absolute; top: 50%; transform: translateY(-50%);
-    background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.3);
+    background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.28);
     color: var(--white); width: 42px; height: 42px; border-radius: 50%; font-size: 18px; cursor: pointer;
-    transition: var(--transition); backdrop-filter: blur(6px);
+    transition: background .2s, transform .2s var(--ease-spring); backdrop-filter: blur(6px);
     display: flex; align-items: center; justify-content: center;
 }
-.dokum-nav:hover { background: rgba(255,255,255,.40); }
+.dokum-nav:hover { background: rgba(255,255,255,.36); transform: translateY(-50%) scale(1.1); }
 .dokum-nav.prev { left: 14px; }
 .dokum-nav.next { right: 14px; }
 .dokum-dots { text-align: center; margin-top: 18px; }
 .dokum-dot {
     display: inline-block; width: 8px; height: 8px; border-radius: 50%;
     background: var(--moss-light); margin: 0 4px; cursor: pointer;
-    transition: var(--transition); opacity: .5;
+    transition: all .3s var(--ease-spring); opacity: .45;
 }
-.dokum-dot.active { background: var(--moss-dark); opacity: 1; transform: scale(1.3); }
+.dokum-dot.active { background: var(--moss-dark); opacity: 1; width: 22px; border-radius: 4px; }
 
-/* ── SECTION 5: TESTIMONI ── */
+/* ══════════════════════════════════════════
+   SECTION 5: TESTIMONI
+══════════════════════════════════════════ */
 .testi-section { padding: 80px 0; background: var(--moss-bg); }
 .testi-left h2 {
-    font-size: 36px; font-weight: 900; color: var(--moss-dark);
-    line-height: 1.15; margin: 0 0 18px; letter-spacing: -.3px;
+    font-size: 34px; font-weight: 900; color: var(--moss-dark);
+    line-height: 1.12; margin: 0 0 16px; letter-spacing: -.5px;
 }
-.testi-left p { font-size: 15px; color: var(--text-muted); line-height: 1.85; margin: 0 0 24px; }
+.testi-left p { font-size: 14.5px; color: var(--text-muted); line-height: 1.9; margin: 0 0 24px; }
 .testi-card {
-    background: var(--white); border-radius: var(--radius-lg); padding: 30px 32px;
-    border-left: 4px solid var(--moss-mid); margin-bottom: 20px;
-    box-shadow: var(--shadow-sm); transition: var(--transition);
+    background: var(--white); border-radius: var(--radius-lg); padding: 28px 30px;
+    border-left: 4px solid var(--moss-mid); margin-bottom: 18px;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow .3s, transform .3s var(--ease-out);
 }
-.testi-card:hover { box-shadow: var(--shadow-md); transform: translateX(4px); }
-.testi-card .testi-quote { font-size: 14.5px; color: var(--text-muted); line-height: 1.85; margin: 0 0 22px; font-style: italic; position: relative; }
+.testi-card:hover { box-shadow: var(--shadow-md); transform: translateX(6px); }
+.testi-card .testi-quote { font-size: 14px; color: var(--text-muted); line-height: 1.9; margin: 0 0 20px; font-style: italic; position: relative; }
 .testi-card .testi-quote::before {
-    content: '\201C'; font-size: 48px; color: var(--moss-light);
-    line-height: 1; position: absolute; top: -10px; left: -4px;
+    content: '\201C'; font-size: 52px; color: var(--moss-light);
+    line-height: 1; position: absolute; top: -12px; left: -4px;
     font-style: normal; font-family: Georgia, serif;
 }
-.testi-card .testi-quote--inner { padding-left: 28px; }
-.testi-card .testi-person { display: flex; align-items: center; gap: 16px; }
+.testi-card .testi-quote--inner { padding-left: 30px; }
+.testi-card .testi-person { display: flex; align-items: center; gap: 14px; }
 .testi-avatar {
-    width: 52px; height: 52px; border-radius: 50%; overflow: hidden; flex-shrink: 0;
+    width: 50px; height: 50px; border-radius: 50%; overflow: hidden; flex-shrink: 0;
     background: var(--moss-bg); display: flex; align-items: center; justify-content: center;
     border: 2.5px solid var(--moss-light);
 }
 .testi-avatar img { width: 100%; height: 100%; object-fit: cover; }
-.testi-avatar svg { width: 26px; height: 26px; fill: var(--moss-mid); }
-.testi-name { font-weight: 700; font-size: 14.5px; color: var(--moss-dark); }
-.testi-role { font-size: 12px; color: var(--moss-light); font-weight: 500; margin-top: 3px; }
+.testi-avatar svg { width: 24px; height: 24px; fill: var(--moss-mid); }
+.testi-name { font-weight: 800; font-size: 14px; color: var(--moss-dark); }
+.testi-role { font-size: 11.5px; color: var(--moss-light); font-weight: 600; margin-top: 3px; }
 
-/* ── SECTION 6: BOOKSHELF ── */
+/* ══════════════════════════════════════════
+   SECTION 6: BOOKSHELF
+══════════════════════════════════════════ */
 .bookshelf-section { background: var(--white); padding: 80px 0; }
 .bookshelf-section-head { text-align: center; margin-bottom: 44px; }
-.bookshelf-row {
-    position: relative; padding: 24px 28px 32px; margin-bottom: 40px;
-    background: linear-gradient(to bottom, #c4a97e, #9e7a46);
-    border-radius: 6px; border-bottom: 12px solid #6e4c1e;
-    box-shadow: 0 10px 30px rgba(0,0,0,.22);
-    display: flex; flex-wrap: wrap; gap: 24px; min-height: 200px;
-    align-items: flex-end; justify-content: center;
-}
-.bookshelf-row::before {
-    content: ''; position: absolute; bottom: -22px; left: -6px; right: -6px;
-    height: 16px; background: linear-gradient(to bottom, #5c3b1a, #3d2510);
-    border-radius: 0 0 5px 5px; box-shadow: 0 5px 10px rgba(0,0,0,.3);
-}
-.book-card {
-    width: 120px; cursor: pointer; transition: transform .3s cubic-bezier(.4,0,.2,1);
-    position: relative; flex-shrink: 0; text-decoration: none;
-}
-.book-card:hover { transform: translateY(-14px) scale(1.06) rotate(-1deg); text-decoration: none; }
-.book-cover {
-    width: 120px; height: 170px; border-radius: 2px 8px 8px 2px; overflow: hidden;
-    box-shadow: -4px 4px 14px rgba(0,0,0,.4), inset -3px 0 8px rgba(0,0,0,.15), 2px 2px 6px rgba(0,0,0,.2);
-    position: relative; background: var(--moss-dark);
-}
-.book-cover::after {
-    content: ''; position: absolute; top: 0; left: 10px; right: 0; bottom: 0;
-    background: linear-gradient(90deg, rgba(255,255,255,.12) 0%, transparent 20%, transparent 80%, rgba(0,0,0,.08) 100%);
-    pointer-events: none;
-}
-.book-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.book-spine {
-    position: absolute; left: 0; top: 0; bottom: 0; width: 12px;
-    background: linear-gradient(90deg, rgba(0,0,0,.35) 0%, rgba(0,0,0,.15) 60%, rgba(255,255,255,.05) 100%);
-    border-right: 1px solid rgba(255,255,255,.1);
-}
-.book-no-cover {
-    display: flex; align-items: center; justify-content: center;
-    width: 100%; height: 100%;
-    background: linear-gradient(145deg, var(--moss-dark) 0%, var(--moss-mid) 50%, #3d5a2e 100%);
-    color: var(--white); font-size: 11.5px; text-align: center; padding: 14px 10px;
-    font-weight: 600; line-height: 1.4; text-shadow: 0 1px 3px rgba(0,0,0,.3);
-}
-.book-hover-overlay {
-    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(48,98,56,0); transition: all .35s;
-    display: flex; align-items: center; justify-content: center;
-    border-radius: 2px 8px 8px 2px;
-}
-.book-card:hover .book-hover-overlay { background: rgba(48,98,56,.6); backdrop-filter: blur(2px); }
-.book-hover-overlay span {
-    color: var(--white); font-size: 12px; font-weight: 700;
-    opacity: 0; transition: opacity .3s; letter-spacing: .5px; text-transform: uppercase;
-    text-shadow: 0 1px 4px rgba(0,0,0,.4);
-}
-.book-card:hover .book-hover-overlay span { opacity: 1; }
-.book-title {
-    font-size: 11px; color: #3d2510; font-weight: 600;
-    text-align: center; margin-top: 8px; line-height: 1.35; max-height: 2.7em; overflow: hidden;
-}
-.bookshelf-more { text-align: center; margin-top: 32px; }
+
 .bookshelf-search {
-    display: flex; max-width: 400px; margin: 0 auto 28px;
-    background: #f7f9f6; border: 1.5px solid #d8e2d4; border-radius: 30px; overflow: hidden;
+    display: flex; max-width: 420px; margin: 0 auto 32px;
+    background: #f5f7f3; border: 1.5px solid #d0dac8; border-radius: 30px; overflow: hidden;
     transition: border-color .3s, box-shadow .3s;
 }
-.bookshelf-search:focus-within { border-color: var(--moss-mid); box-shadow: 0 0 0 3px rgba(97,141,79,.15); }
+.bookshelf-search:focus-within { border-color: var(--moss-mid); box-shadow: 0 0 0 4px rgba(97,141,79,.12); }
 .bookshelf-search input {
     flex: 1; border: none; background: transparent;
-    padding: 10px 18px; font-size: 13.5px; color: #333; outline: none;
+    padding: 11px 18px; font-size: 13.5px; color: #333; outline: none;
+    font-family: inherit;
 }
 .bookshelf-search input::placeholder { color: #aab8a8; }
 .bookshelf-search button {
@@ -336,7 +298,83 @@ body, section, div { font-family: 'Inter', sans-serif; }
 .bookshelf-search button:hover { background: var(--moss-mid); }
 .bookshelf-search button svg { width: 18px; height: 18px; fill: currentColor; }
 
-/* ── SECTION 7: CTA ── */
+.bookshelf-row {
+    position: relative; padding: 22px 26px 30px; margin-bottom: 48px;
+    background: linear-gradient(175deg, #cdb07f 0%, #a07848 50%, #c4a579 100%);
+    border-radius: 6px; border-bottom: 14px solid #7a5028;
+    box-shadow: 0 12px 32px rgba(0,0,0,.24);
+    display: flex; flex-wrap: wrap; gap: 22px; min-height: 190px;
+    align-items: flex-end; justify-content: center;
+}
+.bookshelf-row::before {
+    content: ''; position: absolute; bottom: -28px; left: -8px; right: -8px;
+    height: 18px; background: linear-gradient(to bottom, #5c3b1a, #3a2210);
+    border-radius: 0 0 6px 6px; box-shadow: 0 6px 14px rgba(0,0,0,.32);
+}
+/* Wood grain effect */
+.bookshelf-row::after {
+    content: ''; position: absolute; inset: 0; border-radius: 6px 6px 0 0;
+    background: repeating-linear-gradient(
+        91deg,
+        rgba(255,255,255,0) 0px, rgba(255,255,255,.04) 1px,
+        rgba(0,0,0,0) 2px, rgba(0,0,0,.03) 4px,
+        rgba(255,255,255,0) 6px
+    );
+    pointer-events: none;
+}
+
+.book-card {
+    width: 118px; cursor: pointer;
+    transition: transform .35s var(--ease-spring);
+    position: relative; flex-shrink: 0; text-decoration: none;
+}
+.book-card:hover { transform: translateY(-18px) scale(1.05) rotate(-1.5deg); text-decoration: none; }
+.book-cover {
+    width: 118px; height: 168px; border-radius: 2px 8px 8px 2px; overflow: hidden;
+    box-shadow: -5px 6px 16px rgba(0,0,0,.45), inset -4px 0 10px rgba(0,0,0,.18), 2px 2px 8px rgba(0,0,0,.22);
+    position: relative; background: var(--moss-dark);
+}
+.book-cover::after {
+    content: ''; position: absolute; top: 0; left: 12px; right: 0; bottom: 0;
+    background: linear-gradient(90deg, rgba(255,255,255,.14) 0%, transparent 22%, transparent 78%, rgba(0,0,0,.1) 100%);
+    pointer-events: none;
+}
+.book-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.book-spine {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 13px;
+    background: linear-gradient(90deg, rgba(0,0,0,.38) 0%, rgba(0,0,0,.18) 60%, rgba(255,255,255,.06) 100%);
+    border-right: 1px solid rgba(255,255,255,.12);
+}
+.book-no-cover {
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; height: 100%;
+    background: linear-gradient(145deg, var(--moss-dark) 0%, var(--moss-mid) 55%, #3d5a2e 100%);
+    color: var(--white); font-size: 11px; text-align: center; padding: 14px 10px;
+    font-weight: 700; line-height: 1.4; text-shadow: 0 1px 4px rgba(0,0,0,.35);
+}
+.book-hover-overlay {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(48,98,56,0); transition: background .3s;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 2px 8px 8px 2px;
+}
+.book-card:hover .book-hover-overlay { background: rgba(48,98,56,.62); backdrop-filter: blur(2px); }
+.book-hover-overlay span {
+    color: var(--white); font-size: 11.5px; font-weight: 800;
+    opacity: 0; transition: opacity .25s; letter-spacing: .8px; text-transform: uppercase;
+    text-shadow: 0 1px 6px rgba(0,0,0,.5);
+}
+.book-card:hover .book-hover-overlay span { opacity: 1; }
+.book-title {
+    font-size: 10.5px; color: #3a2410; font-weight: 700;
+    text-align: center; margin-top: 8px; line-height: 1.35;
+    max-height: 2.7em; overflow: hidden;
+}
+.bookshelf-more { text-align: center; margin-top: 32px; }
+
+/* ══════════════════════════════════════════
+   SECTION 7: CTA
+══════════════════════════════════════════ */
 .cta-section { background: var(--moss-dark); padding: 60px 0; position: relative; overflow: hidden; }
 .cta-section::before {
     content: ''; position: absolute; top: -80px; right: -80px;
@@ -346,287 +384,310 @@ body, section, div { font-family: 'Inter', sans-serif; }
     content: ''; position: absolute; bottom: -100px; left: 40%;
     width: 280px; height: 280px; border-radius: 50%; background: rgba(255,255,255,.03);
 }
-.cta-section .cta-inner { position: relative; z-index: 1; }
-.cta-section h2 { color: var(--white); font-size: 30px; font-weight: 800; line-height: 1.35; margin: 0; }
+.cta-inner { position: relative; z-index: 1; }
+.cta-section h2 { color: var(--white); font-size: 28px; font-weight: 900; line-height: 1.35; margin: 0; }
 .cta-section h2 span { color: var(--moss-bg); }
-.cta-badge { text-align: right; }
 .cta-badge-name { color: var(--white); font-size: 24px; font-weight: 900; letter-spacing: -1px; display: block; }
-.cta-badge-sub { color: var(--moss-light); font-size: 12.5px; display: block; margin-top: 4px; text-transform: uppercase; letter-spacing: 1.5px; }
+.cta-badge-sub { color: var(--moss-light); font-size: 11.5px; display: block; margin-top: 4px; text-transform: uppercase; letter-spacing: 2px; }
+.cta-badge { text-align: right; }
 
-/* ── SECTION 8: BERITA ── */
+/* ══════════════════════════════════════════
+   SECTION 8: BERITA
+══════════════════════════════════════════ */
 .news-section { padding: 80px 0; background: var(--moss-bg); }
 .news-card {
     background: var(--white); border-radius: var(--radius-lg); overflow: hidden;
-    box-shadow: var(--shadow-sm); transition: var(--transition); height: 100%; display: flex; flex-direction: column;
+    box-shadow: var(--shadow-sm); transition: transform .35s var(--ease-out), box-shadow .35s; height: 100%; display: flex; flex-direction: column;
 }
-.news-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); }
-.nc-img { width: 100%; height: 220px; object-fit: cover; display: block; }
+.news-card:hover { transform: translateY(-10px); box-shadow: var(--shadow-lg); }
+.nc-img { width: 100%; height: 210px; object-fit: cover; display: block; }
 .nc-img-ph {
-    width: 100%; height: 220px;
+    width: 100%; height: 210px;
     background: linear-gradient(135deg, var(--moss-dark), var(--moss-mid));
     display: flex; align-items: center; justify-content: center;
 }
-.nc-img-ph svg { width: 52px; height: 52px; fill: rgba(255,255,255,.25); }
-.nc-body { padding: 22px 24px; flex: 1; display: flex; flex-direction: column; }
+.nc-img-ph svg { width: 50px; height: 50px; fill: rgba(255,255,255,.22); }
+.nc-body { padding: 20px 22px; flex: 1; display: flex; flex-direction: column; }
 .nc-cat {
     display: inline-block; background: var(--moss-bg); color: var(--moss-dark);
-    font-size: 10.5px; font-weight: 700; padding: 4px 12px; border-radius: 20px;
-    margin-bottom: 12px; text-transform: uppercase; letter-spacing: .8px;
+    font-size: 10px; font-weight: 800; padding: 4px 12px; border-radius: 20px;
+    margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;
 }
-.nc-body h3 { font-size: 16px; font-weight: 700; color: var(--text-dark); margin: 0 0 12px; line-height: 1.5; flex: 1; }
+.nc-body h3 { font-size: 15px; font-weight: 800; color: var(--text-dark); margin: 0 0 10px; line-height: 1.5; flex: 1; }
 .nc-body h3 a { color: inherit; text-decoration: none; }
 .nc-body h3 a:hover { color: var(--moss-dark); }
 .nc-meta {
-    font-size: 11.5px; color: #9aab9c; margin-top: auto; padding-top: 12px;
-    border-top: 1px solid #f0f4ed; display: flex; gap: 6px; align-items: center;
+    font-size: 11px; color: #9aab9c; margin-top: auto; padding-top: 10px;
+    border-top: 1px solid #edf2ea; display: flex; gap: 6px; align-items: center;
 }
 
-/* ============================================================
-   FLIPBOOK MODAL — PREMIUM ENGINE
-   Menggabungkan tampilan kiri.php dengan logika flipbook.php
-   - Desktop: spread 2 halaman + animasi 3D flip
-   - Mobile : 1 halaman, swipe gesture, auto-fit
-   ============================================================ */
+/* ══════════════════════════════════════════════════════════════
+   UNIFIED FLIPBOOK MODAL
+   Fitur: drag-to-pan (overflow scroll), wheel zoom, 3D flip,
+          mobile swipe, momentum scroll, smooth animations
+══════════════════════════════════════════════════════════════ */
 
-/* ── Modal Overlay ── */
-.fb2-overlay {
+/* ── Overlay ── */
+.ufb-overlay {
     display: none; position: fixed; inset: 0; z-index: 99999;
-    background: rgba(0,0,0,.88); backdrop-filter: blur(8px);
+    background: rgba(4,12,6,.92); backdrop-filter: blur(10px);
     align-items: center; justify-content: center;
 }
-.fb2-overlay.active { display: flex; }
+.ufb-overlay.active { display: flex; }
 
-/* ── Modal Container ── */
-.fb2-container {
+/* ── Modal container ── */
+.ufb-modal {
     width: 100vw; height: 100vh;
-    display: flex; flex-direction: column; background: #1a1a1a;
+    display: flex; flex-direction: column;
+    background: #14201a;
+    animation: ufbIn .32s var(--ease-out);
+}
+@keyframes ufbIn {
+    from { opacity: 0; transform: scale(.96); }
+    to   { opacity: 1; transform: scale(1); }
 }
 @media (min-width: 768px) {
-    .fb2-container {
-        width: 92vw; height: 92vh; max-width: 1400px;
-        border-radius: 10px; overflow: hidden;
-        box-shadow: 0 24px 80px rgba(0,0,0,.7);
+    .ufb-modal {
+        width: 94vw; height: 94vh; max-width: 1440px;
+        border-radius: 12px; overflow: hidden;
+        box-shadow: 0 30px 90px rgba(0,0,0,.75), 0 0 0 1px rgba(255,255,255,.06);
     }
 }
 
 /* ── Header ── */
-.fb2-header {
-    height: 52px; background: var(--moss-dark);
+.ufb-header {
+    height: 54px; background: var(--moss-dark);
     display: flex; align-items: center; justify-content: space-between;
-    padding: 0 20px; flex-shrink: 0;
+    padding: 0 20px; flex-shrink: 0; gap: 12px;
 }
-.fb2-header h4 {
-    margin: 0; font-size: 14px; font-weight: 600; color: #fff;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; padding-right: 16px;
+.ufb-header h4 {
+    margin: 0; font-size: 14px; font-weight: 700; color: #fff;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;
+    font-family: 'Plus Jakarta Sans', sans-serif;
 }
-.fb2-header-actions { display: flex; gap: 8px; align-items: center; }
-.fb2-hbtn {
-    width: 32px; height: 32px; border-radius: 6px;
-    border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.12); cursor: pointer;
+.ufb-header-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+.ufb-hbtn {
+    width: 32px; height: 32px; border-radius: 7px;
+    border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.1); cursor: pointer;
     display: flex; align-items: center; justify-content: center;
-    color: #fff; transition: background .15s;
+    color: #fff; transition: background .18s, transform .18s var(--ease-spring);
 }
-.fb2-hbtn:hover { background: rgba(255,255,255,.28); }
-.fb2-close-btn {
-    background: transparent; border: none; font-size: 26px; line-height: 1;
-    cursor: pointer; color: rgba(255,255,255,.7); padding: 4px 6px; transition: color .15s;
+.ufb-hbtn:hover { background: rgba(255,255,255,.26); transform: scale(1.08); }
+.ufb-close {
+    background: rgba(255,100,100,.15); border: 1px solid rgba(255,100,100,.25);
+    color: rgba(255,255,255,.8); font-size: 18px; line-height: 1; cursor: pointer;
+    width: 32px; height: 32px; border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .18s, color .18s;
 }
-.fb2-close-btn:hover { color: #ff6b6b; }
+.ufb-close:hover { background: rgba(255,80,80,.4); color: #fff; }
 
-/* ── Body ── */
-.fb2-body {
-    flex: 1; display: flex; align-items: center; justify-content: center;
-    padding: 24px 64px; position: relative; overflow: hidden;
-    background: #0a120b; min-height: 400px;
+/* ── Canvas wrap (SCROLLABLE — inilah kuncinya) ── */
+.ufb-canvas-wrap {
+    flex: 1;
+    overflow: auto;          /* <— scroll dua arah untuk drag-to-pan */
+    position: relative;
+    background: #08120a;
     cursor: grab;
-}
-.fb2-body.is-dragging { cursor: grabbing; }
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
 
-/* Nav arrows */
-.fb2-nav {
-    position: absolute; top: 50%; transform: translateY(-50%);
-    width: 46px; height: 46px; border-radius: 50%;
-    background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
-    color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center;
-    transition: all .2s; z-index: 10;
+    /* Sembunyikan scrollbar tapi tetap scrollable */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
 }
-.fb2-nav:hover { background: rgba(255,255,255,.28); }
-.fb2-nav.prev { left: 12px; }
-.fb2-nav.next { right: 12px; }
-@media (max-width: 600px) {
-    .fb2-nav { display: none; }
-    .fb2-body { padding: 0; cursor: default; }
+.ufb-canvas-wrap::-webkit-scrollbar { display: none; }
+.ufb-canvas-wrap.is-dragging { cursor: grabbing; }
+
+/* Outer container di dalam scroll — centering */
+.ufb-scene-outer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 100%;
+    min-height: 100%;
+    flex-shrink: 0;
+    padding: 24px 80px;
+    box-sizing: border-box;
+}
+@media (max-width: 767px) {
+    .ufb-scene-outer { padding: 0; align-items: flex-start; justify-content: flex-start; }
 }
 
-/* ── Scene / Spread ── */
-.fb2-scene {
-    position: relative; display: inline-flex;
-    align-items: stretch; flex-shrink: 0;
-    perspective: 2500px; perspective-origin: 50% 50%;
+/* ── Scene (perspective container) ── */
+.ufb-scene {
+    position: relative;
+    display: inline-flex;
+    align-items: stretch;
+    flex-shrink: 0;
+    perspective: 2800px;
+    perspective-origin: 50% 50%;
 }
-#fb2CanvasL {
+
+/* ── Canvas halaman ── */
+#ufbCanvasL {
     display: block;
     box-shadow: -6px 0 24px rgba(0,0,0,.6);
-    border-radius: 4px 0 0 4px;
+    border-radius: 3px 0 0 3px;
 }
-#fb2CanvasR {
-    display: block;
-    box-shadow: 6px 0 24px rgba(0,0,0,.6);
-    border-radius: 0 4px 4px 0;
-}
-.fb2-spine {
-    width: 6px; flex-shrink: 0; align-self: stretch;
-    background: linear-gradient(180deg, #4a7a52, #1d3d22 50%, #4a7a52);
-    box-shadow: 2px 0 8px rgba(0,0,0,.5), -2px 0 8px rgba(0,0,0,.5);
-}
-.fb2-page-cover {
-    border-radius: 6px;
-    box-shadow: -6px 6px 30px rgba(0,0,0,.5), 4px 4px 0 rgba(0,0,0,.15);
+#ufbCanvasR {
+    display: none;
+    box-shadow:  6px 0 24px rgba(0,0,0,.6);
+    border-radius: 0 3px 3px 0;
 }
 
-/* ── Flipper (desktop 3D) ── */
-.fb2-flipper {
-    position: absolute; transform-style: preserve-3d;
-    display: none; z-index: 20; pointer-events: none; will-change: transform;
+/* ── Spine ── */
+.ufb-spine {
+    display: none;
+    width: 7px;
+    flex-shrink: 0;
+    background: linear-gradient(180deg, #5a8a62 0%, #1f4428 50%, #5a8a62 100%);
+    box-shadow: 3px 0 10px rgba(0,0,0,.55), -3px 0 10px rgba(0,0,0,.55);
 }
-.fb2-flip-front, .fb2-flip-back {
+
+/* ── Nav arrows (desktop) ── */
+.ufb-nav-arrow {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 44px; height: 44px; border-radius: 50%;
+    background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18);
+    color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: background .2s, transform .2s var(--ease-spring); z-index: 10;
+    pointer-events: all;
+}
+.ufb-nav-arrow:hover { background: rgba(255,255,255,.25); transform: translateY(-50%) scale(1.1); }
+.ufb-nav-arrow.prev { left: 16px; }
+.ufb-nav-arrow.next { right: 16px; }
+@media (max-width: 600px) { .ufb-nav-arrow { display: none; } }
+
+/* ── Loading overlay ── */
+.ufb-loading {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 14px;
+    background: #08120a; z-index: 5; color: var(--moss-light); font-size: 13px; font-weight: 600;
+}
+.ufb-loading-spinner {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 3px solid rgba(97,141,79,.3); border-top-color: var(--moss-mid);
+    animation: ufbSpin .75s linear infinite;
+}
+@keyframes ufbSpin { to { transform: rotate(360deg); } }
+
+/* ── Swipe hint (mobile) ── */
+.ufb-swipe-hint {
+    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: rgba(48,98,56,.75); color: #fff; font-size: 11px;
+    padding: 6px 16px; border-radius: 20px; pointer-events: none;
+    opacity: 0; transition: opacity .6s; white-space: nowrap;
+}
+.ufb-swipe-hint.show { opacity: 1; }
+
+/* ── 3D Flipper ── */
+.ufb-flipper {
+    position: absolute;
+    transform-style: preserve-3d;
+    display: none;
+    z-index: 20;
+    pointer-events: none;
+    will-change: transform;
+}
+.ufb-flip-front, .ufb-flip-back {
     position: absolute; inset: 0; overflow: hidden;
     backface-visibility: hidden; -webkit-backface-visibility: hidden;
 }
-.fb2-flip-back { transform: rotateY(180deg); }
-.fb2-flip-front canvas, .fb2-flip-back canvas { display:block; width:100%; height:100%; }
+.ufb-flip-back { transform: rotateY(180deg); }
+.ufb-flip-front canvas, .ufb-flip-back canvas { display: block; width: 100%; height: 100%; }
 
-.fb2-flipper.is-next .fb2-flip-front::after {
-    content:''; position:absolute; inset:0; pointer-events:none;
-    background: linear-gradient(to left, rgba(0,0,0,.4) 0%, transparent 70%);
+/* Gradient bayangan flip maju */
+.ufb-flipper.is-next .ufb-flip-front::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(to left, rgba(0,0,0,.5) 0%, transparent 65%);
 }
-.fb2-flipper.is-next .fb2-flip-back::after {
-    content:''; position:absolute; inset:0; pointer-events:none;
-    background: linear-gradient(to right, rgba(0,0,0,.25) 0%, transparent 60%);
+.ufb-flipper.is-next .ufb-flip-back::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(to right, rgba(0,0,0,.3) 0%, transparent 55%);
 }
-.fb2-flipper.is-prev .fb2-flip-front::after {
-    content:''; position:absolute; inset:0; pointer-events:none;
-    background: linear-gradient(to right, rgba(0,0,0,.4) 0%, transparent 70%);
+/* Gradient bayangan flip mundur */
+.ufb-flipper.is-prev .ufb-flip-front::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(to right, rgba(0,0,0,.5) 0%, transparent 65%);
 }
-.fb2-flipper.is-prev .fb2-flip-back::after {
-    content:''; position:absolute; inset:0; pointer-events:none;
-    background: linear-gradient(to left, rgba(0,0,0,.25) 0%, transparent 60%);
+.ufb-flipper.is-prev .ufb-flip-back::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(to left, rgba(0,0,0,.3) 0%, transparent 55%);
 }
-
-/* ── Loading ── */
-#fb2Loading {
-    display: none; position: absolute;
-    background: rgba(0,0,0,.65); color: #ddd;
-    padding: 10px 24px; border-radius: 24px;
-    font-size: 13px; font-weight: 600; z-index: 30;
-}
-#fb2Loading::before {
-    content: ''; display: inline-block;
-    width: 14px; height: 14px; border-radius: 50%;
-    border: 2px solid var(--moss-mid); border-top-color: transparent;
-    animation: fb2spin .7s linear infinite;
-    vertical-align: middle; margin-right: 8px;
-}
-@keyframes fb2spin { to { transform: rotate(360deg); } }
-
-/* ── Swipe hint ── */
-.fb2-swipe-hint {
-    position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
-    background: rgba(48,98,56,.75); color: #fff; font-size: 11px;
-    padding: 5px 14px; border-radius: 20px; pointer-events: none;
-    opacity: 1; transition: opacity 1s; display: none;
-}
-.fb2-swipe-hint.visible { display: block; }
-.fb2-swipe-hint.fade    { opacity: 0; }
 
 /* ── Toolbar bawah ── */
-.fb2-toolbar {
+.ufb-toolbar {
     display: flex; align-items: center; justify-content: center;
     gap: 8px; padding: 10px 20px;
-    background: #111; flex-shrink: 0;
+    background: #0e1a10; flex-shrink: 0;
     border-top: 1px solid rgba(255,255,255,.06);
     flex-wrap: wrap;
 }
-.fb2-page-info {
-    background: rgba(255,255,255,.1); color: #ddd;
-    font-size: 12px; font-weight: 600;
-    padding: 5px 16px; border-radius: 20px;
-    letter-spacing: .5px; min-width: 100px; text-align: center;
+.ufb-tbtn {
+    height: 34px; border-radius: 8px;
+    background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.1);
+    color: #ccc; cursor: pointer; padding: 0 14px;
+    font-size: 12.5px; font-weight: 700; font-family: inherit;
+    display: flex; align-items: center; gap: 6px;
+    transition: background .18s, color .18s, transform .18s var(--ease-spring);
 }
-.fb2-tbtn {
-    width: 34px; height: 34px; border-radius: 50%;
-    background: rgba(255,255,255,.1); border: none; color: #ccc; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; transition: all .18s;
+.ufb-tbtn:hover { background: rgba(255,255,255,.18); color: #fff; }
+.ufb-tbtn:disabled { opacity: .3; cursor: default; }
+.ufb-tbtn.icon-only { width: 34px; padding: 0; justify-content: center; border-radius: 50%; }
+.ufb-page-badge {
+    background: rgba(97,141,79,.2); color: var(--moss-light);
+    border: 1px solid rgba(97,141,79,.3);
+    padding: 0 16px; height: 34px;
+    border-radius: 20px; font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; min-width: 110px; justify-content: center;
+    letter-spacing: .3px;
 }
-.fb2-tbtn:hover { background: rgba(255,255,255,.22); color: #fff; }
-.fb2-tbtn.active { color: var(--moss-mid); background: rgba(97,141,79,.2); }
-.fb2-vdivider { width: 1px; height: 22px; background: rgba(255,255,255,.12); margin: 0 4px; }
-.fb2-tb-zoom {
-    display: flex; gap: 4px;
-}
-.fb2-tbtn-text {
-    height: 30px; border-radius: 6px; border: none;
-    background: rgba(255,255,255,.1); color: #ccc;
-    padding: 0 12px; cursor: pointer; font-size: 12px; font-weight: 600;
-    transition: all .18s;
-}
-.fb2-tbtn-text:hover { background: rgba(255,255,255,.22); color: #fff; }
-.fb2-page-input {
-    width: 48px; height: 30px; border-radius: 6px;
-    border: 1px solid rgba(255,255,255,.2);
-    background: rgba(255,255,255,.08); color: #ddd;
-    text-align: center; font-size: 12px; outline: none;
-}
+.ufb-vdiv { width: 1px; height: 22px; background: rgba(255,255,255,.1); margin: 0 2px; }
 
-/* ── Thumbnail strip ── */
-.fb2-thumbs {
-    display: flex; gap: 8px; overflow-x: auto; padding: 10px 16px;
-    background: #0d0d0d; border-top: 1px solid rgba(255,255,255,.05);
-    flex-shrink: 0;
-    scrollbar-width: thin; scrollbar-color: #444 transparent;
-}
-.fb2-thumbs::-webkit-scrollbar { height: 4px; }
-.fb2-thumbs::-webkit-scrollbar-track { background: transparent; }
-.fb2-thumbs::-webkit-scrollbar-thumb { background: #444; border-radius: 2px; }
-
-.fb2-thumb {
-    flex-shrink: 0; width: 50px; height: 70px; border-radius: 3px;
-    background: #2a2a2a; cursor: pointer; overflow: hidden;
-    border: 2px solid transparent; transition: all .18s; position: relative;
-}
-.fb2-thumb:hover { border-color: rgba(97,141,79,.5); }
-.fb2-thumb.active { border-color: var(--moss-mid); }
-.fb2-thumb canvas { width: 100%; height: 100%; display: block; object-fit: contain; }
-.fb2-thumb-num {
-    position: absolute; bottom: 0; left: 0; right: 0;
-    background: rgba(0,0,0,.65); color: #ccc;
-    font-size: 9px; text-align: center; padding: 2px 0;
-}
-
-/* ── Mobile overrides ── */
+/* Mobile toolbar adjustments */
 @media (max-width: 767px) {
-    .fb2-toolbar {
-        gap: 4px; padding: 6px 8px;
+    .ufb-toolbar {
+        gap: 4px; padding: 7px 8px;
         display: grid;
         grid-template-columns: 1fr auto 1fr;
-        justify-items: stretch;
     }
-    .fb2-page-info {
-        font-size: 12px; min-width: auto;
-        background: rgba(255,255,255,.06); border-radius: 6px;
-        padding: 5px 10px;
-    }
-    .fb2-tb-desktop { display: none !important; }
-    .fb2-tb-zoom-mobile {
+    .ufb-page-badge { font-size: 11px; min-width: 0; }
+    .ufb-tb-desktop { display: none !important; }
+    .ufb-tb-zoom-mobile {
         grid-column: 1 / -1;
         display: flex !important; gap: 6px;
     }
-    .fb2-tb-zoom-mobile .fb2-tbtn-text { flex: 1; }
-    #fb2CanvasR { display: none !important; width: 0 !important; }
-    #fb2Spine   { display: none !important; }
-    #fb2Flipper { display: none !important; }
-    #fb2CanvasL { width: 100% !important; box-shadow: none !important; border-radius: 0 !important; }
-    .fb2-thumbs { display: none; }
+    .ufb-tb-zoom-mobile .ufb-tbtn { flex: 1; justify-content: center; }
+}
+
+/* ── Thumbnail strip ── */
+.ufb-thumbs {
+    display: flex; gap: 8px; overflow-x: auto; padding: 10px 16px;
+    background: #0a140c; border-top: 1px solid rgba(255,255,255,.05); flex-shrink: 0;
+    scrollbar-width: thin; scrollbar-color: #3a5a3e transparent;
+}
+.ufb-thumbs::-webkit-scrollbar { height: 3px; }
+.ufb-thumbs::-webkit-scrollbar-track { background: transparent; }
+.ufb-thumbs::-webkit-scrollbar-thumb { background: #3a5a3e; border-radius: 2px; }
+@media (max-width: 767px) { .ufb-thumbs { display: none; } }
+
+.ufb-thumb {
+    flex-shrink: 0; width: 48px; height: 68px; border-radius: 4px;
+    background: #1e2e22; cursor: pointer; overflow: hidden;
+    border: 2px solid transparent; transition: border-color .2s, transform .2s var(--ease-spring);
+    position: relative;
+}
+.ufb-thumb:hover { transform: scale(1.08); border-color: rgba(97,141,79,.5); }
+.ufb-thumb.active { border-color: var(--moss-mid); }
+.ufb-thumb canvas { width: 100%; height: 100%; display: block; object-fit: contain; }
+.ufb-thumb-n {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: rgba(0,0,0,.68); color: #aaa;
+    font-size: 8.5px; text-align: center; padding: 2px 0;
 }
 </style>
 
@@ -659,13 +720,13 @@ function cleanProgText($str) {
 }
 ?>
 
-<!-- ============================================================
+<!-- ═══════════════════════════════════
      SECTION 1: PROGRAM MBKM
-     ============================================================ -->
+═══════════════════════════════════ -->
 <section class="prog-section">
 <div class="prog-section-head">
     <span class="lp-label">Program Unggulan</span>
-    <h2 class="lp-title lp-title--lg"><?= $prog_count > 0 ? ($prog_count > 1 ? $prog_count.' PROGRAM MBKM' : 'PROGRAM MBKM') : '8 PROGRAM MBKM' ?></h2>
+    <h2 class="lp-title lp-title--lg"><?= $prog_count > 0 ? ($prog_count.' PROGRAM MBKM') : '8 PROGRAM MBKM' ?></h2>
     <div class="lp-divider" style="margin: 0 auto;"></div>
 </div>
 <div class="container" style="padding-bottom:30px;">
@@ -696,9 +757,9 @@ function cleanProgText($str) {
 </div>
 </section>
 
-<!-- ============================================================
-     SECTION 2: TENTANG / SAMBUTAN
-     ============================================================ -->
+<!-- ═══════════════════════════════════
+     SECTION 2: SAMBUTAN
+═══════════════════════════════════ -->
 <section class="sambutan-section">
     <div class="container">
         <div class="row" style="align-items:center;">
@@ -712,8 +773,7 @@ function cleanProgText($str) {
                     </div>
                     <?php
                     $vid = $koneksi_db->sql_fetchrow($koneksi_db->sql_query("SELECT * FROM mod_data_video ORDER BY id DESC LIMIT 1"));
-                    if ($vid && !empty($vid['video'])):
-                    ?>
+                    if ($vid && !empty($vid['video'])): ?>
                     <div style="position:absolute;top:0;left:0;right:0;bottom:0;">
                         <img src="http://img.youtube.com/vi/<?= $vid['video'] ?>/hqdefault.jpg" style="width:100%;height:100%;object-fit:cover;">
                         <a href="https://www.youtube.com/watch?v=<?= $vid['video'] ?>" target="_blank" class="play-icon-wrap">
@@ -727,8 +787,7 @@ function cleanProgText($str) {
                 <span class="lp-label">Tentang</span>
                 <?php
                 $profil_data = $koneksi_db->sql_fetchrow($koneksi_db->sql_query("SELECT * FROM mod_data_profil WHERE id='1'"));
-                if ($profil_data && !empty($profil_data['nama'])):
-                ?>
+                if ($profil_data && !empty($profil_data['nama'])): ?>
                 <h2 class="lp-title"><?= htmlspecialchars($profil_data['nama']) ?></h2>
                 <div class="lp-divider"></div>
                 <p><?= limitTXT(strip_tags($profil_data['sambutan']), 460) ?></p>
@@ -742,9 +801,9 @@ function cleanProgText($str) {
     </div>
 </section>
 
-<!-- ============================================================
+<!-- ═══════════════════════════════════
      SECTION 3: STATISTIK
-     ============================================================ -->
+═══════════════════════════════════ -->
 <section class="stats-section">
     <div class="container">
         <div class="row">
@@ -785,9 +844,9 @@ function cleanProgText($str) {
     </div>
 </section>
 
-<!-- ============================================================
-     SECTION 4: DOKUMENTASI KEGIATAN
-     ============================================================ -->
+<!-- ═══════════════════════════════════
+     SECTION 4: DOKUMENTASI
+═══════════════════════════════════ -->
 <section class="dokum-section">
     <div class="container">
         <span class="lp-label" style="text-align:center;display:block;">Galeri Kegiatan</span>
@@ -843,9 +902,9 @@ function cleanProgText($str) {
     </div>
 </section>
 
-<!-- ============================================================
+<!-- ═══════════════════════════════════
      SECTION 5: TESTIMONI
-     ============================================================ -->
+═══════════════════════════════════ -->
 <section class="testi-section">
     <div class="container">
         <div class="row" style="align-items:flex-start;">
@@ -867,8 +926,7 @@ function cleanProgText($str) {
                         ['nama'=>'Rizky Pratama','email'=>'Kampus Mengajar - SDN Cimahi','ket'=>'Mengajar di sekolah dasar adalah pengalaman yang mengubah perspektif saya. Saya menjadi lebih menghargai dunia pendidikan dan ingin terus berkontribusi.','foto'=>''],
                     ];
                 endif;
-                foreach ($testis as $t):
-                ?>
+                foreach ($testis as $t): ?>
                 <div class="testi-card">
                     <p class="testi-quote">
                         <span class="testi-quote--inner"><?= htmlspecialchars($t['ket']) ?></span>
@@ -893,102 +951,107 @@ function cleanProgText($str) {
     </div>
 </section>
 
-<!-- ============================================================
-     SECTION 6: PEDOMAN FLIPBOOK (BOOKSHELF)
-     Tampilan dari kiri.php, Engine dari flipbook.php
-     ============================================================ -->
+<!-- ═══════════════════════════════════
+     UNIFIED FLIPBOOK MODAL
+═══════════════════════════════════ -->
+<div class="ufb-overlay" id="ufbOverlay">
+<div class="ufb-modal">
 
-<!-- MODAL FLIPBOOK PREMIUM (tampilan kiri.php + engine flipbook.php) -->
-<div class="fb2-overlay" id="fb2Overlay">
-<div class="fb2-container">
-
-    <!-- Header (warna moss-dark seperti kiri.php) -->
-    <div class="fb2-header">
-        <h4 id="fb2Title">Dokumen</h4>
-        <div class="fb2-header-actions">
-            <!-- Zoom In -->
-            <button class="fb2-hbtn fb2-tb-desktop" onclick="fb2ZoomIn()" title="Zoom In">
+    <!-- Header -->
+    <div class="ufb-header">
+        <h4 id="ufbTitle">Dokumen</h4>
+        <div class="ufb-header-actions">
+            <button class="ufb-hbtn ufb-tb-desktop" onclick="ufbZoom(.2)" title="Zoom In">
                 <svg width="15" height="15" viewBox="0 0 24 24"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.5 6.5 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99 1.49-1.49-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14zm.5-7H9v2H7v1h2v2h1v-2h2V9h-2V7z"/></svg>
             </button>
-            <!-- Zoom Out -->
-            <button class="fb2-hbtn fb2-tb-desktop" onclick="fb2ZoomOut()" title="Zoom Out">
+            <button class="ufb-hbtn ufb-tb-desktop" onclick="ufbZoom(-.2)" title="Zoom Out">
                 <svg width="15" height="15" viewBox="0 0 24 24"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.5 6.5 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99 1.49-1.49-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14zM7 9h5v1H7z"/></svg>
             </button>
-            <!-- Fullscreen -->
-            <button class="fb2-hbtn fb2-tb-desktop" onclick="fb2Fullscreen()" title="Fullscreen">
+            <button class="ufb-hbtn ufb-tb-desktop" onclick="ufbFullscreen()" title="Fullscreen">
                 <svg width="15" height="15" viewBox="0 0 24 24"><path fill="currentColor" d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
             </button>
-            <!-- Download -->
-            <a id="fb2DownloadLink" href="#" target="_blank" class="fb2-hbtn" title="Download PDF" style="text-decoration:none;">
+            <a id="ufbDlLink" href="#" target="_blank" class="ufb-hbtn" title="Download PDF" style="text-decoration:none;">
                 <svg width="15" height="15" viewBox="0 0 24 24"><path fill="currentColor" d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
             </a>
-            <button class="fb2-close-btn" onclick="fb2Close()">&#x2715;</button>
+            <button class="ufb-close" onclick="ufbClose()">&#x2715;</button>
         </div>
     </div>
 
-    <!-- Body: spread view dengan flipper 3D -->
-    <div class="fb2-body" id="fb2Body">
-        <button class="fb2-nav prev" onclick="fb2Nav(-1)">
-            <svg width="22" height="22" viewBox="0 0 24 24"><path fill="currentColor" d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+    <!-- Canvas wrap — SCROLLABLE untuk drag-to-pan -->
+    <div class="ufb-canvas-wrap" id="ufbWrap">
+
+        <!-- Nav arrows (floating di atas scroll container) -->
+        <button class="ufb-nav-arrow prev" id="ufbNavPrev" onclick="ufbNav(-1)">
+            <svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+        </button>
+        <button class="ufb-nav-arrow next" id="ufbNavNext" onclick="ufbNav(1)">
+            <svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
         </button>
 
-        <!-- Scene: canvas kiri + spine + canvas kanan (desktop) / canvas saja (mobile) -->
-        <div class="fb2-scene" id="fb2Scene">
-            <canvas id="fb2CanvasL"></canvas>
-            <div id="fb2Spine" class="fb2-spine" style="display:none;"></div>
-            <canvas id="fb2CanvasR" style="display:none;"></canvas>
-            <!-- Flipper 3D (desktop only) -->
-            <div class="fb2-flipper" id="fb2Flipper">
-                <div class="fb2-flip-front"><canvas id="fb2FlipFront"></canvas></div>
-                <div class="fb2-flip-back" ><canvas id="fb2FlipBack" ></canvas></div>
+        <!-- Loading state -->
+        <div class="ufb-loading" id="ufbLoading">
+            <div class="ufb-loading-spinner"></div>
+            <span>Memuat dokumen...</span>
+        </div>
+
+        <!-- Scene outer (centering wrapper) -->
+        <div class="ufb-scene-outer" id="ufbSceneOuter" style="display:none;">
+            <div class="ufb-scene" id="ufbScene">
+                <canvas id="ufbCanvasL"></canvas>
+                <div id="ufbSpine" class="ufb-spine"></div>
+                <canvas id="ufbCanvasR"></canvas>
+                <!-- 3D Flipper -->
+                <div class="ufb-flipper" id="ufbFlipper">
+                    <div class="ufb-flip-front"><canvas id="ufbFlipFront"></canvas></div>
+                    <div class="ufb-flip-back" ><canvas id="ufbFlipBack"></canvas></div>
+                </div>
             </div>
         </div>
 
-        <div id="fb2Loading">Memuat dokumen...</div>
-        <div class="fb2-swipe-hint" id="fb2SwipeHint">&#8592; geser untuk pindah halaman &#8594;</div>
-
-        <button class="fb2-nav next" onclick="fb2Nav(1)">
-            <svg width="22" height="22" viewBox="0 0 24 24"><path fill="currentColor" d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
-        </button>
+        <!-- Swipe hint (mobile) -->
+        <div class="ufb-swipe-hint" id="ufbSwipeHint">&#8592; geser untuk pindah halaman &#8594;</div>
     </div>
 
     <!-- Toolbar bawah -->
-    <div class="fb2-toolbar">
-        <!-- Prev (desktop: 2 hal, mobile: 1 hal) -->
-        <button id="fb2BtnPrev" onclick="fb2Nav(-1)">&#9664; Prev</button>
-        <!-- Info halaman -->
-        <span class="fb2-page-info" id="fb2PageInfo">Cover</span>
-        <!-- Next -->
-        <button id="fb2BtnNext" onclick="fb2Nav(1)">Next &#9654;</button>
+    <div class="ufb-toolbar">
+        <button class="ufb-tbtn" id="ufbBtnPrev" onclick="ufbNav(-1)">&#9664; Prev</button>
 
-        <!-- Desktop controls -->
-        <div class="fb2-vdivider fb2-tb-desktop"></div>
-        <button class="fb2-tbtn fb2-tb-desktop" id="fb2AutoBtn" onclick="fb2ToggleAuto()" title="Auto-play">
-            <svg width="17" height="17" viewBox="0 0 24 24"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>
-        </button>
-        <div class="fb2-tb-zoom fb2-tb-desktop">
-            <button class="fb2-tbtn-text" onclick="fb2ZoomIn()">&#43;</button>
-            <button class="fb2-tbtn-text" onclick="fb2ZoomOut()">&#8722;</button>
-            <button class="fb2-tbtn-text" onclick="fb2ZoomReset()">&#8635;</button>
+        <div class="ufb-tb-desktop" style="display:flex;gap:8px;align-items:center;">
+            <div class="ufb-vdiv"></div>
+            <button class="ufb-tbtn" onclick="ufbZoom(.15)">&#43;</button>
+            <button class="ufb-tbtn" onclick="ufbZoom(-.15)">&#8722;</button>
+            <button class="ufb-tbtn" onclick="ufbZoomReset()" title="Reset zoom">&#8635;</button>
+            <div class="ufb-vdiv"></div>
         </div>
-        <input type="number" id="fb2PageInput" min="1" value="1" class="fb2-page-input fb2-tb-desktop"
-            onkeydown="if(event.key==='Enter') fb2GoToPage(this.value)">
-        <button class="fb2-tbtn-text fb2-tb-desktop" onclick="fb2GoToPage(document.getElementById('fb2PageInput').value)">Go</button>
+
+        <span class="ufb-page-badge" id="ufbPageBadge">Cover</span>
+
+        <div class="ufb-tb-desktop" style="display:flex;gap:8px;align-items:center;">
+            <div class="ufb-vdiv"></div>
+            <input type="number" id="ufbPageInput" min="1" value="1"
+                style="width:46px;height:32px;border-radius:7px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#ddd;text-align:center;font-size:12px;outline:none;"
+                onkeydown="if(event.key==='Enter')ufbGo(this.value)">
+            <button class="ufb-tbtn" onclick="ufbGo(document.getElementById('ufbPageInput').value)">Go</button>
+        </div>
+
+        <button class="ufb-tbtn" id="ufbBtnNext" onclick="ufbNav(1)">Next &#9654;</button>
 
         <!-- Mobile zoom row -->
-        <div class="fb2-tb-zoom-mobile" style="display:none;">
-            <button class="fb2-tbtn-text" onclick="fb2ZoomIn()">&#43; Zoom</button>
-            <button class="fb2-tbtn-text" onclick="fb2ZoomOut()">&#8722; Zoom</button>
+        <div class="ufb-tb-zoom-mobile" style="display:none;grid-column:1/-1;gap:6px;">
+            <button class="ufb-tbtn" onclick="ufbZoom(.15)" style="flex:1;">&#43; Zoom</button>
+            <button class="ufb-tbtn" onclick="ufbZoom(-.15)" style="flex:1;">&#8722; Zoom</button>
         </div>
     </div>
 
-    <!-- Thumbnail strip (hidden mobile via CSS) -->
-    <div class="fb2-thumbs" id="fb2Thumbs"></div>
+    <!-- Thumbnail strip -->
+    <div class="ufb-thumbs" id="ufbThumbs"></div>
 
 </div>
 </div>
 
-<!-- BOOKSHELF SECTION (tampilan persis kiri.php) -->
+<!-- ═══════════════════════════════════
+     SECTION 6: BOOKSHELF
+═══════════════════════════════════ -->
 <section class="bookshelf-section">
     <div class="container">
         <div class="bookshelf-section-head">
@@ -997,8 +1060,8 @@ function cleanProgText($str) {
             <div class="lp-divider" style="margin:0 auto;"></div>
         </div>
         <div class="bookshelf-search">
-            <input type="text" id="bookSearchInput" placeholder="Cari buku pedoman..." oninput="filterBooks()">
-            <button type="button" onclick="filterBooks()">
+            <input type="text" id="bookSearchInput" placeholder="Cari buku pedoman..." oninput="filterBooksLP()">
+            <button type="button" onclick="filterBooksLP()">
                 <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
             </button>
         </div>
@@ -1019,7 +1082,7 @@ function cleanProgText($str) {
                         <div class="book-cover">
                             <div class="book-spine"></div>';
                     echo $cv ? '<img src="'.$cv.'" alt="'.$jd.'">' : '<div class="book-no-cover">'.$jd.'</div>';
-                    echo '<div class="book-hover-overlay"><span>Buka</span></div>
+                    echo '<div class="book-hover-overlay"><span>&#128214; Buka</span></div>
                         </div>
                         <div class="book-title">'.$jd.'</div>
                     </div>';
@@ -1035,7 +1098,7 @@ function cleanProgText($str) {
                     <div class="book-cover" style="background:'.$book_colors[$bi].';">
                         <div class="book-spine"></div>
                         <div class="book-no-cover">'.$bn.'</div>
-                        <div class="book-hover-overlay"><span>Buka</span></div>
+                        <div class="book-hover-overlay"><span>&#128214; Buka</span></div>
                     </div>
                     <div class="book-title">'.$bn.'</div>
                 </div>';
@@ -1049,9 +1112,9 @@ function cleanProgText($str) {
     </div>
 </section>
 
-<!-- ============================================================
-     SECTION 7: CTA BANNER
-     ============================================================ -->
+<!-- ═══════════════════════════════════
+     SECTION 7: CTA
+═══════════════════════════════════ -->
 <section class="cta-section">
     <div class="container">
         <div class="row cta-inner" style="align-items:center;">
@@ -1066,9 +1129,9 @@ function cleanProgText($str) {
     </div>
 </section>
 
-<!-- ============================================================
-     SECTION 8: BERITA & KEGIATAN
-     ============================================================ -->
+<!-- ═══════════════════════════════════
+     SECTION 8: BERITA
+═══════════════════════════════════ -->
 <section class="news-section">
     <div class="container">
         <span class="lp-label">Kabar Terkini</span>
@@ -1081,43 +1144,36 @@ function cleanProgText($str) {
             while ($d = $koneksi_db->sql_fetchrow($q_news)) $news_items[] = $d;
 
             if (empty($news_items)):
-                $news_items = [
-                    ['judul'=>'Peluncuran Program Magang MBKM 2024','gambar'=>'','tanggal'=>date('Y-m-d'),'hits'=>120,'url'=>'#'],
-                    ['judul'=>'Mahasiswa IAI PI Ikuti Pertukaran ke UIN Bandung','gambar'=>'','tanggal'=>date('Y-m-d'),'hits'=>98,'url'=>'#'],
-                    ['judul'=>'Sosialisasi MBKM untuk Mahasiswa Baru','gambar'=>'','tanggal'=>date('Y-m-d'),'hits'=>75,'url'=>'#'],
+                $dummies = [
+                    ['judul'=>'Peluncuran Program Magang MBKM 2024','hits'=>120],
+                    ['judul'=>'Mahasiswa IAI PI Ikuti Pertukaran ke UIN Bandung','hits'=>98],
+                    ['judul'=>'Sosialisasi MBKM untuk Mahasiswa Baru','hits'=>75],
                 ];
-                foreach ($news_items as $ni):
-                ?>
+                foreach ($dummies as $ni): ?>
                 <div class="col-sm-4" style="margin-bottom:30px;">
                     <div class="news-card">
-                        <div class="nc-img-ph">
-                            <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zM6 10h2v2H6zm0 4h8v2H6zm4-4h8v2h-8z"/></svg>
-                        </div>
+                        <div class="nc-img-ph"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zM6 10h2v2H6zm0 4h8v2H6zm4-4h8v2h-8z"/></svg></div>
                         <div class="nc-body">
                             <span class="nc-cat">MBKM</span>
-                            <h3><a href="<?= $ni['url'] ?>"><?= htmlspecialchars($ni['judul']) ?></a></h3>
+                            <h3><a href="#"><?= htmlspecialchars($ni['judul']) ?></a></h3>
                             <div class="nc-meta"><?= $ni['hits'] ?> kali dibaca &nbsp;|&nbsp; <?= date('d M Y') ?></div>
                         </div>
                     </div>
                 </div>
-                <?php
-                endforeach;
+                <?php endforeach;
             else:
                 foreach ($news_items as $data):
-                    $gambar = $data['gambar'];
                     $url = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(" ", "-", $data[1]));
                     $url = trim(preg_replace('/-+/', '-', $url), '-');
                     if (empty($url)) $url = 'artikel-'.$data[0];
-                    $image_src = !empty($gambar) ? 'images/artikel/'.$gambar : '';
+                    $image_src = !empty($data['gambar']) ? 'images/artikel/'.$data['gambar'] : '';
                 ?>
                 <div class="col-sm-4" style="margin-bottom:30px;">
                     <div class="news-card">
                         <?php if ($image_src): ?>
                         <img src="<?= $image_src ?>" class="nc-img" alt="<?= htmlspecialchars($data[1]) ?>">
                         <?php else: ?>
-                        <div class="nc-img-ph">
-                            <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zM6 10h2v2H6zm0 4h8v2H6zm4-4h8v2h-8z"/></svg>
-                        </div>
+                        <div class="nc-img-ph"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zM6 10h2v2H6zm0 4h8v2H6zm4-4h8v2h-8z"/></svg></div>
                         <?php endif; ?>
                         <div class="nc-body">
                             <span class="nc-cat">MBKM</span>
@@ -1126,10 +1182,8 @@ function cleanProgText($str) {
                         </div>
                     </div>
                 </div>
-                <?php
-                endforeach;
-            endif;
-            ?>
+                <?php endforeach;
+            endif; ?>
         </div>
         <div style="text-align:center; margin-top:16px;">
             <a href="kategori/1/Berita-Kampus.html" class="btn-outline-lp">Lihat Semua Berita &raquo;</a>
@@ -1137,9 +1191,9 @@ function cleanProgText($str) {
     </div>
 </section>
 
-<!-- ============================================================
+<!-- ═══════════════════════════════════════════════════════════
      SCRIPTS
-     ============================================================ -->
+═══════════════════════════════════════════════════════════ -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
 /* ── PDF.js worker ── */
@@ -1149,550 +1203,497 @@ if (typeof pdfjsLib !== 'undefined') {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   FLIPBOOK ENGINE — Gabungan kiri.php (tampilan) + flipbook.php (fungsi)
-   ─────────────────────────────────────────────────────────────
-   STATE:
-   - _pdf     : objek PDF dari PDF.js
-   - _page    : halaman kiri yang sedang ditampilkan (selalu ganjil di desktop)
-   - _total   : total halaman
-   - _busy    : mencegah flip ganda
-   - _scale   : skala render
-   - _zoom    : zoom tambahan (dari tombol +/-)
-   - _autoOn  : mode auto-play
-   ══════════════════════════════════════════════════════════════ */
-var _pdf      = null;
-var _page     = 1;
-var _total    = 0;
-var _busy     = false;
-var _scale    = 1.3;
-var _zoom     = 1.0;
-var _autoOn   = false;
-var _autoTimer = null;
-var FLIP_MS   = 640;
+   UNIFIED FLIPBOOK ENGINE
+   State: _pdf, _page (always odd on desktop spread), _total,
+          _busy (block concurrent renders), _scale (auto),
+          _zoom (user), _thumbsBuilt
+══════════════════════════════════════════════════════════════ */
+var _pdf = null, _page = 1, _total = 0;
+var _busy = false, _scale = 1.3, _zoom = 1.0;
+var _thumbsBuilt = false;
+var FLIP_MS = 620; /* milliseconds for 3D flip animation */
 
-/* Cache elemen DOM */
-var _EL = {};
-function _el(id) { return _EL[id] || (_EL[id] = document.getElementById(id)); }
+/* DOM cache */
+var _cache = {};
+function _el(id) { return _cache[id] || (_cache[id] = document.getElementById(id)); }
 
-/* ── Helpers ── */
 function _isMobile() { return window.innerWidth <= 767; }
 
-/* Hitung skala otomatis agar halaman muat di area modal */
+/* ── Auto-scale ── */
 function _calcScale() {
-    var body   = _el('fb2Body');
-    var availW = body.clientWidth  - (_isMobile() ? 0 : 128); /* padding nav kiri+kanan */
-    var availH = body.clientHeight - 40;
+    var wrap = _el('ufbWrap');
+    var w    = wrap.clientWidth  - (_isMobile() ? 0 : 120);
+    var h    = wrap.clientHeight - 40;
     if (!_pdf) return Promise.resolve(_isMobile() ? 1.0 : 1.3);
     return _pdf.getPage(1).then(function(pg) {
-        var vp = pg.getViewport({ scale: 1 });
-        var mob   = _isMobile();
-        var maxW  = mob ? availW : Math.floor((availW - 6) / 2); /* 6 = spine */
-        var scaleW = maxW   / vp.width;
-        var scaleH = availH / vp.height;
-        return Math.max(0.3, Math.min(3.5, Math.min(scaleW, scaleH)));
+        var vp  = pg.getViewport({ scale: 1 });
+        var mob = _isMobile();
+        var maxW = mob ? w : Math.floor((w - 7) / 2);
+        return Math.max(.3, Math.min(3.5, Math.min(maxW / vp.width, h / vp.height)));
     });
 }
 
-/* Render satu halaman PDF ke canvas */
-function _rndPage(num, canvas) {
+/* ── Render page to canvas ── */
+function _rnd(num, cvs) {
     if (!_pdf || num < 1 || num > _total) {
-        canvas.width = 0; canvas.height = 0;
-        canvas.style.display = 'none';
+        cvs.width = 0; cvs.height = 0; cvs.style.display = 'none';
         return Promise.resolve(null);
     }
     var dpr = Math.min(window.devicePixelRatio || 1, 2);
     var s   = _scale * _zoom;
     return _pdf.getPage(num).then(function(pg) {
         var vp = pg.getViewport({ scale: s * dpr });
-        canvas.width        = vp.width;
-        canvas.height       = vp.height;
-        canvas.style.width  = Math.round(vp.width  / dpr) + 'px';
-        canvas.style.height = Math.round(vp.height / dpr) + 'px';
-        canvas.style.display = 'block';
-        return pg.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise
-            .then(function() { return canvas; });
+        cvs.width  = vp.width; cvs.height = vp.height;
+        cvs.style.width  = Math.round(vp.width  / dpr) + 'px';
+        cvs.style.height = Math.round(vp.height / dpr) + 'px';
+        cvs.style.display = 'block';
+        return pg.render({ canvasContext: cvs.getContext('2d'), viewport: vp }).promise
+            .then(function() { return cvs; });
     });
 }
 
-/* Salin canvas src → dst (untuk flipper animasi) */
-function _copyCanvas(src, dst) {
+/* ── Copy canvas ── */
+function _copy(src, dst) {
     if (!src || !src.width) return;
-    dst.width  = src.width;  dst.height = src.height;
+    dst.width = src.width; dst.height = src.height;
     dst.style.width  = src.style.width;
     dst.style.height = src.style.height;
     dst.style.display = 'block';
     dst.getContext('2d').drawImage(src, 0, 0);
 }
 
-/* Snap halaman ke posisi spread yang valid */
-function _snapPage(p) {
+/* ── Page snap for desktop spread ── */
+function _snap(p) {
     if (_isMobile()) return Math.max(1, Math.min(_total, p));
-    var s = (p % 2 === 0) ? Math.max(1, p - 1) : p;
+    var s = (p % 2 === 0) ? p - 1 : p;
     return Math.max(1, Math.min(_total, s));
 }
 
-/* Update UI: info halaman, tombol, spine */
-function _updateUI(p) {
+/* ── Update UI ── */
+function _ui(p) {
     var mob  = _isMobile();
-    var hasR = !mob && (p + 1 <= _total);
+    var hasR = !mob && p + 1 <= _total;
 
-    _el('fb2Spine').style.display  = hasR ? 'block' : 'none';
-    var cR = _el('fb2CanvasR');
+    _el('ufbSpine').style.display  = hasR ? 'block' : 'none';
+    var cR = _el('ufbCanvasR');
     if (!hasR) { cR.style.display = 'none'; cR.width = 0; }
 
     var label = (p === 1 && _total <= 1)
         ? 'Cover'
         : 'Hal ' + p + (hasR ? '\u2013' + (p + 1) : '') + ' / ' + _total;
-    _el('fb2PageInfo').textContent = label;
+    _el('ufbPageBadge').textContent = label;
 
-    var inp = _el('fb2PageInput');
+    var inp = _el('ufbPageInput');
     if (inp) inp.value = p;
 
-    _el('fb2BtnPrev').disabled = (p <= 1);
-    _el('fb2BtnNext').disabled = mob ? (p >= _total) : (p + 1 >= _total);
+    _el('ufbBtnPrev').disabled = (p <= 1);
+    _el('ufbBtnNext').disabled = mob ? (p >= _total) : (p + 1 >= _total);
 
     /* Mobile zoom row */
-    var mzr = document.querySelector('.fb2-tb-zoom-mobile');
+    var mzr = document.querySelector('.ufb-tb-zoom-mobile');
     if (mzr) mzr.style.display = mob ? 'flex' : 'none';
+
+    /* Thumbnail highlight */
+    _updateThumb(p);
 }
 
-/* ── RENDER LANGSUNG (tanpa animasi) ── */
-function _renderDirect(p, cb) {
-    var mob = _isMobile();
-    var cL  = _el('fb2CanvasL');
-    var cR  = _el('fb2CanvasR');
+/* ── Center scene in scroll wrap ── */
+function _centerScene() {
+    var wrap  = _el('ufbWrap');
+    var scene = _el('ufbSceneOuter');
+    if (!scene || !wrap) return;
+    /* scrollLeft/Top to center the content */
+    var cw = scene.scrollWidth  || wrap.scrollWidth;
+    var ch = scene.scrollHeight || wrap.scrollHeight;
+    wrap.scrollLeft = Math.max(0, (cw - wrap.clientWidth)  / 2);
+    wrap.scrollTop  = Math.max(0, (ch - wrap.clientHeight) / 2);
+}
 
-    var tasks = [_rndPage(p, cL)];
-    if (!mob && p + 1 <= _total) {
-        tasks.push(_rndPage(p + 1, cR));
-    } else {
-        cR.style.display = 'none'; cR.width = 0;
-    }
+/* ── DIRECT RENDER (no animation) ── */
+function _direct(p, cb) {
+    var mob = _isMobile();
+    var cL  = _el('ufbCanvasL');
+    var cR  = _el('ufbCanvasR');
+
+    var tasks = [_rnd(p, cL)];
+    if (!mob && p + 1 <= _total) tasks.push(_rnd(p + 1, cR));
+    else { cR.style.display = 'none'; cR.width = 0; }
 
     Promise.all(tasks).then(function() {
-        _updateUI(p);
+        _ui(p);
         _busy = false;
-        _updateThumbs(p);
+        _centerScene();
         if (cb) cb();
     }).catch(function() { _busy = false; });
 }
 
-/* ── RENDER DENGAN ANIMASI 3D FLIP (desktop only) ── */
-function _renderFlip(p, dir) {
-    if (_isMobile()) { _renderDirect(p); return; }
+/* ── 3D FLIP RENDER (desktop only) ── */
+function _flip(p, dir) {
+    if (_isMobile()) { _direct(p); return; }
 
-    var cL      = _el('fb2CanvasL');
-    var cR      = _el('fb2CanvasR');
-    var flipper = _el('fb2Flipper');
-    var scene   = _el('fb2Scene');
-    var flipF   = _el('fb2FlipFront');
-    var flipB   = _el('fb2FlipBack');
+    var cL  = _el('ufbCanvasL');
+    var cR  = _el('ufbCanvasR');
+    var fpr = _el('ufbFlipper');
+    var ffr = _el('ufbFlipFront');
+    var fbk = _el('ufbFlipBack');
 
-    flipper.className = 'fb2-flipper';
+    fpr.className = 'ufb-flipper';
 
     if (dir === 'next') {
-        /* Flip canvas kanan menjadi halaman baru kiri */
-        if (!cR.offsetWidth) { _busy = false; _renderDirect(p); return; }
+        if (!cR.offsetWidth) { _busy = false; _direct(p); return; }
+        _copy(cR, ffr);
 
-        _copyCanvas(cR, flipF);
-
-        flipper.style.cssText = [
+        /* Position flipper over cR */
+        fpr.style.cssText = [
             'display:block',
             'width:'  + cR.offsetWidth  + 'px',
             'height:' + cR.offsetHeight + 'px',
             'left:'   + cR.offsetLeft   + 'px',
             'top:'    + cR.offsetTop    + 'px',
-            'transform-origin: 0% 50%',
-            'transform: rotateY(0deg)',
-            'transition: none',
-            'z-index: 20',
-            'pointer-events: none'
+            'transform-origin:0% 50%',
+            'transform:rotateY(0deg)',
+            'transition:none',
+            'z-index:20',
+            'pointer-events:none'
         ].join(';');
-        flipper.classList.add('is-next');
+        fpr.classList.add('is-next');
         cR.style.visibility = 'hidden';
 
-        Promise.all([ _rndPage(p, flipB), _rndPage(p + 1, cR) ]).then(function() {
-            flipB.style.width  = flipF.style.width;
-            flipB.style.height = flipF.style.height;
+        Promise.all([_rnd(p, fbk), _rnd(p + 1, cR)]).then(function() {
+            fbk.style.width = ffr.style.width; fbk.style.height = ffr.style.height;
             requestAnimationFrame(function() {
                 requestAnimationFrame(function() {
-                    flipper.style.transition = 'transform ' + FLIP_MS + 'ms cubic-bezier(0.77,0,0.175,1)';
-                    flipper.style.transform  = 'rotateY(-180deg)';
+                    fpr.style.transition = 'transform ' + FLIP_MS + 'ms cubic-bezier(.77,0,.18,1)';
+                    fpr.style.transform  = 'rotateY(-180deg)';
                 });
             });
             setTimeout(function() {
-                flipper.style.transition = 'none';
-                flipper.style.display    = 'none';
-                flipper.className = 'fb2-flipper';
+                fpr.style.transition = 'none'; fpr.style.display = 'none';
+                fpr.className = 'ufb-flipper';
                 cR.style.visibility = 'visible';
-                _renderDirect(p);
-            }, FLIP_MS + 80);
-        }).catch(function() {
-            flipper.style.display = 'none';
-            cR.style.visibility = 'visible';
-            _busy = false;
-        });
+                _direct(p);
+            }, FLIP_MS + 60);
+        }).catch(function() { fpr.style.display='none'; cR.style.visibility='visible'; _busy=false; });
 
     } else {
-        /* Flip canvas kiri menjadi halaman baru kanan */
-        if (!cL.offsetWidth) { _busy = false; _renderDirect(p); return; }
+        if (!cL.offsetWidth) { _busy = false; _direct(p); return; }
+        _copy(cL, ffr);
 
-        _copyCanvas(cL, flipF);
-
-        flipper.style.cssText = [
+        fpr.style.cssText = [
             'display:block',
             'width:'  + cL.offsetWidth  + 'px',
             'height:' + cL.offsetHeight + 'px',
             'left:'   + cL.offsetLeft   + 'px',
             'top:'    + cL.offsetTop    + 'px',
-            'transform-origin: 100% 50%',
-            'transform: rotateY(0deg)',
-            'transition: none',
-            'z-index: 20',
-            'pointer-events: none'
+            'transform-origin:100% 50%',
+            'transform:rotateY(0deg)',
+            'transition:none',
+            'z-index:20',
+            'pointer-events:none'
         ].join(';');
-        flipper.classList.add('is-prev');
+        fpr.classList.add('is-prev');
         cL.style.visibility = 'hidden';
 
-        Promise.all([ _rndPage(p + 1, flipB), _rndPage(p, cL) ]).then(function() {
-            flipB.style.width  = flipF.style.width;
-            flipB.style.height = flipF.style.height;
+        Promise.all([_rnd(p + 1, fbk), _rnd(p, cL)]).then(function() {
+            fbk.style.width = ffr.style.width; fbk.style.height = ffr.style.height;
             requestAnimationFrame(function() {
                 requestAnimationFrame(function() {
-                    flipper.style.transition = 'transform ' + FLIP_MS + 'ms cubic-bezier(0.77,0,0.175,1)';
-                    flipper.style.transform  = 'rotateY(180deg)';
+                    fpr.style.transition = 'transform ' + FLIP_MS + 'ms cubic-bezier(.77,0,.18,1)';
+                    fpr.style.transform  = 'rotateY(180deg)';
                 });
             });
             setTimeout(function() {
-                flipper.style.transition = 'none';
-                flipper.style.display    = 'none';
-                flipper.className = 'fb2-flipper';
+                fpr.style.transition = 'none'; fpr.style.display = 'none';
+                fpr.className = 'ufb-flipper';
                 cL.style.visibility = 'visible';
-                _renderDirect(p);
-            }, FLIP_MS + 80);
-        }).catch(function() {
-            flipper.style.display = 'none';
-            cL.style.visibility = 'visible';
-            _busy = false;
-        });
+                _direct(p);
+            }, FLIP_MS + 60);
+        }).catch(function() { fpr.style.display='none'; cL.style.visibility='visible'; _busy=false; });
     }
 }
 
-/* ── NAVIGASI ── */
-function fb2Nav(dir) {
+/* ── NAVIGATION ── */
+function ufbNav(dir) {
     if (!_pdf || _busy) return;
     var mob  = _isMobile();
     var step = mob ? 1 : 2;
-    var newP = _snapPage(_page + dir * step);
+    var newP = _snap(_page + dir * step);
     if (newP === _page) {
         newP = Math.max(1, Math.min(_total, _page + dir));
         if (newP === _page) return;
     }
     _busy = true; _page = newP;
-    if (mob) _renderDirect(_page);
-    else     _renderFlip(_page, dir > 0 ? 'next' : 'prev');
+    if (mob) _direct(_page);
+    else     _flip(_page, dir > 0 ? 'next' : 'prev');
 }
 
-/* Goto halaman tertentu */
-function fb2GoToPage(pageNum) {
-    pageNum = parseInt(pageNum, 10);
-    if (isNaN(pageNum) || pageNum < 1 || pageNum > _total) return;
-    var newP = _isMobile() ? pageNum : _snapPage(pageNum);
-    if (newP === _page) return;
-    var dir = newP > _page ? 1 : -1;
-    _busy = true; _page = newP;
-    if (_isMobile()) _renderDirect(_page);
-    else             _renderFlip(_page, dir > 0 ? 'next' : 'prev');
+function ufbGo(n) {
+    n = parseInt(n, 10);
+    if (isNaN(n) || n < 1 || n > _total) return;
+    var np = _snap(n);
+    if (np === _page) return;
+    var dir = np > _page ? 1 : -1;
+    _busy = true; _page = np;
+    _isMobile() ? _direct(_page) : _flip(_page, dir > 0 ? 'next' : 'prev');
 }
 
 /* ── ZOOM ── */
-function fb2ZoomIn() {
+function ufbZoom(d) {
     if (!_pdf) return;
-    _zoom = Math.min(_zoom + 0.2, 3.0);
-    _busy = false; _renderDirect(_page);
+    _zoom = Math.max(.35, Math.min(3.5, _zoom + d));
+    _busy = false; _direct(_page);
 }
-function fb2ZoomOut() {
-    if (!_pdf) return;
-    _zoom = Math.max(_zoom - 0.2, 0.4);
-    _busy = false; _renderDirect(_page);
-}
-function fb2ZoomReset() {
+function ufbZoomReset() {
     if (!_pdf) return;
     _zoom = 1.0;
-    _calcScale().then(function(s) { _scale = s; _busy = false; _renderDirect(_page); });
+    _calcScale().then(function(s) { _scale = s; _busy = false; _direct(_page); });
 }
 
 /* ── FULLSCREEN ── */
-function fb2Fullscreen() {
-    var el = _el('fb2Overlay');
-    if (!document.fullscreenElement) {
+function ufbFullscreen() {
+    var el = _el('ufbOverlay');
+    if (!document.fullscreenElement)
         (el.requestFullscreen || el.webkitRequestFullscreen || function(){}).call(el);
-    } else {
+    else
         (document.exitFullscreen || document.webkitExitFullscreen || function(){}).call(document);
-    }
 }
 
-/* ── AUTO-PLAY ── */
-function fb2ToggleAuto() {
-    _autoOn = !_autoOn;
-    var btn = _el('fb2AutoBtn');
-    if (btn) btn.classList.toggle('active', _autoOn);
-    if (_autoOn) {
-        _autoTimer = setInterval(function() {
-            if (_page + (_isMobile() ? 1 : 2) > _total) {
-                fb2ToggleAuto(); return;
-            }
-            fb2Nav(1);
-        }, 3500);
-    } else {
-        clearInterval(_autoTimer);
-    }
-}
-
-/* ── THUMBNAIL ── */
+/* ── THUMBNAILS ── */
 function _buildThumbs() {
-    var strip = _el('fb2Thumbs');
-    if (!strip || !_pdf) return;
+    if (_thumbsBuilt || !_pdf) return;
+    _thumbsBuilt = true;
+    var strip = _el('ufbThumbs');
     strip.innerHTML = '';
-    /* Tambahkan thumbnail per halaman */
     for (var i = 1; i <= _total; i++) {
         (function(pn) {
-            var th  = document.createElement('div');
-            th.className = 'fb2-thumb' + (pn === 1 ? ' active' : '');
+            var th = document.createElement('div');
+            th.className = 'ufb-thumb' + (pn === 1 ? ' active' : '');
             th.dataset.page = pn;
-
             var tc = document.createElement('canvas');
-            tc.width = 50; tc.height = 70;
             th.appendChild(tc);
-
-            var num = document.createElement('div');
-            num.className = 'fb2-thumb-num';
-            num.textContent = pn;
-            th.appendChild(num);
-
-            th.onclick = function() { fb2GoToPage(pn); };
+            var nn = document.createElement('div');
+            nn.className = 'ufb-thumb-n'; nn.textContent = pn;
+            th.appendChild(nn);
+            th.onclick = function() { ufbGo(pn); };
             strip.appendChild(th);
-
-            /* Render thumbnail */
-            _pdf.getPage(pn).then(function(page) {
-                var vp0   = page.getViewport({ scale: 1 });
-                var scale = Math.min(50 / vp0.width, 70 / vp0.height);
-                var vp    = page.getViewport({ scale: scale });
+            _pdf.getPage(pn).then(function(pg) {
+                var vp0 = pg.getViewport({ scale: 1 });
+                var sc  = Math.min(48 / vp0.width, 68 / vp0.height);
+                var vp  = pg.getViewport({ scale: sc });
                 tc.width = vp.width; tc.height = vp.height;
-                page.render({ canvasContext: tc.getContext('2d'), viewport: vp }).promise;
+                pg.render({ canvasContext: tc.getContext('2d'), viewport: vp }).promise;
             });
         })(i);
     }
 }
 
-function _updateThumbs(p) {
-    document.querySelectorAll('.fb2-thumb').forEach(function(t) {
+function _updateThumb(p) {
+    document.querySelectorAll('.ufb-thumb').forEach(function(t) {
         var tp = parseInt(t.dataset.page, 10);
-        var mob = _isMobile();
-        var active = mob ? (tp === p) : (tp === p || tp === p + 1);
-        t.classList.toggle('active', active);
-        if (active) t.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        var a  = _isMobile() ? (tp === p) : (tp === p || tp === p + 1);
+        t.classList.toggle('active', a);
+        if (a) t.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
     });
 }
 
 /* ── SWIPE HINT ── */
 function _showSwipeHint() {
-    var hint = _el('fb2SwipeHint');
-    hint.classList.add('visible');
-    setTimeout(function() { hint.classList.add('fade'); }, 2400);
-    setTimeout(function() { hint.classList.remove('visible', 'fade'); }, 3500);
+    var h = _el('ufbSwipeHint');
+    h.classList.add('show');
+    setTimeout(function() { h.style.transition = 'opacity 1s'; h.style.opacity = '0'; }, 2400);
+    setTimeout(function() { h.classList.remove('show'); h.style.opacity = ''; h.style.transition = ''; }, 3600);
 }
 
-/* ── OPEN FLIPBOOK (dipanggil dari book-card) ── */
+/* ── OPEN ── */
 function openFlipbook(url, title) {
-    _el('fb2Title').textContent       = title || 'Dokumen';
-    _el('fb2DownloadLink').href       = url;
-    _el('fb2Overlay').classList.add('active');
+    _el('ufbTitle').textContent  = title || 'Dokumen';
+    _el('ufbDlLink').href        = url;
+    _el('ufbOverlay').classList.add('active');
     document.body.style.overflow = 'hidden';
 
-    /* Reset state */
-    _pdf = null; _total = 0; _page = 1;
-    _busy = false; _zoom = 1.0;
-    if (_autoOn) fb2ToggleAuto();
+    /* Reset */
+    _pdf = null; _total = 0; _page = 1; _busy = false; _zoom = 1.0; _thumbsBuilt = false;
 
-    /* Reset canvas */
-    ['fb2CanvasL','fb2CanvasR','fb2FlipFront','fb2FlipBack'].forEach(function(id) {
-        var c = _el(id);
-        if (c.width > 0) c.getContext('2d').clearRect(0, 0, c.width, c.height);
-        c.width = 0; c.height = 0; c.style.display = 'none';
+    /* Clear canvases */
+    ['ufbCanvasL','ufbCanvasR','ufbFlipFront','ufbFlipBack'].forEach(function(id) {
+        var c = _el(id); c.width = 0; c.height = 0; c.style.display = 'none';
     });
-    _el('fb2Flipper').style.display = 'none';
-    _el('fb2Flipper').className = 'fb2-flipper';
-    _el('fb2Spine').style.display = 'none';
-    _el('fb2Thumbs').innerHTML = '';
-    _el('fb2PageInfo').textContent = 'Memuat...';
-
-    /* Loading */
-    var loadEl = _el('fb2Loading');
-    loadEl.style.display = 'block';
-    loadEl.textContent   = '';
+    _el('ufbFlipper').style.display  = 'none';
+    _el('ufbFlipper').className      = 'ufb-flipper';
+    _el('ufbSpine').style.display    = 'none';
+    _el('ufbThumbs').innerHTML       = '';
+    _el('ufbPageBadge').textContent  = 'Memuat...';
+    _el('ufbLoading').style.display  = 'flex';
+    _el('ufbSceneOuter').style.display = 'none';
 
     if (typeof pdfjsLib === 'undefined') {
-        loadEl.textContent = 'PDF.js tidak ditemukan.'; return;
+        _el('ufbLoading').innerHTML = '&#9888; PDF.js tidak ditemukan.'; return;
     }
 
     pdfjsLib.getDocument(url).promise.then(function(pdf) {
-        _pdf   = pdf;
-        _total = pdf.numPages;
+        _pdf = pdf; _total = pdf.numPages;
         return _calcScale();
     }).then(function(s) {
         _scale = s;
-        loadEl.style.display = 'none';
-        _renderDirect(1, function() {
+        _el('ufbLoading').style.display    = 'none';
+        _el('ufbSceneOuter').style.display = 'flex';
+        _direct(1, function() {
             _buildThumbs();
             if (_isMobile()) _showSwipeHint();
         });
     }).catch(function(err) {
-        loadEl.textContent = 'Gagal memuat PDF. ' + (err.message || err);
+        _el('ufbLoading').innerHTML = '&#9888; Gagal memuat: ' + (err.message || err);
         _busy = false;
     });
 }
 
-/* Alias: nama lama di kiri.php juga tetap berfungsi */
+/* Alias lama */
 function openFlipbookHome(url, title) { openFlipbook(url, title); }
 
-/* ── TUTUP ── */
-function fb2Close() {
-    _el('fb2Overlay').classList.remove('active');
+/* ── CLOSE ── */
+function ufbClose() {
+    _el('ufbOverlay').classList.remove('active');
     document.body.style.overflow = '';
-    if (_autoOn) fb2ToggleAuto();
-
-    ['fb2CanvasL','fb2CanvasR','fb2FlipFront','fb2FlipBack'].forEach(function(id) {
-        var c = _el(id);
-        if (c.width > 0) c.getContext('2d').clearRect(0, 0, c.width, c.height);
-        c.width = 0; c.height = 0; c.style.display = 'none';
+    ['ufbCanvasL','ufbCanvasR','ufbFlipFront','ufbFlipBack'].forEach(function(id) {
+        var c = _el(id); c.width = 0; c.height = 0; c.style.display = 'none';
     });
-    _el('fb2Flipper').style.display = 'none';
-    _el('fb2Flipper').className = 'fb2-flipper';
-    _el('fb2Spine').style.display = 'none';
-    _pdf = null; _busy = false; _page = 1;
+    _el('ufbFlipper').style.display = 'none';
+    _el('ufbFlipper').className     = 'ufb-flipper';
+    _el('ufbSpine').style.display   = 'none';
+    _pdf = null; _busy = false; _page = 1; _thumbsBuilt = false;
 }
 
 /* ── KEYBOARD ── */
 document.addEventListener('keydown', function(e) {
-    if (!_el('fb2Overlay').classList.contains('active')) return;
-    switch (e.key) {
-        case 'ArrowRight': fb2Nav(1);      break;
-        case 'ArrowLeft':  fb2Nav(-1);     break;
-        case 'Escape':     fb2Close();     break;
-        case '+': case '=': fb2ZoomIn();  break;
-        case '-':           fb2ZoomOut(); break;
-        case '0':           fb2ZoomReset(); break;
-    }
+    if (!_el('ufbOverlay').classList.contains('active')) return;
+    if (e.key === 'ArrowRight') ufbNav(1);
+    if (e.key === 'ArrowLeft')  ufbNav(-1);
+    if (e.key === 'Escape')     ufbClose();
+    if (e.key === '+' || e.key === '=') ufbZoom(.15);
+    if (e.key === '-')          ufbZoom(-.15);
+    if (e.key === '0')          ufbZoomReset();
 });
 
-/* ── KLIK OVERLAY UNTUK TUTUP ── */
-_el('fb2Overlay').addEventListener('click', function(e) {
-    if (e.target === this) fb2Close();
+/* ── BACKDROP CLICK ── */
+_el('ufbOverlay').addEventListener('click', function(e) {
+    if (e.target === this) ufbClose();
 });
 
-/* ── DRAG-TO-PAN + MOMENTUM (desktop) ── */
+/* ══════════════════════════════
+   DRAG-TO-PAN + MOMENTUM (desktop)
+   Menggunakan scrollLeft/scrollTop pada wrap yang overflow:auto
+══════════════════════════════ */
 (function() {
-    var body = _el('fb2Body');
-    if (!body) return;
-    var isDown = false, lx, ly, velX = 0, velY = 0, rafId = null;
-    var FRICTION = 0.85;
+    var wrap = _el('ufbWrap');
+    if (!wrap) return;
+    var down = false, lx, ly, vx = 0, vy = 0, raf = null;
+    var FRICTION = 0.88;
 
-    function cancelMom() { if (rafId) { cancelAnimationFrame(rafId); rafId = null; } }
-    function applyMom() {
-        velX *= FRICTION; velY *= FRICTION;
-        /* fb2Body tidak punya overflow scroll, jadi pan dilakukan via transformOrigin */
-        if (Math.abs(velX) > 0.5 || Math.abs(velY) > 0.5) {
-            rafId = requestAnimationFrame(applyMom);
-        } else { rafId = null; }
+    function cancel() { if (raf) { cancelAnimationFrame(raf); raf = null; } }
+    function momentum() {
+        vx *= FRICTION; vy *= FRICTION;
+        wrap.scrollLeft -= vx;
+        wrap.scrollTop  -= vy;
+        if (Math.abs(vx) > .4 || Math.abs(vy) > .4) raf = requestAnimationFrame(momentum);
+        else raf = null;
     }
 
-    function onDown(e) {
+    wrap.addEventListener('mousedown', function(e) {
         if (_isMobile()) return;
-        if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A') return;
-        cancelMom();
-        isDown = true; velX = 0; velY = 0;
-        var pt = e.touches ? e.touches[0] : e;
-        lx = pt.clientX; ly = pt.clientY;
-        body.classList.add('is-dragging');
+        if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A' || e.target.tagName === 'INPUT') return;
+        cancel(); down = true; vx = 0; vy = 0;
+        lx = e.clientX; ly = e.clientY;
+        wrap.classList.add('is-dragging');
         e.preventDefault();
-    }
-    function onMove(e) {
-        if (!isDown || _isMobile()) return;
-        e.preventDefault();
-        var pt = e.touches ? e.touches[0] : e;
-        velX = velX * 0.4 + (pt.clientX - lx) * 0.6;
-        velY = velY * 0.4 + (pt.clientY - ly) * 0.6;
-        lx = pt.clientX; ly = pt.clientY;
-    }
-    function onUp() {
-        if (!isDown) return; isDown = false;
-        body.classList.remove('is-dragging');
-        if (Math.abs(velX) > 1.5 || Math.abs(velY) > 1.5) {
-            rafId = requestAnimationFrame(applyMom);
-        }
-    }
+    }, { passive: false });
 
-    body.addEventListener('mousedown', onDown, { passive: false });
-    document.addEventListener('mousemove', onMove, { passive: false });
-    document.addEventListener('mouseup', onUp);
+    document.addEventListener('mousemove', function(e) {
+        if (!down || _isMobile()) return;
+        var dx = e.clientX - lx, dy = e.clientY - ly;
+        vx = vx * .35 + dx * .65;
+        vy = vy * .35 + dy * .65;
+        wrap.scrollLeft -= dx;
+        wrap.scrollTop  -= dy;
+        lx = e.clientX; ly = e.clientY;
+    });
 
-    /* Wheel zoom */
-    body.addEventListener('wheel', function(e) {
-        e.preventDefault();
+    document.addEventListener('mouseup', function() {
+        if (!down) return; down = false;
+        wrap.classList.remove('is-dragging');
+        if (Math.abs(vx) > 1.2 || Math.abs(vy) > 1.2) raf = requestAnimationFrame(momentum);
+    });
+
+    /* Wheel zoom (pinch-style) */
+    wrap.addEventListener('wheel', function(e) {
         if (!_pdf) return;
-        cancelMom();
-        _zoom = Math.max(0.4, Math.min(3.0, _zoom + (e.deltaY < 0 ? 0.12 : -0.12)));
-        _busy = false; _renderDirect(_page);
+        e.preventDefault();
+        cancel();
+        var step = 0.1;
+        var oldZoom = _zoom;
+        _zoom = Math.max(.35, Math.min(3.5, _zoom + (e.deltaY < 0 ? step : -step)));
+        if (_zoom === oldZoom) return;
+        /* Zoom toward cursor */
+        var wr    = wrap.getBoundingClientRect();
+        var cx    = e.clientX - wr.left + wrap.scrollLeft;
+        var cy    = e.clientY - wr.top  + wrap.scrollTop;
+        var ratio = _zoom / oldZoom;
+        _busy = false;
+        _direct(_page, function() {
+            wrap.scrollLeft = Math.round(cx * ratio - (e.clientX - wr.left));
+            wrap.scrollTop  = Math.round(cy * ratio - (e.clientY - wr.top));
+        });
     }, { passive: false });
 })();
 
-/* ── SWIPE GESTURE (mobile) ── */
+/* ══════════════════════════════
+   SWIPE GESTURE (mobile)
+══════════════════════════════ */
 (function() {
-    var body = _el('fb2Body');
-    if (!body) return;
-    var sx, sy, deciding, decidedAxis;
+    var wrap = _el('ufbWrap');
+    if (!wrap) return;
+    var sx, sy, axis, deciding;
 
-    body.addEventListener('touchstart', function(e) {
+    wrap.addEventListener('touchstart', function(e) {
         if (e.touches.length !== 1) return;
-        sx = e.touches[0].clientX;
-        sy = e.touches[0].clientY;
-        deciding = true; decidedAxis = null;
+        sx = e.touches[0].clientX; sy = e.touches[0].clientY;
+        deciding = true; axis = null;
     }, { passive: true });
 
-    body.addEventListener('touchmove', function(e) {
-        if (!deciding && decidedAxis !== 'h') return;
+    wrap.addEventListener('touchmove', function(e) {
+        if (!deciding && axis !== 'h') return;
         var dx = e.touches[0].clientX - sx;
         var dy = e.touches[0].clientY - sy;
         if (deciding && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
-            decidedAxis = Math.abs(dx) > Math.abs(dy) ? 'h' : 'v';
+            axis = Math.abs(dx) > Math.abs(dy) ? 'h' : 'v';
             deciding = false;
         }
-        if (decidedAxis === 'h') e.preventDefault();
+        if (axis === 'h') e.preventDefault();
     }, { passive: false });
 
-    body.addEventListener('touchend', function(e) {
-        if (!_isMobile() || decidedAxis !== 'h') return;
+    wrap.addEventListener('touchend', function(e) {
+        if (!_isMobile() || axis !== 'h') return;
         var dx = e.changedTouches[0].clientX - sx;
-        if (Math.abs(dx) > 45) fb2Nav(dx < 0 ? 1 : -1);
+        if (Math.abs(dx) > 42) ufbNav(dx < 0 ? 1 : -1);
     }, { passive: true });
 })();
 
-/* ── RESIZE: recalc scale ── */
+/* ══════════════════════════════
+   RESIZE handler
+══════════════════════════════ */
 (function() {
     var t;
     window.addEventListener('resize', function() {
         clearTimeout(t);
         t = setTimeout(function() {
-            if (!_pdf || !_el('fb2Overlay').classList.contains('active')) return;
-            _calcScale().then(function(s) { _scale = s; _busy = false; _renderDirect(_page); });
+            if (!_pdf || !_el('ufbOverlay').classList.contains('active')) return;
+            _calcScale().then(function(s) { _scale = s; _busy = false; _direct(_page); });
         }, 280);
     });
 })();
 
-/* ══════════════════════════════════════════
+/* ══════════════════════════════
    DOKUMENTASI SLIDER
-══════════════════════════════════════════ */
+══════════════════════════════ */
 var _dIdx = 0;
 var _dSlides = document.querySelectorAll('.dokum-slide');
 function _dokRender() {
@@ -1705,15 +1706,15 @@ function dokumNav(dir) { _dIdx = (_dIdx + dir + _dSlides.length) % _dSlides.leng
 function dokumGo(i)    { _dIdx = i; _dokRender(); }
 if (_dSlides.length > 1) setInterval(function() { dokumNav(1); }, 5000);
 
-/* ══════════════════════════════════════════
+/* ══════════════════════════════
    BOOKSHELF SEARCH
-══════════════════════════════════════════ */
-function filterBooks() {
+══════════════════════════════ */
+function filterBooksLP() {
     var q = document.getElementById('bookSearchInput').value.toLowerCase().trim();
     document.querySelectorAll('.book-card').forEach(function(card) {
         var title = card.querySelector('.book-title');
         if (!title) return;
-        card.style.display = (title.textContent.toLowerCase().indexOf(q) !== -1) ? '' : 'none';
+        card.style.display = (!q || title.textContent.toLowerCase().indexOf(q) !== -1) ? '' : 'none';
     });
 }
 </script>
