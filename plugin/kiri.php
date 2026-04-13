@@ -382,14 +382,21 @@ body, section, div { font-family: 'Inter', sans-serif; }
 }
 
 /* ============================================================
-   FLIPBOOK PREMIUM - SPREAD VIEW (2 halaman) + COVER SINGLE
+   FLIPBOOK MODAL — PREMIUM ENGINE
+   Menggabungkan tampilan kiri.php dengan logika flipbook.php
+   - Desktop: spread 2 halaman + animasi 3D flip
+   - Mobile : 1 halaman, swipe gesture, auto-fit
    ============================================================ */
+
+/* ── Modal Overlay ── */
 .fb2-overlay {
     display: none; position: fixed; inset: 0; z-index: 99999;
     background: rgba(0,0,0,.88); backdrop-filter: blur(8px);
     align-items: center; justify-content: center;
 }
 .fb2-overlay.active { display: flex; }
+
+/* ── Modal Container ── */
 .fb2-container {
     width: 100vw; height: 100vh;
     display: flex; flex-direction: column; background: #1a1a1a;
@@ -402,34 +409,40 @@ body, section, div { font-family: 'Inter', sans-serif; }
     }
 }
 
+/* ── Header ── */
 .fb2-header {
-    height: 52px; background: #fff;
+    height: 52px; background: var(--moss-dark);
     display: flex; align-items: center; justify-content: space-between;
-    padding: 0 20px; flex-shrink: 0; border-bottom: 1px solid #eee;
+    padding: 0 20px; flex-shrink: 0;
 }
 .fb2-header h4 {
-    margin: 0; font-size: 14px; font-weight: 600; color: #222;
+    margin: 0; font-size: 14px; font-weight: 600; color: #fff;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; padding-right: 16px;
 }
 .fb2-header-actions { display: flex; gap: 8px; align-items: center; }
 .fb2-hbtn {
     width: 32px; height: 32px; border-radius: 6px;
-    border: 1px solid #ddd; background: #f5f5f5; cursor: pointer;
+    border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.12); cursor: pointer;
     display: flex; align-items: center; justify-content: center;
-    color: #444; transition: background .15s;
+    color: #fff; transition: background .15s;
 }
-.fb2-hbtn:hover { background: #e8e8e8; }
+.fb2-hbtn:hover { background: rgba(255,255,255,.28); }
 .fb2-close-btn {
     background: transparent; border: none; font-size: 26px; line-height: 1;
-    cursor: pointer; color: #888; padding: 4px 6px; transition: color .15s;
+    cursor: pointer; color: rgba(255,255,255,.7); padding: 4px 6px; transition: color .15s;
 }
-.fb2-close-btn:hover { color: #d32f2f; }
+.fb2-close-btn:hover { color: #ff6b6b; }
 
+/* ── Body ── */
 .fb2-body {
     flex: 1; display: flex; align-items: center; justify-content: center;
     padding: 24px 64px; position: relative; overflow: hidden;
-    background: #1a1a1a; min-height: 400px;
+    background: #0a120b; min-height: 400px;
+    cursor: grab;
 }
+.fb2-body.is-dragging { cursor: grabbing; }
+
+/* Nav arrows */
 .fb2-nav {
     position: absolute; top: 50%; transform: translateY(-50%);
     width: 46px; height: 46px; border-radius: 50%;
@@ -442,64 +455,103 @@ body, section, div { font-family: 'Inter', sans-serif; }
 .fb2-nav.next { right: 12px; }
 @media (max-width: 600px) {
     .fb2-nav { display: none; }
-    .fb2-body { padding: 16px 12px; }
+    .fb2-body { padding: 0; cursor: default; }
 }
 
-.fb2-spread {
-    display: flex; position: relative;
-    box-shadow: 0 8px 50px rgba(0,0,0,.75);
-    transition: transform .3s cubic-bezier(.2,.8,.2,1);
-    transform-origin: center center;
+/* ── Scene / Spread ── */
+.fb2-scene {
+    position: relative; display: inline-flex;
+    align-items: stretch; flex-shrink: 0;
+    perspective: 2500px; perspective-origin: 50% 50%;
 }
-.fb2-page { background: #fff; display: block; }
-.fb2-page-left  { border-radius: 4px 0 0 4px; box-shadow: inset -5px 0 14px rgba(0,0,0,.18); }
-.fb2-page-right { border-radius: 0 4px 4px 0; box-shadow: inset  5px 0 14px rgba(0,0,0,.18); }
+#fb2CanvasL {
+    display: block;
+    box-shadow: -6px 0 24px rgba(0,0,0,.6);
+    border-radius: 4px 0 0 4px;
+}
+#fb2CanvasR {
+    display: block;
+    box-shadow: 6px 0 24px rgba(0,0,0,.6);
+    border-radius: 0 4px 4px 0;
+}
+.fb2-spine {
+    width: 6px; flex-shrink: 0; align-self: stretch;
+    background: linear-gradient(180deg, #4a7a52, #1d3d22 50%, #4a7a52);
+    box-shadow: 2px 0 8px rgba(0,0,0,.5), -2px 0 8px rgba(0,0,0,.5);
+}
 .fb2-page-cover {
     border-radius: 6px;
     box-shadow: -6px 6px 30px rgba(0,0,0,.5), 4px 4px 0 rgba(0,0,0,.15);
 }
-.fb2-spine {
-    width: 14px; flex-shrink: 0; align-self: stretch;
-    background: linear-gradient(to right, rgba(0,0,0,.4), rgba(0,0,0,.12), rgba(255,255,255,.06));
+
+/* ── Flipper (desktop 3D) ── */
+.fb2-flipper {
+    position: absolute; transform-style: preserve-3d;
+    display: none; z-index: 20; pointer-events: none; will-change: transform;
+}
+.fb2-flip-front, .fb2-flip-back {
+    position: absolute; inset: 0; overflow: hidden;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+}
+.fb2-flip-back { transform: rotateY(180deg); }
+.fb2-flip-front canvas, .fb2-flip-back canvas { display:block; width:100%; height:100%; }
+
+.fb2-flipper.is-next .fb2-flip-front::after {
+    content:''; position:absolute; inset:0; pointer-events:none;
+    background: linear-gradient(to left, rgba(0,0,0,.4) 0%, transparent 70%);
+}
+.fb2-flipper.is-next .fb2-flip-back::after {
+    content:''; position:absolute; inset:0; pointer-events:none;
+    background: linear-gradient(to right, rgba(0,0,0,.25) 0%, transparent 60%);
+}
+.fb2-flipper.is-prev .fb2-flip-front::after {
+    content:''; position:absolute; inset:0; pointer-events:none;
+    background: linear-gradient(to right, rgba(0,0,0,.4) 0%, transparent 70%);
+}
+.fb2-flipper.is-prev .fb2-flip-back::after {
+    content:''; position:absolute; inset:0; pointer-events:none;
+    background: linear-gradient(to left, rgba(0,0,0,.25) 0%, transparent 60%);
 }
 
-/* Flip animation layers */
-.fb2-flip-layer {
-    position: absolute; top: 0; z-index: 20;
-    transform-origin: left center; pointer-events: none; background: #fff;
-    box-shadow: -4px 0 16px rgba(0,0,0,.3);
-}
-@keyframes fb2FlipFwd {
-    0%   { transform: perspective(1400px) rotateY(0deg);    opacity: 1; }
-    60%  { opacity: 0.5; }
-    100% { transform: perspective(1400px) rotateY(-115deg); opacity: 0; }
-}
-@keyframes fb2FlipBack {
-    0%   { transform: perspective(1400px) rotateY(-115deg); opacity: 0; }
-    40%  { opacity: 0.5; }
-    100% { transform: perspective(1400px) rotateY(0deg);    opacity: 1; }
-}
-.fb2-anim-fwd  { animation: fb2FlipFwd  .55s cubic-bezier(.4,0,.2,1) forwards; }
-.fb2-anim-back { animation: fb2FlipBack .55s cubic-bezier(.4,0,.2,1) forwards; }
-
+/* ── Loading ── */
 #fb2Loading {
     display: none; position: absolute;
     background: rgba(0,0,0,.65); color: #ddd;
     padding: 10px 24px; border-radius: 24px;
     font-size: 13px; font-weight: 600; z-index: 30;
 }
+#fb2Loading::before {
+    content: ''; display: inline-block;
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 2px solid var(--moss-mid); border-top-color: transparent;
+    animation: fb2spin .7s linear infinite;
+    vertical-align: middle; margin-right: 8px;
+}
+@keyframes fb2spin { to { transform: rotate(360deg); } }
 
+/* ── Swipe hint ── */
+.fb2-swipe-hint {
+    position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+    background: rgba(48,98,56,.75); color: #fff; font-size: 11px;
+    padding: 5px 14px; border-radius: 20px; pointer-events: none;
+    opacity: 1; transition: opacity 1s; display: none;
+}
+.fb2-swipe-hint.visible { display: block; }
+.fb2-swipe-hint.fade    { opacity: 0; }
+
+/* ── Toolbar bawah ── */
 .fb2-toolbar {
     display: flex; align-items: center; justify-content: center;
     gap: 8px; padding: 10px 20px;
     background: #111; flex-shrink: 0;
     border-top: 1px solid rgba(255,255,255,.06);
+    flex-wrap: wrap;
 }
 .fb2-page-info {
     background: rgba(255,255,255,.1); color: #ddd;
     font-size: 12px; font-weight: 600;
     padding: 5px 16px; border-radius: 20px;
-    letter-spacing: .5px; min-width: 90px; text-align: center;
+    letter-spacing: .5px; min-width: 100px; text-align: center;
 }
 .fb2-tbtn {
     width: 34px; height: 34px; border-radius: 50%;
@@ -507,9 +559,26 @@ body, section, div { font-family: 'Inter', sans-serif; }
     display: flex; align-items: center; justify-content: center; transition: all .18s;
 }
 .fb2-tbtn:hover { background: rgba(255,255,255,.22); color: #fff; }
-.fb2-tbtn.active { color: #618D4F; background: rgba(97,141,79,.2); }
+.fb2-tbtn.active { color: var(--moss-mid); background: rgba(97,141,79,.2); }
 .fb2-vdivider { width: 1px; height: 22px; background: rgba(255,255,255,.12); margin: 0 4px; }
+.fb2-tb-zoom {
+    display: flex; gap: 4px;
+}
+.fb2-tbtn-text {
+    height: 30px; border-radius: 6px; border: none;
+    background: rgba(255,255,255,.1); color: #ccc;
+    padding: 0 12px; cursor: pointer; font-size: 12px; font-weight: 600;
+    transition: all .18s;
+}
+.fb2-tbtn-text:hover { background: rgba(255,255,255,.22); color: #fff; }
+.fb2-page-input {
+    width: 48px; height: 30px; border-radius: 6px;
+    border: 1px solid rgba(255,255,255,.2);
+    background: rgba(255,255,255,.08); color: #ddd;
+    text-align: center; font-size: 12px; outline: none;
+}
 
+/* ── Thumbnail strip ── */
 .fb2-thumbs {
     display: flex; gap: 8px; overflow-x: auto; padding: 10px 16px;
     background: #0d0d0d; border-top: 1px solid rgba(255,255,255,.05);
@@ -526,12 +595,38 @@ body, section, div { font-family: 'Inter', sans-serif; }
     border: 2px solid transparent; transition: all .18s; position: relative;
 }
 .fb2-thumb:hover { border-color: rgba(97,141,79,.5); }
-.fb2-thumb.active { border-color: #618D4F; }
+.fb2-thumb.active { border-color: var(--moss-mid); }
 .fb2-thumb canvas { width: 100%; height: 100%; display: block; object-fit: contain; }
 .fb2-thumb-num {
     position: absolute; bottom: 0; left: 0; right: 0;
     background: rgba(0,0,0,.65); color: #ccc;
     font-size: 9px; text-align: center; padding: 2px 0;
+}
+
+/* ── Mobile overrides ── */
+@media (max-width: 767px) {
+    .fb2-toolbar {
+        gap: 4px; padding: 6px 8px;
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        justify-items: stretch;
+    }
+    .fb2-page-info {
+        font-size: 12px; min-width: auto;
+        background: rgba(255,255,255,.06); border-radius: 6px;
+        padding: 5px 10px;
+    }
+    .fb2-tb-desktop { display: none !important; }
+    .fb2-tb-zoom-mobile {
+        grid-column: 1 / -1;
+        display: flex !important; gap: 6px;
+    }
+    .fb2-tb-zoom-mobile .fb2-tbtn-text { flex: 1; }
+    #fb2CanvasR { display: none !important; width: 0 !important; }
+    #fb2Spine   { display: none !important; }
+    #fb2Flipper { display: none !important; }
+    #fb2CanvasL { width: 100% !important; box-shadow: none !important; border-radius: 0 !important; }
+    .fb2-thumbs { display: none; }
 }
 </style>
 
@@ -640,7 +735,7 @@ function cleanProgText($str) {
                 <?php else: ?>
                 <h2 class="lp-title">Tentang MBKM<br>IAI PI Bandung</h2>
                 <div class="lp-divider"></div>
-                <p>Program MBKM (Merdeka Belajar Kampus Merdeka) di IAI PI Bandung hadir sebagai wujud komitmen kami dalam memberikan pengalaman belajar yang bermakna dan berdampak nyata bagi mahasiswa. Kami mengundang seluruh civitas akademika untuk aktif berpartisipasi dalam program-program MBKM yang telah kami rancang dengan penuh dedikasi.</p>
+                <p>Program MBKM (Merdeka Belajar Kampus Merdeka) di IAI PI Bandung hadir sebagai wujud komitmen kami dalam memberikan pengalaman belajar yang bermakna dan berdampak nyata bagi mahasiswa.</p>
                 <?php endif; ?>
             </div>
         </div>
@@ -799,82 +894,101 @@ function cleanProgText($str) {
 </section>
 
 <!-- ============================================================
-     SECTION 6: PEDOMAN FLIPBOOK (BOOKSHELF) - SPREAD VIEW
+     SECTION 6: PEDOMAN FLIPBOOK (BOOKSHELF)
+     Tampilan dari kiri.php, Engine dari flipbook.php
      ============================================================ -->
 
-<!-- MODAL FLIPBOOK PREMIUM -->
+<!-- MODAL FLIPBOOK PREMIUM (tampilan kiri.php + engine flipbook.php) -->
 <div class="fb2-overlay" id="fb2Overlay">
 <div class="fb2-container">
 
-    <!-- Header -->
+    <!-- Header (warna moss-dark seperti kiri.php) -->
     <div class="fb2-header">
         <h4 id="fb2Title">Dokumen</h4>
         <div class="fb2-header-actions">
-            <button class="fb2-hbtn" onclick="fb2ZoomIn()" title="Zoom In">
+            <!-- Zoom In -->
+            <button class="fb2-hbtn fb2-tb-desktop" onclick="fb2ZoomIn()" title="Zoom In">
                 <svg width="15" height="15" viewBox="0 0 24 24"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.5 6.5 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99 1.49-1.49-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14zm.5-7H9v2H7v1h2v2h1v-2h2V9h-2V7z"/></svg>
             </button>
-            <button class="fb2-hbtn" onclick="fb2ZoomOut()" title="Zoom Out">
+            <!-- Zoom Out -->
+            <button class="fb2-hbtn fb2-tb-desktop" onclick="fb2ZoomOut()" title="Zoom Out">
                 <svg width="15" height="15" viewBox="0 0 24 24"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.5 6.5 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99 1.49-1.49-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14zM7 9h5v1H7z"/></svg>
             </button>
-            <button class="fb2-hbtn" onclick="fb2Fullscreen()" title="Fullscreen">
+            <!-- Fullscreen -->
+            <button class="fb2-hbtn fb2-tb-desktop" onclick="fb2Fullscreen()" title="Fullscreen">
                 <svg width="15" height="15" viewBox="0 0 24 24"><path fill="currentColor" d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
             </button>
+            <!-- Download -->
             <a id="fb2DownloadLink" href="#" target="_blank" class="fb2-hbtn" title="Download PDF" style="text-decoration:none;">
                 <svg width="15" height="15" viewBox="0 0 24 24"><path fill="currentColor" d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
             </a>
-            <button class="fb2-close-btn" onclick="fb2Close()">&times;</button>
+            <button class="fb2-close-btn" onclick="fb2Close()">&#x2715;</button>
         </div>
     </div>
 
-    <!-- Body: spread view -->
+    <!-- Body: spread view dengan flipper 3D -->
     <div class="fb2-body" id="fb2Body">
-        <button class="fb2-nav prev" onclick="fb2Go(-1)">
+        <button class="fb2-nav prev" onclick="fb2Nav(-1)">
             <svg width="22" height="22" viewBox="0 0 24 24"><path fill="currentColor" d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
         </button>
 
-        <!-- Spread: left page + spine + right page (atau cover single) -->
-        <div class="fb2-spread" id="fb2Spread">
-            <canvas class="fb2-page fb2-page-left"  id="fb2CanvasL" width="240" height="340"></canvas>
-            <div class="fb2-spine" id="fb2Spine"></div>
-            <canvas class="fb2-page fb2-page-right" id="fb2CanvasR" width="240" height="340"></canvas>
+        <!-- Scene: canvas kiri + spine + canvas kanan (desktop) / canvas saja (mobile) -->
+        <div class="fb2-scene" id="fb2Scene">
+            <canvas id="fb2CanvasL"></canvas>
+            <div id="fb2Spine" class="fb2-spine" style="display:none;"></div>
+            <canvas id="fb2CanvasR" style="display:none;"></canvas>
+            <!-- Flipper 3D (desktop only) -->
+            <div class="fb2-flipper" id="fb2Flipper">
+                <div class="fb2-flip-front"><canvas id="fb2FlipFront"></canvas></div>
+                <div class="fb2-flip-back" ><canvas id="fb2FlipBack" ></canvas></div>
+            </div>
         </div>
 
         <div id="fb2Loading">Memuat dokumen...</div>
+        <div class="fb2-swipe-hint" id="fb2SwipeHint">&#8592; geser untuk pindah halaman &#8594;</div>
 
-        <button class="fb2-nav next" onclick="fb2Go(1)">
+        <button class="fb2-nav next" onclick="fb2Nav(1)">
             <svg width="22" height="22" viewBox="0 0 24 24"><path fill="currentColor" d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
         </button>
     </div>
 
     <!-- Toolbar bawah -->
     <div class="fb2-toolbar">
-        <button class="fb2-tbtn" onclick="fb2Go(-1)" title="Sebelumnya">
-            <svg width="17" height="17" viewBox="0 0 24 24"><path fill="currentColor" d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
-        </button>
-        <div class="fb2-page-info" id="fb2PageInfo">Cover</div>
-        <button class="fb2-tbtn" onclick="fb2Go(1)" title="Berikutnya">
-            <svg width="17" height="17" viewBox="0 0 24 24"><path fill="currentColor" d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
-        </button>
-        <div class="fb2-vdivider"></div>
-        <button class="fb2-tbtn" id="fb2AutoBtn" onclick="fb2ToggleAuto()" title="Auto-play">
+        <!-- Prev (desktop: 2 hal, mobile: 1 hal) -->
+        <button id="fb2BtnPrev" onclick="fb2Nav(-1)">&#9664; Prev</button>
+        <!-- Info halaman -->
+        <span class="fb2-page-info" id="fb2PageInfo">Cover</span>
+        <!-- Next -->
+        <button id="fb2BtnNext" onclick="fb2Nav(1)">Next &#9654;</button>
+
+        <!-- Desktop controls -->
+        <div class="fb2-vdivider fb2-tb-desktop"></div>
+        <button class="fb2-tbtn fb2-tb-desktop" id="fb2AutoBtn" onclick="fb2ToggleAuto()" title="Auto-play">
             <svg width="17" height="17" viewBox="0 0 24 24"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>
         </button>
-        <div class="fb2-vdivider"></div>
-        <!-- Input halaman manual -->
-        <input type="number" id="fb2PageInput" min="1" value="1"
-            style="width:48px;height:30px;border-radius:6px;border:1px solid rgba(255,255,255,.2);
-                   background:rgba(255,255,255,.08);color:#ddd;text-align:center;font-size:12px;outline:none;"
+        <div class="fb2-tb-zoom fb2-tb-desktop">
+            <button class="fb2-tbtn-text" onclick="fb2ZoomIn()">&#43;</button>
+            <button class="fb2-tbtn-text" onclick="fb2ZoomOut()">&#8722;</button>
+            <button class="fb2-tbtn-text" onclick="fb2ZoomReset()">&#8635;</button>
+        </div>
+        <input type="number" id="fb2PageInput" min="1" value="1" class="fb2-page-input fb2-tb-desktop"
             onkeydown="if(event.key==='Enter') fb2GoToPage(this.value)">
-        <button class="fb2-tbtn" onclick="fb2GoToPage(document.getElementById('fb2PageInput').value)" style="width:auto;padding:0 10px;border-radius:6px;font-size:11px;">Go</button>
+        <button class="fb2-tbtn-text fb2-tb-desktop" onclick="fb2GoToPage(document.getElementById('fb2PageInput').value)">Go</button>
+
+        <!-- Mobile zoom row -->
+        <div class="fb2-tb-zoom-mobile" style="display:none;">
+            <button class="fb2-tbtn-text" onclick="fb2ZoomIn()">&#43; Zoom</button>
+            <button class="fb2-tbtn-text" onclick="fb2ZoomOut()">&#8722; Zoom</button>
+        </div>
     </div>
 
-    <!-- Thumbnail strip -->
+    <!-- Thumbnail strip (hidden mobile via CSS) -->
     <div class="fb2-thumbs" id="fb2Thumbs"></div>
 
 </div>
 </div>
 
-<!-- BOOKSHELF SECTION -->
+<!-- BOOKSHELF SECTION (tampilan persis kiri.php) -->
 <section class="bookshelf-section">
     <div class="container">
         <div class="bookshelf-section-head">
@@ -901,7 +1015,7 @@ function cleanProgText($str) {
                     $cv = !empty($bk['cover']) ? 'images/flipbook/'.htmlspecialchars($bk['cover']) : '';
                     $jd = htmlspecialchars($bk['judul']);
                     $pf = htmlspecialchars($bk['file_pdf']);
-                    echo '<div class="book-card" onclick="openFlipbookHome(\''.addslashes($pf).'\',\''.addslashes($jd).'\')">
+                    echo '<div class="book-card" onclick="openFlipbook(\''.addslashes($pf).'\',\''.addslashes($jd).'\')">
                         <div class="book-cover">
                             <div class="book-spine"></div>';
                     echo $cv ? '<img src="'.$cv.'" alt="'.$jd.'">' : '<div class="book-no-cover">'.$jd.'</div>';
@@ -1034,257 +1148,283 @@ if (typeof pdfjsLib !== 'undefined') {
         'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 }
 
-/* ══════════════════════════════════════════
-   FLIPBOOK ENGINE - SPREAD VIEW
-   Spread 0         = Cover (halaman 1, single, centered)
-   Spread 1         = halaman 2 (kiri) + halaman 3 (kanan)
-   Spread 2         = halaman 4 (kiri) + halaman 5 (kanan)
-   dst...
-══════════════════════════════════════════ */
-var FB2 = {
-    pdf:      null,
-    total:    0,
-    spread:   0,      /* spread index saat ini */
-    zoom:     1,
-    anim:     false,
-    autoOn:   false,
-    autoTimer: null
-};
+/* ══════════════════════════════════════════════════════════════
+   FLIPBOOK ENGINE — Gabungan kiri.php (tampilan) + flipbook.php (fungsi)
+   ─────────────────────────────────────────────────────────────
+   STATE:
+   - _pdf     : objek PDF dari PDF.js
+   - _page    : halaman kiri yang sedang ditampilkan (selalu ganjil di desktop)
+   - _total   : total halaman
+   - _busy    : mencegah flip ganda
+   - _scale   : skala render
+   - _zoom    : zoom tambahan (dari tombol +/-)
+   - _autoOn  : mode auto-play
+   ══════════════════════════════════════════════════════════════ */
+var _pdf      = null;
+var _page     = 1;
+var _total    = 0;
+var _busy     = false;
+var _scale    = 1.3;
+var _zoom     = 1.0;
+var _autoOn   = false;
+var _autoTimer = null;
+var FLIP_MS   = 640;
 
-/* Total jumlah spread */
-function fb2TotalSpreads() {
-    if (!FB2.total) return 0;
-    /* spread 0 = cover (1 halaman), lalu tiap spread berikutnya = 2 halaman */
-    return Math.ceil((FB2.total - 1) / 2) + 1;
-}
+/* Cache elemen DOM */
+var _EL = {};
+function _el(id) { return _EL[id] || (_EL[id] = document.getElementById(id)); }
 
-/* Halaman-halaman dalam satu spread */
-function fb2SpreadPages(s) {
-    if (s === 0) return { left: 1,   right: null }; /* cover single */
-    var base = (s - 1) * 2 + 2;                     /* hal 2, 4, 6 ... */
-    return { left: base, right: base + 1 };
-}
+/* ── Helpers ── */
+function _isMobile() { return window.innerWidth <= 767; }
 
-/* Render satu halaman PDF ke canvas; pageNum=0 → blank */
-function fb2RenderToCanvas(pageNum, canvas, done) {
-    if (!FB2.pdf || pageNum < 1 || pageNum > FB2.total) {
-        var ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#f8f8f8';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        /* garis tepi halaman blank */
-        ctx.strokeStyle = '#e0e0e0';
-        ctx.lineWidth = 1;
-        ctx.strokeRect(0, 0, canvas.width, canvas.height);
-        if (done) done();
-        return;
-    }
-    FB2.pdf.getPage(pageNum).then(function(page) {
-        var vp0  = page.getViewport({ scale: 1 });
-        /* hitung skala agar muat di viewport, maks 3× */
-        var maxH = window.innerHeight * 0.68;
-        var maxW = (window.innerWidth < 768)
-            ? window.innerWidth * 0.80         /* mobile: hampir full width */
-            : window.innerWidth * 0.36;        /* desktop: setengah spread */
-        var scale = Math.min(maxW / vp0.width, maxH / vp0.height, 3);
-        var vp    = page.getViewport({ scale: scale });
-        canvas.width  = vp.width;
-        canvas.height = vp.height;
-        page.render({ canvasContext: canvas.getContext('2d'), viewport: vp })
-            .promise.then(function() { if (done) done(); });
-    }).catch(function() {
-        if (done) done();
+/* Hitung skala otomatis agar halaman muat di area modal */
+function _calcScale() {
+    var body   = _el('fb2Body');
+    var availW = body.clientWidth  - (_isMobile() ? 0 : 128); /* padding nav kiri+kanan */
+    var availH = body.clientHeight - 40;
+    if (!_pdf) return Promise.resolve(_isMobile() ? 1.0 : 1.3);
+    return _pdf.getPage(1).then(function(pg) {
+        var vp = pg.getViewport({ scale: 1 });
+        var mob   = _isMobile();
+        var maxW  = mob ? availW : Math.floor((availW - 6) / 2); /* 6 = spine */
+        var scaleW = maxW   / vp.width;
+        var scaleH = availH / vp.height;
+        return Math.max(0.3, Math.min(3.5, Math.min(scaleW, scaleH)));
     });
 }
 
-/* Update info halaman di toolbar */
-function fb2UpdateInfo() {
-    var el = document.getElementById('fb2PageInfo');
-    var inp = document.getElementById('fb2PageInput');
-    if (FB2.spread === 0) {
-        el.textContent = 'Cover';
-        if (inp) inp.value = 1;
-        return;
+/* Render satu halaman PDF ke canvas */
+function _rndPage(num, canvas) {
+    if (!_pdf || num < 1 || num > _total) {
+        canvas.width = 0; canvas.height = 0;
+        canvas.style.display = 'none';
+        return Promise.resolve(null);
     }
-    var pp = fb2SpreadPages(FB2.spread);
-    var p2show = (pp.right && pp.right <= FB2.total) ? '–' + pp.right : '';
-    el.textContent = pp.left + p2show + ' / ' + FB2.total;
-    if (inp) inp.value = pp.left;
-}
-
-/* Update highlight thumbnail */
-function fb2UpdateThumbs() {
-    document.querySelectorAll('.fb2-thumb').forEach(function(t, i) {
-        t.classList.toggle('active', i === FB2.spread);
-        if (i === FB2.spread) {
-            t.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-        }
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var s   = _scale * _zoom;
+    return _pdf.getPage(num).then(function(pg) {
+        var vp = pg.getViewport({ scale: s * dpr });
+        canvas.width        = vp.width;
+        canvas.height       = vp.height;
+        canvas.style.width  = Math.round(vp.width  / dpr) + 'px';
+        canvas.style.height = Math.round(vp.height / dpr) + 'px';
+        canvas.style.display = 'block';
+        return pg.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise
+            .then(function() { return canvas; });
     });
 }
 
-/* Render spread ke canvas + animasi flip opsional
-   dir: +1 = maju, -1 = mundur */
-function fb2ShowSpread(s, doAnim, dir, cb) {
-    if (FB2.anim) return;
-    var ts = fb2TotalSpreads();
-    if (s < 0 || s >= ts) return;
+/* Salin canvas src → dst (untuk flipper animasi) */
+function _copyCanvas(src, dst) {
+    if (!src || !src.width) return;
+    dst.width  = src.width;  dst.height = src.height;
+    dst.style.width  = src.style.width;
+    dst.style.height = src.style.height;
+    dst.style.display = 'block';
+    dst.getContext('2d').drawImage(src, 0, 0);
+}
 
-    var spreadEl = document.getElementById('fb2Spread');
-    var canL     = document.getElementById('fb2CanvasL');
-    var canR     = document.getElementById('fb2CanvasR');
-    var spine    = document.getElementById('fb2Spine');
+/* Snap halaman ke posisi spread yang valid */
+function _snapPage(p) {
+    if (_isMobile()) return Math.max(1, Math.min(_total, p));
+    var s = (p % 2 === 0) ? Math.max(1, p - 1) : p;
+    return Math.max(1, Math.min(_total, s));
+}
 
-    /* Fungsi render tanpa animasi */
-    function doRender() {
-        var isCover = (s === 0);
-        var coverC  = document.getElementById('fb2CoverCanvas');
+/* Update UI: info halaman, tombol, spine */
+function _updateUI(p) {
+    var mob  = _isMobile();
+    var hasR = !mob && (p + 1 <= _total);
 
-        if (isCover) {
-            /* Tampilkan hanya cover, sembunyikan spread */
-            canL.style.display  = 'none';
-            spine.style.display = 'none';
-            canR.style.display  = 'none';
+    _el('fb2Spine').style.display  = hasR ? 'block' : 'none';
+    var cR = _el('fb2CanvasR');
+    if (!hasR) { cR.style.display = 'none'; cR.width = 0; }
 
-            if (!coverC) {
-                coverC    = document.createElement('canvas');
-                coverC.id = 'fb2CoverCanvas';
-                coverC.className = 'fb2-page fb2-page-cover';
-                coverC.width  = 240;
-                coverC.height = 340;
-                spreadEl.appendChild(coverC);
-            }
-            coverC.style.display = 'block';
+    var label = (p === 1 && _total <= 1)
+        ? 'Cover'
+        : 'Hal ' + p + (hasR ? '\u2013' + (p + 1) : '') + ' / ' + _total;
+    _el('fb2PageInfo').textContent = label;
 
-            /* Render cover dengan ukuran sedikit lebih besar */
-            FB2.pdf.getPage(1).then(function(page) {
-                var vp0 = page.getViewport({ scale: 1 });
-                var maxH = window.innerHeight * 0.70;
-                var maxW = (window.innerWidth < 768)
-                    ? window.innerWidth * 0.75
-                    : window.innerWidth * 0.30;
-                var scale = Math.min(maxW / vp0.width, maxH / vp0.height, 3);
-                var vp = page.getViewport({ scale: scale });
-                coverC.width  = vp.width;
-                coverC.height = vp.height;
-                page.render({ canvasContext: coverC.getContext('2d'), viewport: vp })
-                    .promise.then(function() {
-                        FB2.spread = s;
-                        fb2UpdateInfo();
-                        fb2UpdateThumbs();
-                        if (cb) cb();
-                    });
+    var inp = _el('fb2PageInput');
+    if (inp) inp.value = p;
+
+    _el('fb2BtnPrev').disabled = (p <= 1);
+    _el('fb2BtnNext').disabled = mob ? (p >= _total) : (p + 1 >= _total);
+
+    /* Mobile zoom row */
+    var mzr = document.querySelector('.fb2-tb-zoom-mobile');
+    if (mzr) mzr.style.display = mob ? 'flex' : 'none';
+}
+
+/* ── RENDER LANGSUNG (tanpa animasi) ── */
+function _renderDirect(p, cb) {
+    var mob = _isMobile();
+    var cL  = _el('fb2CanvasL');
+    var cR  = _el('fb2CanvasR');
+
+    var tasks = [_rndPage(p, cL)];
+    if (!mob && p + 1 <= _total) {
+        tasks.push(_rndPage(p + 1, cR));
+    } else {
+        cR.style.display = 'none'; cR.width = 0;
+    }
+
+    Promise.all(tasks).then(function() {
+        _updateUI(p);
+        _busy = false;
+        _updateThumbs(p);
+        if (cb) cb();
+    }).catch(function() { _busy = false; });
+}
+
+/* ── RENDER DENGAN ANIMASI 3D FLIP (desktop only) ── */
+function _renderFlip(p, dir) {
+    if (_isMobile()) { _renderDirect(p); return; }
+
+    var cL      = _el('fb2CanvasL');
+    var cR      = _el('fb2CanvasR');
+    var flipper = _el('fb2Flipper');
+    var scene   = _el('fb2Scene');
+    var flipF   = _el('fb2FlipFront');
+    var flipB   = _el('fb2FlipBack');
+
+    flipper.className = 'fb2-flipper';
+
+    if (dir === 'next') {
+        /* Flip canvas kanan menjadi halaman baru kiri */
+        if (!cR.offsetWidth) { _busy = false; _renderDirect(p); return; }
+
+        _copyCanvas(cR, flipF);
+
+        flipper.style.cssText = [
+            'display:block',
+            'width:'  + cR.offsetWidth  + 'px',
+            'height:' + cR.offsetHeight + 'px',
+            'left:'   + cR.offsetLeft   + 'px',
+            'top:'    + cR.offsetTop    + 'px',
+            'transform-origin: 0% 50%',
+            'transform: rotateY(0deg)',
+            'transition: none',
+            'z-index: 20',
+            'pointer-events: none'
+        ].join(';');
+        flipper.classList.add('is-next');
+        cR.style.visibility = 'hidden';
+
+        Promise.all([ _rndPage(p, flipB), _rndPage(p + 1, cR) ]).then(function() {
+            flipB.style.width  = flipF.style.width;
+            flipB.style.height = flipF.style.height;
+            requestAnimationFrame(function() {
+                requestAnimationFrame(function() {
+                    flipper.style.transition = 'transform ' + FLIP_MS + 'ms cubic-bezier(0.77,0,0.175,1)';
+                    flipper.style.transform  = 'rotateY(-180deg)';
+                });
             });
-
-        } else {
-            /* Tampilkan spread dua halaman */
-            canL.style.display  = 'block';
-            spine.style.display = 'block';
-            canR.style.display  = 'block';
-            if (coverC) coverC.style.display = 'none';
-
-            var pp   = fb2SpreadPages(s);
-            var done = 0;
-            function chk() {
-                if (++done === 2) {
-                    FB2.spread = s;
-                    fb2UpdateInfo();
-                    fb2UpdateThumbs();
-                    if (cb) cb();
-                }
-            }
-            fb2RenderToCanvas(pp.left,                             canL, chk);
-            fb2RenderToCanvas(pp.right <= FB2.total ? pp.right : 0, canR, chk);
-        }
-    }
-
-    if (!doAnim) { doRender(); return; }
-
-    /* ── Animasi flip ── */
-    FB2.anim = true;
-
-    /* Snapshot canvas sumber flip */
-    var srcCanvas = (dir > 0) ? canR : canL;
-    var isCoverSrc = (FB2.spread === 0);
-    if (isCoverSrc) srcCanvas = document.getElementById('fb2CoverCanvas') || canR;
-
-    var flipW = srcCanvas.offsetWidth  || srcCanvas.width  || 240;
-    var flipH = srcCanvas.offsetHeight || srcCanvas.height || 340;
-
-    var flip   = document.createElement('canvas');
-    flip.className = 'fb2-flip-layer';
-    flip.width  = srcCanvas.width  || 240;
-    flip.height = srcCanvas.height || 340;
-    flip.style.width  = flipW + 'px';
-    flip.style.height = flipH + 'px';
-    flip.style.top    = '0';
-
-    if (dir > 0) {
-        /* Flip dari kanan ke kiri */
-        var lw = canL.offsetWidth || 240;
-        flip.style.left = lw + spine.offsetWidth + 'px';
-        flip.style.transformOrigin = 'left center';
-        flip.getContext('2d').drawImage(srcCanvas, 0, 0, flip.width, flip.height);
-        spreadEl.appendChild(flip);
-
-        /* Render halaman baru di belakang animasi */
-        doRender();
-
-        requestAnimationFrame(function() {
-            flip.classList.add('fb2-anim-fwd');
+            setTimeout(function() {
+                flipper.style.transition = 'none';
+                flipper.style.display    = 'none';
+                flipper.className = 'fb2-flipper';
+                cR.style.visibility = 'visible';
+                _renderDirect(p);
+            }, FLIP_MS + 80);
+        }).catch(function() {
+            flipper.style.display = 'none';
+            cR.style.visibility = 'visible';
+            _busy = false;
         });
-        setTimeout(function() {
-            flip.remove();
-            FB2.anim = false;
-        }, 600);
 
     } else {
-        /* Flip dari kiri ke kanan */
-        flip.style.right = (canR.offsetWidth || 240) + 'px';
-        flip.style.left  = 'auto';
-        flip.style.transformOrigin = 'right center';
-        flip.getContext('2d').drawImage(srcCanvas, 0, 0, flip.width, flip.height);
-        spreadEl.appendChild(flip);
+        /* Flip canvas kiri menjadi halaman baru kanan */
+        if (!cL.offsetWidth) { _busy = false; _renderDirect(p); return; }
 
-        doRender();
+        _copyCanvas(cL, flipF);
 
-        requestAnimationFrame(function() {
-            flip.classList.add('fb2-anim-back');
+        flipper.style.cssText = [
+            'display:block',
+            'width:'  + cL.offsetWidth  + 'px',
+            'height:' + cL.offsetHeight + 'px',
+            'left:'   + cL.offsetLeft   + 'px',
+            'top:'    + cL.offsetTop    + 'px',
+            'transform-origin: 100% 50%',
+            'transform: rotateY(0deg)',
+            'transition: none',
+            'z-index: 20',
+            'pointer-events: none'
+        ].join(';');
+        flipper.classList.add('is-prev');
+        cL.style.visibility = 'hidden';
+
+        Promise.all([ _rndPage(p + 1, flipB), _rndPage(p, cL) ]).then(function() {
+            flipB.style.width  = flipF.style.width;
+            flipB.style.height = flipF.style.height;
+            requestAnimationFrame(function() {
+                requestAnimationFrame(function() {
+                    flipper.style.transition = 'transform ' + FLIP_MS + 'ms cubic-bezier(0.77,0,0.175,1)';
+                    flipper.style.transform  = 'rotateY(180deg)';
+                });
+            });
+            setTimeout(function() {
+                flipper.style.transition = 'none';
+                flipper.style.display    = 'none';
+                flipper.className = 'fb2-flipper';
+                cL.style.visibility = 'visible';
+                _renderDirect(p);
+            }, FLIP_MS + 80);
+        }).catch(function() {
+            flipper.style.display = 'none';
+            cL.style.visibility = 'visible';
+            _busy = false;
         });
-        setTimeout(function() {
-            flip.remove();
-            FB2.anim = false;
-        }, 600);
     }
 }
 
-/* Navigasi spread */
-function fb2Go(dir) {
-    var next = FB2.spread + dir;
-    if (next < 0 || next >= fb2TotalSpreads()) return;
-    fb2ShowSpread(next, true, dir);
+/* ── NAVIGASI ── */
+function fb2Nav(dir) {
+    if (!_pdf || _busy) return;
+    var mob  = _isMobile();
+    var step = mob ? 1 : 2;
+    var newP = _snapPage(_page + dir * step);
+    if (newP === _page) {
+        newP = Math.max(1, Math.min(_total, _page + dir));
+        if (newP === _page) return;
+    }
+    _busy = true; _page = newP;
+    if (mob) _renderDirect(_page);
+    else     _renderFlip(_page, dir > 0 ? 'next' : 'prev');
 }
 
-/* Goto halaman tertentu (konversi ke spread) */
+/* Goto halaman tertentu */
 function fb2GoToPage(pageNum) {
     pageNum = parseInt(pageNum, 10);
-    if (isNaN(pageNum) || pageNum < 1 || pageNum > FB2.total) return;
-    var targetSpread = (pageNum === 1) ? 0 : Math.ceil((pageNum - 1) / 2);
-    var dir = targetSpread >= FB2.spread ? 1 : -1;
-    fb2ShowSpread(targetSpread, true, dir);
+    if (isNaN(pageNum) || pageNum < 1 || pageNum > _total) return;
+    var newP = _isMobile() ? pageNum : _snapPage(pageNum);
+    if (newP === _page) return;
+    var dir = newP > _page ? 1 : -1;
+    _busy = true; _page = newP;
+    if (_isMobile()) _renderDirect(_page);
+    else             _renderFlip(_page, dir > 0 ? 'next' : 'prev');
 }
 
-/* Zoom */
+/* ── ZOOM ── */
 function fb2ZoomIn() {
-    FB2.zoom = Math.min(FB2.zoom + 0.2, 2.5);
-    document.getElementById('fb2Spread').style.transform = 'scale(' + FB2.zoom + ')';
+    if (!_pdf) return;
+    _zoom = Math.min(_zoom + 0.2, 3.0);
+    _busy = false; _renderDirect(_page);
 }
 function fb2ZoomOut() {
-    FB2.zoom = Math.max(FB2.zoom - 0.2, 0.4);
-    document.getElementById('fb2Spread').style.transform = 'scale(' + FB2.zoom + ')';
+    if (!_pdf) return;
+    _zoom = Math.max(_zoom - 0.2, 0.4);
+    _busy = false; _renderDirect(_page);
+}
+function fb2ZoomReset() {
+    if (!_pdf) return;
+    _zoom = 1.0;
+    _calcScale().then(function(s) { _scale = s; _busy = false; _renderDirect(_page); });
 }
 
-/* Fullscreen */
+/* ── FULLSCREEN ── */
 function fb2Fullscreen() {
-    var el = document.getElementById('fb2Overlay');
+    var el = _el('fb2Overlay');
     if (!document.fullscreenElement) {
         (el.requestFullscreen || el.webkitRequestFullscreen || function(){}).call(el);
     } else {
@@ -1292,154 +1432,262 @@ function fb2Fullscreen() {
     }
 }
 
-/* Auto-play */
+/* ── AUTO-PLAY ── */
 function fb2ToggleAuto() {
-    FB2.autoOn = !FB2.autoOn;
-    var btn = document.getElementById('fb2AutoBtn');
-    btn.classList.toggle('active', FB2.autoOn);
-    if (FB2.autoOn) {
-        FB2.autoTimer = setInterval(function() {
-            if (FB2.spread + 1 >= fb2TotalSpreads()) {
+    _autoOn = !_autoOn;
+    var btn = _el('fb2AutoBtn');
+    if (btn) btn.classList.toggle('active', _autoOn);
+    if (_autoOn) {
+        _autoTimer = setInterval(function() {
+            if (_page + (_isMobile() ? 1 : 2) > _total) {
                 fb2ToggleAuto(); return;
             }
-            fb2Go(1);
+            fb2Nav(1);
         }, 3500);
     } else {
-        clearInterval(FB2.autoTimer);
+        clearInterval(_autoTimer);
     }
 }
 
-/* Bangun thumbnail strip */
-function fb2BuildThumbs() {
-    var strip = document.getElementById('fb2Thumbs');
+/* ── THUMBNAIL ── */
+function _buildThumbs() {
+    var strip = _el('fb2Thumbs');
+    if (!strip || !_pdf) return;
     strip.innerHTML = '';
-    var ts = fb2TotalSpreads();
-    for (var i = 0; i < ts; i++) {
-        (function(si) {
+    /* Tambahkan thumbnail per halaman */
+    for (var i = 1; i <= _total; i++) {
+        (function(pn) {
             var th  = document.createElement('div');
-            th.className = 'fb2-thumb' + (si === 0 ? ' active' : '');
+            th.className = 'fb2-thumb' + (pn === 1 ? ' active' : '');
+            th.dataset.page = pn;
 
-            var tc  = document.createElement('canvas');
+            var tc = document.createElement('canvas');
             tc.width = 50; tc.height = 70;
             th.appendChild(tc);
 
             var num = document.createElement('div');
             num.className = 'fb2-thumb-num';
-            if (si === 0) {
-                num.textContent = 'Cover';
-            } else {
-                var pp = fb2SpreadPages(si);
-                num.textContent = pp.left + (pp.right <= FB2.total ? '-' + pp.right : '');
-            }
+            num.textContent = pn;
             th.appendChild(num);
 
-            th.onclick = function() {
-                fb2ShowSpread(si, true, si > FB2.spread ? 1 : -1);
-            };
+            th.onclick = function() { fb2GoToPage(pn); };
             strip.appendChild(th);
 
-            /* Render thumbnail kecil */
-            var pn = (si === 0) ? 1 : fb2SpreadPages(si).left;
-            if (FB2.pdf && pn >= 1 && pn <= FB2.total) {
-                FB2.pdf.getPage(pn).then(function(page) {
-                    var vp0   = page.getViewport({ scale: 1 });
-                    var scale = Math.min(50 / vp0.width, 70 / vp0.height);
-                    var vp    = page.getViewport({ scale: scale });
-                    tc.width  = vp.width;
-                    tc.height = vp.height;
-                    page.render({ canvasContext: tc.getContext('2d'), viewport: vp }).promise;
-                });
-            }
+            /* Render thumbnail */
+            _pdf.getPage(pn).then(function(page) {
+                var vp0   = page.getViewport({ scale: 1 });
+                var scale = Math.min(50 / vp0.width, 70 / vp0.height);
+                var vp    = page.getViewport({ scale: scale });
+                tc.width = vp.width; tc.height = vp.height;
+                page.render({ canvasContext: tc.getContext('2d'), viewport: vp }).promise;
+            });
         })(i);
     }
 }
 
-/* Tutup flipbook */
-function fb2Close() {
-    document.getElementById('fb2Overlay').classList.remove('active');
-    document.body.style.overflow = '';
-    FB2.pdf  = null;
-    FB2.total = 0;
-    if (FB2.autoOn) fb2ToggleAuto();
-    /* Bersihkan cover canvas agar tidak muncul lagi di buku lain */
-    var cc = document.getElementById('fb2CoverCanvas');
-    if (cc) cc.remove();
+function _updateThumbs(p) {
+    document.querySelectorAll('.fb2-thumb').forEach(function(t) {
+        var tp = parseInt(t.dataset.page, 10);
+        var mob = _isMobile();
+        var active = mob ? (tp === p) : (tp === p || tp === p + 1);
+        t.classList.toggle('active', active);
+        if (active) t.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    });
 }
 
-/* Buka flipbook — dipanggil dari book-card onclick */
-function openFlipbookHome(url, title) {
-    document.getElementById('fb2Title').textContent       = title || 'Dokumen';
-    document.getElementById('fb2DownloadLink').href       = url;
-    document.getElementById('fb2Overlay').classList.add('active');
+/* ── SWIPE HINT ── */
+function _showSwipeHint() {
+    var hint = _el('fb2SwipeHint');
+    hint.classList.add('visible');
+    setTimeout(function() { hint.classList.add('fade'); }, 2400);
+    setTimeout(function() { hint.classList.remove('visible', 'fade'); }, 3500);
+}
+
+/* ── OPEN FLIPBOOK (dipanggil dari book-card) ── */
+function openFlipbook(url, title) {
+    _el('fb2Title').textContent       = title || 'Dokumen';
+    _el('fb2DownloadLink').href       = url;
+    _el('fb2Overlay').classList.add('active');
     document.body.style.overflow = 'hidden';
 
-    var loadEl = document.getElementById('fb2Loading');
-    loadEl.style.display = 'block';
-    loadEl.textContent   = 'Memuat dokumen...';
-
     /* Reset state */
-    FB2.pdf    = null;
-    FB2.total  = 0;
-    FB2.spread = 0;
-    FB2.zoom   = 1;
-    FB2.anim   = false;
-    document.getElementById('fb2Spread').style.transform = 'scale(1)';
+    _pdf = null; _total = 0; _page = 1;
+    _busy = false; _zoom = 1.0;
+    if (_autoOn) fb2ToggleAuto();
 
-    /* Sembunyikan/hapus cover canvas lama */
-    var cc = document.getElementById('fb2CoverCanvas');
-    if (cc) cc.remove();
+    /* Reset canvas */
+    ['fb2CanvasL','fb2CanvasR','fb2FlipFront','fb2FlipBack'].forEach(function(id) {
+        var c = _el(id);
+        if (c.width > 0) c.getContext('2d').clearRect(0, 0, c.width, c.height);
+        c.width = 0; c.height = 0; c.style.display = 'none';
+    });
+    _el('fb2Flipper').style.display = 'none';
+    _el('fb2Flipper').className = 'fb2-flipper';
+    _el('fb2Spine').style.display = 'none';
+    _el('fb2Thumbs').innerHTML = '';
+    _el('fb2PageInfo').textContent = 'Memuat...';
 
-    /* Sembunyikan canvas L/R dulu */
-    document.getElementById('fb2CanvasL').style.display  = 'none';
-    document.getElementById('fb2Spine').style.display    = 'none';
-    document.getElementById('fb2CanvasR').style.display  = 'none';
+    /* Loading */
+    var loadEl = _el('fb2Loading');
+    loadEl.style.display = 'block';
+    loadEl.textContent   = '';
 
     if (typeof pdfjsLib === 'undefined') {
         loadEl.textContent = 'PDF.js tidak ditemukan.'; return;
     }
 
     pdfjsLib.getDocument(url).promise.then(function(pdf) {
-        FB2.pdf   = pdf;
-        FB2.total = pdf.numPages;
+        _pdf   = pdf;
+        _total = pdf.numPages;
+        return _calcScale();
+    }).then(function(s) {
+        _scale = s;
         loadEl.style.display = 'none';
-        /* Render cover dulu, lalu bangun thumbs */
-        fb2ShowSpread(0, false, 1, function() {
-            fb2BuildThumbs();
+        _renderDirect(1, function() {
+            _buildThumbs();
+            if (_isMobile()) _showSwipeHint();
         });
     }).catch(function(err) {
         loadEl.textContent = 'Gagal memuat PDF. ' + (err.message || err);
+        _busy = false;
     });
 }
 
-/* ── Event: klik overlay untuk tutup ── */
-document.getElementById('fb2Overlay').addEventListener('click', function(e) {
-    if (e.target === this) fb2Close();
-});
+/* Alias: nama lama di kiri.php juga tetap berfungsi */
+function openFlipbookHome(url, title) { openFlipbook(url, title); }
 
-/* ── Keyboard shortcuts ── */
+/* ── TUTUP ── */
+function fb2Close() {
+    _el('fb2Overlay').classList.remove('active');
+    document.body.style.overflow = '';
+    if (_autoOn) fb2ToggleAuto();
+
+    ['fb2CanvasL','fb2CanvasR','fb2FlipFront','fb2FlipBack'].forEach(function(id) {
+        var c = _el(id);
+        if (c.width > 0) c.getContext('2d').clearRect(0, 0, c.width, c.height);
+        c.width = 0; c.height = 0; c.style.display = 'none';
+    });
+    _el('fb2Flipper').style.display = 'none';
+    _el('fb2Flipper').className = 'fb2-flipper';
+    _el('fb2Spine').style.display = 'none';
+    _pdf = null; _busy = false; _page = 1;
+}
+
+/* ── KEYBOARD ── */
 document.addEventListener('keydown', function(e) {
-    if (!document.getElementById('fb2Overlay').classList.contains('active')) return;
+    if (!_el('fb2Overlay').classList.contains('active')) return;
     switch (e.key) {
-        case 'ArrowRight': fb2Go(1);     break;
-        case 'ArrowLeft':  fb2Go(-1);    break;
-        case 'Escape':     fb2Close();   break;
-        case '+': case '=': fb2ZoomIn(); break;
-        case '-':           fb2ZoomOut();break;
+        case 'ArrowRight': fb2Nav(1);      break;
+        case 'ArrowLeft':  fb2Nav(-1);     break;
+        case 'Escape':     fb2Close();     break;
+        case '+': case '=': fb2ZoomIn();  break;
+        case '-':           fb2ZoomOut(); break;
+        case '0':           fb2ZoomReset(); break;
     }
 });
 
-/* ── Touch swipe di body ── */
+/* ── KLIK OVERLAY UNTUK TUTUP ── */
+_el('fb2Overlay').addEventListener('click', function(e) {
+    if (e.target === this) fb2Close();
+});
+
+/* ── DRAG-TO-PAN + MOMENTUM (desktop) ── */
 (function() {
-    var body = document.getElementById('fb2Body');
+    var body = _el('fb2Body');
     if (!body) return;
-    var sx = 0;
+    var isDown = false, lx, ly, velX = 0, velY = 0, rafId = null;
+    var FRICTION = 0.85;
+
+    function cancelMom() { if (rafId) { cancelAnimationFrame(rafId); rafId = null; } }
+    function applyMom() {
+        velX *= FRICTION; velY *= FRICTION;
+        /* fb2Body tidak punya overflow scroll, jadi pan dilakukan via transformOrigin */
+        if (Math.abs(velX) > 0.5 || Math.abs(velY) > 0.5) {
+            rafId = requestAnimationFrame(applyMom);
+        } else { rafId = null; }
+    }
+
+    function onDown(e) {
+        if (_isMobile()) return;
+        if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A') return;
+        cancelMom();
+        isDown = true; velX = 0; velY = 0;
+        var pt = e.touches ? e.touches[0] : e;
+        lx = pt.clientX; ly = pt.clientY;
+        body.classList.add('is-dragging');
+        e.preventDefault();
+    }
+    function onMove(e) {
+        if (!isDown || _isMobile()) return;
+        e.preventDefault();
+        var pt = e.touches ? e.touches[0] : e;
+        velX = velX * 0.4 + (pt.clientX - lx) * 0.6;
+        velY = velY * 0.4 + (pt.clientY - ly) * 0.6;
+        lx = pt.clientX; ly = pt.clientY;
+    }
+    function onUp() {
+        if (!isDown) return; isDown = false;
+        body.classList.remove('is-dragging');
+        if (Math.abs(velX) > 1.5 || Math.abs(velY) > 1.5) {
+            rafId = requestAnimationFrame(applyMom);
+        }
+    }
+
+    body.addEventListener('mousedown', onDown, { passive: false });
+    document.addEventListener('mousemove', onMove, { passive: false });
+    document.addEventListener('mouseup', onUp);
+
+    /* Wheel zoom */
+    body.addEventListener('wheel', function(e) {
+        e.preventDefault();
+        if (!_pdf) return;
+        cancelMom();
+        _zoom = Math.max(0.4, Math.min(3.0, _zoom + (e.deltaY < 0 ? 0.12 : -0.12)));
+        _busy = false; _renderDirect(_page);
+    }, { passive: false });
+})();
+
+/* ── SWIPE GESTURE (mobile) ── */
+(function() {
+    var body = _el('fb2Body');
+    if (!body) return;
+    var sx, sy, deciding, decidedAxis;
+
     body.addEventListener('touchstart', function(e) {
+        if (e.touches.length !== 1) return;
         sx = e.touches[0].clientX;
+        sy = e.touches[0].clientY;
+        deciding = true; decidedAxis = null;
     }, { passive: true });
+
+    body.addEventListener('touchmove', function(e) {
+        if (!deciding && decidedAxis !== 'h') return;
+        var dx = e.touches[0].clientX - sx;
+        var dy = e.touches[0].clientY - sy;
+        if (deciding && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
+            decidedAxis = Math.abs(dx) > Math.abs(dy) ? 'h' : 'v';
+            deciding = false;
+        }
+        if (decidedAxis === 'h') e.preventDefault();
+    }, { passive: false });
+
     body.addEventListener('touchend', function(e) {
+        if (!_isMobile() || decidedAxis !== 'h') return;
         var dx = e.changedTouches[0].clientX - sx;
-        if (Math.abs(dx) > 50) { dx < 0 ? fb2Go(1) : fb2Go(-1); }
+        if (Math.abs(dx) > 45) fb2Nav(dx < 0 ? 1 : -1);
     }, { passive: true });
+})();
+
+/* ── RESIZE: recalc scale ── */
+(function() {
+    var t;
+    window.addEventListener('resize', function() {
+        clearTimeout(t);
+        t = setTimeout(function() {
+            if (!_pdf || !_el('fb2Overlay').classList.contains('active')) return;
+            _calcScale().then(function(s) { _scale = s; _busy = false; _renderDirect(_page); });
+        }, 280);
+    });
 })();
 
 /* ══════════════════════════════════════════
