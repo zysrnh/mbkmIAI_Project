@@ -1,0 +1,7 @@
+<?php
+include 'ikutan/config.php';
+include 'ikutan/mysqli.php';
+$r = $koneksi_db->sql_query("DESCRIBE halaman");
+if(!$r) echo "ERROR: " . mysqli_error($koneksi_db->koneksi);
+else while($row = $koneksi_db->sql_fetchrow($r)) print_r($row);
+?>

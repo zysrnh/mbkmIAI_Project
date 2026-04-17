@@ -692,7 +692,11 @@ a.scroll-top:hover, .scroll-top:hover { background: #306238 !important; border-c
 </style>
 
 <?php
-$q_prog = $koneksi_db->sql_query("SELECT * FROM halaman WHERE id IN (2,3,4,5,6,7,8,9) ORDER BY id ASC");
+$q_prog = $koneksi_db->sql_query("SELECT * FROM halaman WHERE aktif='Y' ORDER BY id DESC LIMIT 8");
+if (!$q_prog) {
+    // Fallback if the 'aktif' column hasn't been created yet by the dashboard
+    $q_prog = $koneksi_db->sql_query("SELECT * FROM halaman ORDER BY id DESC LIMIT 8");
+}
 $programs = [];
 while ($p = $koneksi_db->sql_fetchrow($q_prog)) $programs[] = $p;
 $prog_count = count($programs);
@@ -726,7 +730,7 @@ function cleanProgText($str) {
 <section class="prog-section">
 <div class="prog-section-head">
     <span class="lp-label">Program Unggulan</span>
-    <h2 class="lp-title lp-title--lg"><?= $prog_count > 0 ? ($prog_count.' PROGRAM MBKM') : '8 PROGRAM MBKM' ?></h2>
+    <h2 class="lp-title lp-title--lg"><?= $prog_count > 0 ? ($prog_count.' PROGRAM MBKM') : 'PROGRAM MBKM' ?></h2>
     <div class="lp-divider" style="margin: 0 auto;"></div>
 </div>
 <div class="container" style="padding-bottom:30px;">
@@ -740,7 +744,11 @@ function cleanProgText($str) {
         <div class="col-sm-3" style="padding:0 12px; margin-bottom:32px; display:flex;">
             <div class="prog-card" style="background:<?= $style['bg'] ?>; border-top-color:<?= $style['border'] ?>;">
                 <div class="pc-icon">
-                    <svg viewBox="0 0 24 24"><path d="<?= $style['icon'] ?>"/></svg>
+                    <?php if (!empty($data['icon'])): ?>
+                        <i class="fa <?= htmlspecialchars($data['icon']) ?>" style="font-size:24px;color:#fff;"></i>
+                    <?php else: ?>
+                        <svg viewBox="0 0 24 24"><path d="<?= $style['icon'] ?>"/></svg>
+                    <?php endif; ?>
                 </div>
                 <h3><?= htmlspecialchars($data['judul']) ?></h3>
                 <p><?= htmlspecialchars(strip_tags($snippet)) ?></p>
