@@ -67,14 +67,16 @@ header.custom-header-main {
     opacity: 0;
     position: absolute;
     top: 100%;
-    left: 0;
+    right: 0;
+    left: auto;
     background: #fff;
-    min-width: 280px;
-    border-radius: 8px;
-    padding: 10px 0;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    min-width: 220px;
+    border-radius: 12px;
+    padding: 12px 0;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
     transition: all 0.3s ease;
     transform: translateY(10px);
+    border: 1px solid rgba(0,0,0,0.05);
 }
 .custom-navbar .nav-links li:hover .dropdown-menu {
     visibility: visible;
@@ -82,15 +84,19 @@ header.custom-header-main {
     transform: translateY(0);
 }
 .custom-navbar .nav-links .dropdown-menu a {
-    color: #333;
-    padding: 10px 20px;
-    display: block;
+    color: #444;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
     font-size: 14px;
-    font-weight: 400;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
 }
 .custom-navbar .nav-links .dropdown-menu a:hover {
-    background: #f8f9fa;
-    color: #0d47a1;
+    background: #f1f5f1;
+    color: #306238;
 }
 .dikti-logo {
     display: flex;
@@ -126,14 +132,28 @@ header.custom-header-main {
             <li><a href="#"><i class="fa fa-instagram"></i></a></li>
 ';
 
-// Tambahkan tombol Dashboard jika admin login
-if (isset($_SESSION['LevelAkses']) && $_SESSION['LevelAkses'] === 'Administrator') {
+// Tombol Dinamis: Dashboard (jika login) atau Login (jika belum)
+if (isset($_SESSION['UserName']) && !empty($_SESSION['UserName'])) {
+    // Tombol Dashboard untuk yang sudah login
     echo '
             <li>
-                <a href="admin.html" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);padding:8px 18px;border-radius:30px;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:6px;transition:all .3s">
+                <a href="dashboard.php" style="background:#ffcc00;color:#333;padding:8px 18px;border-radius:30px;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:6px;transition:all .3s">
                     <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
-                    Dashboard
+                    DASHBOARD
                 </a>
+            </li>';
+} else {
+    // Tombol Login dengan Dropdown Register
+    echo '
+            <li>
+                <a href="login.php" style="background:#ffcc00;color:#333;padding:8px 18px;border-radius:30px;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:6px;transition:all .3s">
+                    LOGIN 
+                    <i class="fa fa-angle-down"></i>
+                </a>
+                <div class="dropdown-menu">
+                    <a href="login.php"><i class="fa fa-sign-in"></i> Masuk (Login)</a>
+                    <a href="register.php" style="color:#2e7d32"><b><i class="fa fa-user-plus"></i> Daftar Akun Baru</b></a>
+                </div>
             </li>';
 }
 

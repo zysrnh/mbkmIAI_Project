@@ -1,24 +1,37 @@
 <?php
 /**
  * Dashboard Admin — Standalone SPA-like Shell
- * Sidebar tetap, konten berubah sesuai ?page=
+ * Fixed: define names, duplicate keys, PHP 5.4+ compat
  */
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+
 if (session_status() === PHP_SESSION_NONE) {
     session_name("Login");
     session_start();
 }
 
-// Proteksi
-if (!isset($_SESSION['LevelAkses']) || $_SESSION['LevelAkses'] !== 'Administrator') {
+// Proteksi — Admin & User level diizinkan
+$_level = isset($_SESSION['LevelAkses']) ? $_SESSION['LevelAkses'] : '';
+if (!in_array($_level, array('Administrator', 'User', 'Editor'))) {
     header('Location: admin.html');
+    exit;
+}
+$isAdmin = ($_level === 'Administrator');
+$isUser  = ($_level === 'User');
+
+// User hanya boleh akses halaman upload_user
+$_page_check = isset($_GET['page']) ? $_GET['page'] : 'home';
+if ($isUser && !in_array($_page_check, array('home', 'upload_user'))) {
+    header('Location: dashboard.php?page=upload_user');
     exit;
 }
 
 // Logout
 if (isset($_GET['aksi']) && $_GET['aksi'] === 'logout') {
-    $_SESSION['UserName']    = '';
-    $_SESSION['LevelAkses']  = '';
-    $_SESSION['UserEmail']   = '';
+    $_SESSION['UserName']   = '';
+    $_SESSION['LevelAkses'] = '';
+    $_SESSION['UserEmail']  = '';
     session_destroy();
     header('Location: admin.html');
     exit;
@@ -30,13 +43,13 @@ $userName = htmlspecialchars(isset($_SESSION['UserName']) ? $_SESSION['UserName'
 $page = isset($_GET['page']) ? $_GET['page'] : 'home';
 
 // DB connection
-$db_ready = false;
-$koneksi_db = null;
+$db_ready    = false;
+$koneksi_db  = null;
 try {
-    if (!defined('cms-KOMPONEN')) define('cms-KOMPONEN', true);
-    if (!defined('cms-KONTEN'))   define('cms-KONTEN', true);
-    if (!defined('cms-ADMINISTRATOR')) define('cms-ADMINISTRATOR', true);
-    if (!defined('cms-FUNGSI'))   define('cms-FUNGSI', true);
+    if (!defined('cms_KOMPONEN'))      define('cms_KOMPONEN', true);
+    if (!defined('cms_KONTEN'))        define('cms_KONTEN', true);
+    if (!defined('cms_ADMINISTRATOR')) define('cms_ADMINISTRATOR', true);
+    if (!defined('cms_FUNGSI'))        define('cms_FUNGSI', true);
     @include_once 'ikutan/config.php';
     @include_once 'ikutan/mysqli.php';
     @include_once 'ikutan/fungsi.php';
@@ -47,32 +60,41 @@ try {
 // Quick stats for home
 $totalBooks = 0; $totalUsers = 0; $totalPages = 0; $totalVisits = 0;
 if ($db_ready) {
-    $r = @$koneksi_db->sql_query("SELECT COUNT(*) as c FROM mod_data_flipbook"); if ($r) { $d = $koneksi_db->sql_fetchrow($r); $totalBooks = (int)$d['c']; }
-    $r = @$koneksi_db->sql_query("SELECT COUNT(*) as c FROM pengguna"); if ($r) { $d = $koneksi_db->sql_fetchrow($r); $totalUsers = (int)$d['c']; }
-    $r = @$koneksi_db->sql_query("SELECT COUNT(*) as c FROM berita"); if ($r) { $d = $koneksi_db->sql_fetchrow($r); $totalPages = (int)$d['c']; }
-    $r = @$koneksi_db->sql_query("SELECT SUM(jumlah) as c FROM statistik"); if ($r) { $d = $koneksi_db->sql_fetchrow($r); $totalVisits = (int)$d['c']; }
+    $r = @$koneksi_db->sql_query("SELECT COUNT(*) as c FROM mod_data_flipbook");
+    if ($r) { $d = $koneksi_db->sql_fetchrow($r); $totalBooks = (int)$d['c']; }
+    $r = @$koneksi_db->sql_query("SELECT COUNT(*) as c FROM pengguna");
+    if ($r) { $d = $koneksi_db->sql_fetchrow($r); $totalUsers = (int)$d['c']; }
+    $r = @$koneksi_db->sql_query("SELECT COUNT(*) as c FROM berita");
+    if ($r) { $d = $koneksi_db->sql_fetchrow($r); $totalPages = (int)$d['c']; }
+    $r = @$koneksi_db->sql_query("SELECT SUM(jumlah) as c FROM statistik");
+    if ($r) { $d = $koneksi_db->sql_fetchrow($r); $totalVisits = (int)$d['c']; }
 }
 
 // ══════════════════════════════════════════════════════════════
-// FLIPBOOK ACTIONS (process before rendering)
+// FLIPBOOK ACTIONS
 // ══════════════════════════════════════════════════════════════
 $fb_msg = ''; $fb_error = '';
+$fb_aksi = '';
 if ($page === 'flipbook' && $db_ready) {
-    // Auto-create table
     $koneksi_db->sql_query("
         CREATE TABLE IF NOT EXISTS `mod_data_flipbook` (
-          `id` INT(11) NOT NULL AUTO_INCREMENT, `judul` VARCHAR(255) NOT NULL,
-          `deskripsi` TEXT, `cover` VARCHAR(255) DEFAULT NULL,
-          `file_pdf` VARCHAR(255) NOT NULL, `kategori` VARCHAR(100) DEFAULT NULL,
-          `ordering` INT(5) DEFAULT 0, `status` TINYINT(1) DEFAULT 1,
-          `tanggal` DATETIME DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (`id`)
+          `id` INT(11) NOT NULL AUTO_INCREMENT,
+          `judul` VARCHAR(255) NOT NULL,
+          `deskripsi` TEXT,
+          `cover` VARCHAR(255) DEFAULT NULL,
+          `file_pdf` VARCHAR(255) NOT NULL,
+          `kategori` VARCHAR(100) DEFAULT NULL,
+          `ordering` INT(5) DEFAULT 0,
+          `status` TINYINT(1) DEFAULT 1,
+          `tanggal` DATETIME DEFAULT CURRENT_TIMESTAMP,
+          PRIMARY KEY (`id`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ");
 
-    $doc_root = rtrim($_SERVER['DOCUMENT_ROOT'], '/\\');
+    $doc_root         = rtrim($_SERVER['DOCUMENT_ROOT'], '/\\');
     $upload_dir_pdf   = $doc_root . '/files/flipbook/';
     $upload_dir_cover = $doc_root . '/images/flipbook/';
-    if (!is_dir($upload_dir_pdf))   @mkdir($upload_dir_pdf, 0755, true);
+    if (!is_dir($upload_dir_pdf))   @mkdir($upload_dir_pdf,   0755, true);
     if (!is_dir($upload_dir_cover)) @mkdir($upload_dir_cover, 0755, true);
 
     $fb_aksi = isset($_GET['aksi']) ? $_GET['aksi'] : '';
@@ -80,82 +102,98 @@ if ($page === 'flipbook' && $db_ready) {
 
     // TAMBAH
     if ($fb_aksi === 'tambah' && isset($_POST['submit'])) {
-        $judul = isset($_POST['judul']) ? trim(strip_tags($_POST['judul'])) : '';
+        $judul     = isset($_POST['judul'])     ? trim(strip_tags($_POST['judul']))     : '';
         $deskripsi = isset($_POST['deskripsi']) ? trim(strip_tags($_POST['deskripsi'])) : '';
-        $kategori = isset($_POST['kategori']) ? trim(strip_tags($_POST['kategori'])) : '';
+        $kategori  = isset($_POST['kategori'])  ? trim(strip_tags($_POST['kategori']))  : '';
         if (empty($judul)) $fb_error = 'Judul tidak boleh kosong.';
         $pdf_name = '';
         if (!$fb_error && isset($_FILES['file_pdf']) && $_FILES['file_pdf']['error'] === UPLOAD_ERR_OK) {
             $ext_pdf = strtolower(pathinfo($_FILES['file_pdf']['name'], PATHINFO_EXTENSION));
-            if ($ext_pdf !== 'pdf') { $fb_error = 'File harus berformat PDF.'; }
-            else {
+            if ($ext_pdf !== 'pdf') {
+                $fb_error = 'File harus berformat PDF.';
+            } else {
                 $pdf_name = time() . '_' . preg_replace('/[^a-z0-9_.]/', '_', strtolower($_FILES['file_pdf']['name']));
-                if (!move_uploaded_file($_FILES['file_pdf']['tmp_name'], $upload_dir_pdf . $pdf_name)) $fb_error = 'Gagal menyimpan PDF.';
+                if (!move_uploaded_file($_FILES['file_pdf']['tmp_name'], $upload_dir_pdf . $pdf_name))
+                    $fb_error = 'Gagal menyimpan PDF.';
             }
-        } elseif (!$fb_error) { $fb_error = 'File PDF wajib diupload.'; }
+        } elseif (!$fb_error) {
+            $fb_error = 'File PDF wajib diupload.';
+        }
         $cover_name = '';
-        $cover_b64 = isset($_POST['cover_base64']) ? trim($_POST['cover_base64']) : '';
+        $cover_b64  = isset($_POST['cover_base64']) ? trim($_POST['cover_base64']) : '';
         if (!$fb_error && !empty($cover_b64) && strpos($cover_b64, 'data:image') === 0) {
-            $b64_data = preg_replace('#^data:image/\\w+;base64,#', '', $cover_b64);
+            $b64_data   = preg_replace('#^data:image/\w+;base64,#', '', $cover_b64);
             $img_binary = base64_decode($b64_data);
-            if ($img_binary) { $cover_name = 'cover_' . time() . '.jpg'; file_put_contents($upload_dir_cover . $cover_name, $img_binary); }
+            if ($img_binary) {
+                $cover_name = 'cover_' . time() . '.jpg';
+                file_put_contents($upload_dir_cover . $cover_name, $img_binary);
+            }
         } elseif (!$fb_error && isset($_FILES['cover']) && $_FILES['cover']['error'] === 0) {
             $ext_img = strtolower(pathinfo($_FILES['cover']['name'], PATHINFO_EXTENSION));
-            if (in_array($ext_img, ['jpg','jpeg','png','webp'])) {
+            if (in_array($ext_img, array('jpg','jpeg','png','webp'))) {
                 $cover_name = 'cover_' . time() . '.' . $ext_img;
                 move_uploaded_file($_FILES['cover']['tmp_name'], $upload_dir_cover . $cover_name);
             }
         }
         if (!$fb_error) {
             $pdf_path = 'files/flipbook/' . $pdf_name;
-            $q_max = $koneksi_db->sql_fetchrow($koneksi_db->sql_query("SELECT MAX(ordering) as mx FROM mod_data_flipbook"));
+            $q_max    = $koneksi_db->sql_fetchrow($koneksi_db->sql_query("SELECT MAX(ordering) as mx FROM mod_data_flipbook"));
             $ordering = (int)$q_max['mx'] + 1;
             $koneksi_db->sql_query("INSERT INTO mod_data_flipbook (judul,deskripsi,cover,file_pdf,kategori,ordering,status,tanggal) VALUES ('$judul','$deskripsi','$cover_name','$pdf_path','$kategori','$ordering',1,NOW())");
-            $fb_msg = 'Buku berhasil ditambahkan!';
+            $fb_msg  = 'Buku berhasil ditambahkan!';
             $fb_aksi = '';
         }
     }
+
     // BULK HAPUS
     if (isset($_POST['bulk_delete_fb']) && is_array($_POST['fb_delete'])) {
         $deleted_count = 0;
         foreach ($_POST['fb_delete'] as $del_id) {
             $del_id = (int)$del_id;
-            $row = $koneksi_db->sql_fetchrow($koneksi_db->sql_query("SELECT * FROM mod_data_flipbook WHERE id='$del_id'"));
+            $row    = $koneksi_db->sql_fetchrow($koneksi_db->sql_query("SELECT * FROM mod_data_flipbook WHERE id='$del_id'"));
             if ($row) {
-                if (!empty($row['file_pdf'])) { $f = $doc_root.'/'.ltrim($row['file_pdf'],'/'); if(file_exists($f)) @unlink($f); }
-                if (!empty($row['cover'])) { $f = $upload_dir_cover.$row['cover']; if(file_exists($f)) @unlink($f); }
+                if (!empty($row['file_pdf'])) { $f = $doc_root.'/'.ltrim($row['file_pdf'],'/'); if (file_exists($f)) @unlink($f); }
+                if (!empty($row['cover']))    { $f = $upload_dir_cover.$row['cover']; if (file_exists($f)) @unlink($f); }
                 $koneksi_db->sql_query("DELETE FROM mod_data_flipbook WHERE id='$del_id'");
                 $deleted_count++;
             }
         }
         $fb_msg = $deleted_count . ' buku berhasil dihapus.';
     }
-    // HAPUS
+
+    // HAPUS SINGLE
     if ($fb_aksi === 'hapus') {
-        $id = (int)(isset($_REQUEST['id']) ? $_REQUEST['id'] : 0);
+        $id  = (int)(isset($_REQUEST['id']) ? $_REQUEST['id'] : 0);
         $row = $koneksi_db->sql_fetchrow($koneksi_db->sql_query("SELECT * FROM mod_data_flipbook WHERE id='$id'"));
         if ($row) {
-            if (!empty($row['file_pdf'])) { $f = $doc_root.'/'.ltrim($row['file_pdf'],'/'); if(file_exists($f)) @unlink($f); }
-            if (!empty($row['cover'])) { $f = $upload_dir_cover.$row['cover']; if(file_exists($f)) @unlink($f); }
+            if (!empty($row['file_pdf'])) { $f = $doc_root.'/'.ltrim($row['file_pdf'],'/'); if (file_exists($f)) @unlink($f); }
+            if (!empty($row['cover']))    { $f = $upload_dir_cover.$row['cover']; if (file_exists($f)) @unlink($f); }
             $koneksi_db->sql_query("DELETE FROM mod_data_flipbook WHERE id='$id'");
         }
-        header("Location: dashboard.php?page=flipbook&msg=hapus_ok"); exit;
+        header("Location: dashboard.php?page=flipbook&msg=hapus_ok");
+        exit;
     }
-    // TOGGLE
+
+    // TOGGLE STATUS
     if ($fb_aksi === 'toggle') {
-        $id = (int)$_GET['id'];
+        $id  = (int)$_GET['id'];
         $row = $koneksi_db->sql_fetchrow($koneksi_db->sql_query("SELECT status FROM mod_data_flipbook WHERE id='$id'"));
-        if ($row) { $ns = $row['status']==1?0:1; $koneksi_db->sql_query("UPDATE mod_data_flipbook SET status='$ns' WHERE id='$id'"); }
-        header("Location: dashboard.php?page=flipbook"); exit;
+        if ($row) {
+            $ns = $row['status'] == 1 ? 0 : 1;
+            $koneksi_db->sql_query("UPDATE mod_data_flipbook SET status='$ns' WHERE id='$id'");
+        }
+        header("Location: dashboard.php?page=flipbook");
+        exit;
     }
+
     // EDIT SAVE
     if ($fb_aksi === 'edit' && isset($_POST['submit'])) {
-        $id = (int)$_POST['id'];
-        $judul = trim(strip_tags($_POST['judul']));
+        $id        = (int)$_POST['id'];
+        $judul     = trim(strip_tags($_POST['judul']));
         $deskripsi = trim(strip_tags($_POST['deskripsi']));
-        $kategori = trim(strip_tags($_POST['kategori']));
-        $row = $koneksi_db->sql_fetchrow($koneksi_db->sql_query("SELECT * FROM mod_data_flipbook WHERE id='$id'"));
-        $pdf_path = $row['file_pdf'];
+        $kategori  = trim(strip_tags($_POST['kategori']));
+        $row       = $koneksi_db->sql_fetchrow($koneksi_db->sql_query("SELECT * FROM mod_data_flipbook WHERE id='$id'"));
+        $pdf_path  = $row['file_pdf'];
         if (isset($_FILES['file_pdf']) && $_FILES['file_pdf']['error'] === 0) {
             $ext_pdf = strtolower(pathinfo($_FILES['file_pdf']['name'], PATHINFO_EXTENSION));
             if ($ext_pdf === 'pdf') {
@@ -167,123 +205,212 @@ if ($page === 'flipbook' && $db_ready) {
         $cover_name = $row['cover'];
         if (isset($_FILES['cover']) && $_FILES['cover']['error'] === 0) {
             $ext_img = strtolower(pathinfo($_FILES['cover']['name'], PATHINFO_EXTENSION));
-            if (in_array($ext_img, ['jpg','jpeg','png','webp'])) {
+            if (in_array($ext_img, array('jpg','jpeg','png','webp'))) {
                 $cover_name = 'cover_'.time().'.'.$ext_img;
                 move_uploaded_file($_FILES['cover']['tmp_name'], $upload_dir_cover . $cover_name);
             }
         }
         $koneksi_db->sql_query("UPDATE mod_data_flipbook SET judul='$judul',deskripsi='$deskripsi',cover='$cover_name',file_pdf='$pdf_path',kategori='$kategori' WHERE id='$id'");
-        $fb_msg = 'Buku berhasil diperbarui.';
+        $fb_msg  = 'Buku berhasil diperbarui.';
         $fb_aksi = '';
     }
 }
 
 // ══════════════════════════════════════════════════════════════
-// PENGGUNA ACTIONS
+// PENGGUNA ACTIONS (Admin only)
 // ══════════════════════════════════════════════════════════════
-$user_msg = ''; $user_error = '';
-if ($page === 'pengguna' && $db_ready) {
-    $user_action = isset($_GET['action']) ? $_GET['action'] : '';
+$peng_msg    = ''; $peng_error  = '';
+$peng_action = '';
+if ($page === 'pengguna' && $db_ready && $isAdmin) {
+    $peng_action = isset($_GET['action']) ? $_GET['action'] : '';
 
-    // DELETE
-    if (isset($_POST['deleted']) && is_array(@$_POST['delete'])) {
+    // DELETE bulk
+    if (isset($_POST['deleted']) && isset($_POST['delete']) && is_array($_POST['delete'])) {
         foreach ($_POST['delete'] as $v) {
-            $v = addslashes($v);
-            $koneksi_db->sql_query("DELETE FROM `pengguna` WHERE `user`='$v'");
+            $id = (int)$v;
+            $koneksi_db->sql_query("DELETE FROM `pengguna` WHERE `UserId`='$id'");
         }
-        $user_msg = 'Data pengguna berhasil dihapus.';
+        $peng_msg = 'Akun berhasil dihapus.';
+    }
+
+    // TOGGLE AKTIF
+    if ($peng_action === 'toggle') {
+        $id = (int)$_GET['id'];
+        $st = (isset($_GET['st']) && $_GET['st'] === 'aktif') ? 'aktif' : 'nonaktif';
+        $koneksi_db->sql_query("UPDATE `pengguna` SET `tipe`='$st' WHERE `UserId`='$id'");
+        header('Location: dashboard.php?page=pengguna');
+        exit;
+    }
+
+    // RESET PASSWORD
+    if ($peng_action === 'reset' && isset($_POST['submit_reset'])) {
+        $id      = (int)$_GET['id'];
+        $newpass = md5(trim($_POST['new_password']));
+        $koneksi_db->sql_query("UPDATE `pengguna` SET `password`='$newpass' WHERE `UserId`='$id'");
+        $peng_msg    = 'Password berhasil direset.';
+        $peng_action = '';
     }
 
     // ADD
-    if ($user_action === 'add' && isset($_POST['submit'])) {
-        $nama = strip_tags(trim($_POST['nama']));
-        $email = strip_tags(trim($_POST['email']));
-        $user_code = strip_tags(trim($_POST['user']));
-        $password = md5($user_code);
-        $alamat = strip_tags(trim($_POST['alamat']));
-        $telp = strip_tags(trim($_POST['telp']));
-        $level = strip_tags(trim($_POST['level']));
-        $tanggal = date('Y-m-d');
-        if (empty($nama)) { $user_error = 'Nama tidak boleh kosong.'; }
-        else {
-            $ins = $koneksi_db->sql_query("INSERT INTO `pengguna` (`nama`,`alamat`,`telp`,`user`,`password`,`email`,`level`,`tanggal`) VALUES ('$nama','$alamat','$telp','$user_code','$password','$email','$level','$tanggal')");
-            if ($ins) { $user_msg = 'Pengguna berhasil ditambahkan.'; $user_action = ''; }
-            else { $user_error = 'Gagal menambahkan pengguna.'; }
+    if ($peng_action === 'add' && isset($_POST['submit'])) {
+        $uname = trim(strip_tags($_POST['uname']));
+        $namal = trim(strip_tags($_POST['nama']));
+        $email = trim(strip_tags($_POST['email']));
+        $level = in_array($_POST['level'], array('Administrator','User','Editor')) ? $_POST['level'] : 'User';
+        $pass  = md5(trim($_POST['password']));
+        if (empty($uname) || empty($_POST['password'])) {
+            $peng_error = 'Username & Password wajib diisi.';
+        } else {
+            $cek_u = $koneksi_db->sql_query("SELECT UserId FROM `pengguna` WHERE user='$uname'");
+            if ($koneksi_db->sql_numrows($cek_u) > 0) {
+                $peng_error = 'Username sudah dipakai, pilih username lain.';
+            } else {
+                $ins = $koneksi_db->sql_query("INSERT INTO `pengguna` (`user`,`password`,`email`,`level`,`tipe`,`nama`) VALUES ('$uname','$pass','$email','$level','aktif','$namal')");
+                if ($ins) { $peng_msg = "Akun '$uname' berhasil dibuat."; $peng_action = ''; }
+                else $peng_error = 'Gagal membuat akun.';
+            }
         }
     }
 
     // EDIT
-    if ($user_action === 'edit' && isset($_POST['submit'])) {
-        $id = $_GET['id'];
-        $nama = strip_tags(trim($_POST['nama']));
-        $email = strip_tags(trim($_POST['email']));
-        $alamat = strip_tags(trim($_POST['alamat']));
-        $telp = strip_tags(trim($_POST['telp']));
-        $koneksi_db->sql_query("UPDATE `pengguna` SET `nama`='$nama',`alamat`='$alamat',`telp`='$telp',`email`='$email' WHERE md5(`UserId`)='$id'");
-        $user_msg = 'Data pengguna berhasil diperbarui.';
-        $user_action = '';
+    if ($peng_action === 'edit' && isset($_POST['submit'])) {
+        $id    = (int)$_GET['id'];
+        $namal = trim(strip_tags($_POST['nama']));
+        $email = trim(strip_tags($_POST['email']));
+        $level = in_array($_POST['level'], array('Administrator','User','Editor')) ? $_POST['level'] : 'User';
+        $koneksi_db->sql_query("UPDATE `pengguna` SET `email`='$email',`level`='$level',`nama`='$namal' WHERE `UserId`='$id'");
+        $peng_msg    = 'Akun berhasil diperbarui.';
+        $peng_action = '';
+    }
+}
+
+// ══════════════════════════════════════════════════════════════
+// UPLOAD KONTEN USER ACTIONS
+// ══════════════════════════════════════════════════════════════
+$upload_msg = ''; $upload_error = '';
+$up_action  = '';
+if ($page === 'upload_user' && $db_ready) {
+    @$koneksi_db->sql_query("
+        CREATE TABLE IF NOT EXISTS `user_uploads` (
+            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `user` VARCHAR(100) NOT NULL,
+            `judul` VARCHAR(255) NOT NULL,
+            `jenis` VARCHAR(100) DEFAULT 'Laporan',
+            `file_path` VARCHAR(255) DEFAULT NULL,
+            `keterangan` TEXT,
+            `status` ENUM('pending','disetujui','ditolak') DEFAULT 'pending',
+            `catatan_admin` TEXT,
+            `tgl_upload` DATETIME DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ");
+
+    $up_action = isset($_GET['action']) ? $_GET['action'] : '';
+
+    // Admin: update status
+    if ($isAdmin && $up_action === 'setstatus' && isset($_GET['id'], $_GET['st'])) {
+        $id      = (int)$_GET['id'];
+        $st      = in_array($_GET['st'], array('pending','disetujui','ditolak')) ? $_GET['st'] : 'pending';
+        $catatan = isset($_POST['catatan']) ? trim(strip_tags($_POST['catatan'])) : '';
+        $koneksi_db->sql_query("UPDATE `user_uploads` SET `status`='$st', `catatan_admin`='$catatan' WHERE `id`='$id'");
+        header('Location: dashboard.php?page=upload_user');
+        exit;
     }
 
-    // RESET PASSWORD
-    if ($user_action === 'reset' && isset($_POST['submit'])) {
-        $id = $_GET['id'];
-        $pass = md5($_POST['pass']);
-        $koneksi_db->sql_query("UPDATE `pengguna` SET `password`='$pass' WHERE md5(`UserId`)='$id'");
-        $user_msg = 'Password berhasil direset.';
-        $user_action = '';
+    // Admin: delete bulk
+    if ($isAdmin && isset($_POST['deleted']) && isset($_POST['delete']) && is_array($_POST['delete'])) {
+        foreach ($_POST['delete'] as $v) {
+            $id = (int)$v;
+            $fr = $koneksi_db->sql_fetchrow($koneksi_db->sql_query("SELECT file_path FROM `user_uploads` WHERE id='$id'"));
+            if ($fr && $fr['file_path']) @unlink('files/uploads/' . $fr['file_path']);
+            $koneksi_db->sql_query("DELETE FROM `user_uploads` WHERE `id`='$id'");
+        }
+        $upload_msg = 'Upload berhasil dihapus.';
+    }
+
+    // User: tambah upload
+    if ($up_action === 'add' && isset($_POST['submit_upload']) && $isUser) {
+        $judul = trim(strip_tags($_POST['judul']));
+        $jenis = trim(strip_tags($_POST['jenis']));
+        $ket   = trim(strip_tags($_POST['keterangan']));
+        $uname = $userName;
+        if (empty($judul)) {
+            $upload_error = 'Judul wajib diisi.';
+        } else {
+            $file_path = '';
+            if (isset($_FILES['file_upload']) && $_FILES['file_upload']['error'] === 0) {
+                @mkdir($_SERVER['DOCUMENT_ROOT'].'/files/uploads/', 0755, true);
+                $ext     = strtolower(pathinfo($_FILES['file_upload']['name'], PATHINFO_EXTENSION));
+                $allowed = array('pdf','doc','docx','jpg','jpeg','png','zip');
+                if (!in_array($ext, $allowed)) {
+                    $upload_error = 'Format file tidak diizinkan (pdf, doc, docx, jpg, png, zip).';
+                } else {
+                    $file_path = time().'_'.$uname.'.'.$ext;
+                    if (!move_uploaded_file($_FILES['file_upload']['tmp_name'], 'files/uploads/'.$file_path)) {
+                        $upload_error = 'Gagal menyimpan file.';
+                    }
+                }
+            }
+            if (!$upload_error) {
+                $ins = $koneksi_db->sql_query("INSERT INTO `user_uploads` (`user`,`judul`,`jenis`,`keterangan`,`file_path`) VALUES ('$uname','$judul','$jenis','$ket','$file_path')");
+                if ($ins) $upload_msg = 'Upload berhasil dikirim dan menunggu persetujuan admin.';
+                else $upload_error = 'Gagal menyimpan data.';
+            }
+        }
     }
 }
 
 // ══════════════════════════════════════════════════════════════
 // PROGRAM MBKM ACTIONS
 // ══════════════════════════════════════════════════════════════
-$prog_msg = ''; $prog_error = '';
+$prog_msg    = ''; $prog_error  = '';
+$prog_action = '';
 if ($page === 'program' && $db_ready) {
-    // Pastikan tabel halaman punya kolom icon dan aktif
     @$koneksi_db->sql_query("ALTER TABLE `halaman` ADD COLUMN `icon` VARCHAR(100) DEFAULT 'fa-star'");
     @$koneksi_db->sql_query("ALTER TABLE `halaman` ADD COLUMN `aktif` ENUM('Y','N') DEFAULT 'Y'");
 
     $prog_action = isset($_GET['action']) ? $_GET['action'] : '';
-    // DELETE
-    if (isset($_POST['deleted']) && is_array(@$_POST['delete'])) {
+
+    if (isset($_POST['deleted']) && isset($_POST['delete']) && is_array($_POST['delete'])) {
         foreach ($_POST['delete'] as $v) {
             $id = (int)$v;
             $koneksi_db->sql_query("DELETE FROM `halaman` WHERE `id`='$id'");
         }
         $prog_msg = 'Halaman Program berhasil dihapus.';
     }
-    // TOGGLE AKTIF
+
     if ($prog_action === 'toggle') {
         $id = (int)$_GET['id'];
-        $st = $_GET['st'] === 'Y' ? 'Y' : 'N';
+        $st = (isset($_GET['st']) && $_GET['st'] === 'Y') ? 'Y' : 'N';
         $koneksi_db->sql_query("UPDATE `halaman` SET `aktif`='$st' WHERE `id`='$id'");
         header("Location: dashboard.php?page=program");
         exit;
     }
-    // ADD
+
     if ($prog_action === 'add' && isset($_POST['submit'])) {
-        $judul = trim(strip_tags($_POST['judul']));
-        $icon = trim(strip_tags($_POST['icon']));
-        $konten = trim($_POST['konten']); // Rich text allowed
-        $aktif = isset($_POST['aktif']) ? $_POST['aktif'] : 'Y';
-        if(empty($judul)) $prog_error = "Judul tidak boleh kosong.";
-        else {
+        $judul  = trim(strip_tags($_POST['judul']));
+        $icon   = trim(strip_tags($_POST['icon']));
+        $konten = trim($_POST['konten']);
+        $aktif  = isset($_POST['aktif']) ? $_POST['aktif'] : 'Y';
+        if (empty($judul)) {
+            $prog_error = "Judul tidak boleh kosong.";
+        } else {
             $ins = $koneksi_db->sql_query("INSERT INTO `halaman` (`judul`,`icon`,`konten`,`aktif`) VALUES ('$judul','$icon','$konten','$aktif')");
-            if($ins) { $prog_msg = "Program berhasil ditambahkan."; $prog_action = ''; }
+            if ($ins) { $prog_msg = "Program berhasil ditambahkan."; $prog_action = ''; }
             else $prog_error = "Gagal menambah data.";
         }
     }
-    // EDIT
+
     if ($prog_action === 'edit' && isset($_POST['submit'])) {
-        $id = (int)$_GET['id'];
-        $judul = trim(strip_tags($_POST['judul']));
-        $icon = trim(strip_tags($_POST['icon']));
+        $id     = (int)$_GET['id'];
+        $judul  = trim(strip_tags($_POST['judul']));
+        $icon   = trim(strip_tags($_POST['icon']));
         $konten = trim($_POST['konten']);
-        $aktif = isset($_POST['aktif']) ? $_POST['aktif'] : 'Y';
-        if(empty($judul)) $prog_error = "Judul tidak boleh kosong.";
-        else {
+        $aktif  = isset($_POST['aktif']) ? $_POST['aktif'] : 'Y';
+        if (empty($judul)) {
+            $prog_error = "Judul tidak boleh kosong.";
+        } else {
             $upd = $koneksi_db->sql_query("UPDATE `halaman` SET `judul`='$judul',`icon`='$icon',`konten`='$konten',`aktif`='$aktif' WHERE `id`='$id'");
-            if($upd) { $prog_msg = "Program berhasil diperbarui."; $prog_action = ''; }
+            if ($upd) { $prog_msg = "Program berhasil diperbarui."; $prog_action = ''; }
             else $prog_error = "Gagal memperbarui data.";
         }
     }
@@ -295,17 +422,14 @@ if ($page === 'program' && $db_ready) {
 $prof_msg = ''; $prof_error = '';
 if ($page === 'sambutan' && $db_ready) {
     if (isset($_POST['submit_profil'])) {
-        $slogan = trim(strip_tags($_POST['slogan']));
-        $sambutan = $_POST['sambutan']; // allow html
-        $nama = trim(strip_tags($_POST['nama']));
+        $slogan   = trim(strip_tags($_POST['slogan']));
+        $sambutan = $_POST['sambutan'];
+        $nama     = trim(strip_tags($_POST['nama']));
         $video_id = trim(strip_tags($_POST['video_id']));
-        // Extract YouTube ID if full URL pasted
         if (preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/', $video_id, $m)) {
             $video_id = $m[1];
         }
-        // Update profil
         $koneksi_db->sql_query("UPDATE `mod_data_profil` SET `nama`='$nama', `slogan`='$slogan', `sambutan`='$sambutan' WHERE `id`='1'");
-        // Update or insert video
         $existing_vid = $koneksi_db->sql_fetchrow($koneksi_db->sql_query("SELECT id FROM `mod_data_video` ORDER BY id DESC LIMIT 1"));
         if ($existing_vid) {
             $koneksi_db->sql_query("UPDATE `mod_data_video` SET `video`='$video_id', `nama`='Video Profil' WHERE `id`='".$existing_vid['id']."'");
@@ -319,205 +443,216 @@ if ($page === 'sambutan' && $db_ready) {
 // ══════════════════════════════════════════════════════════════
 // GALERI KEGIATAN ACTIONS
 // ══════════════════════════════════════════════════════════════
-$galeri_msg = ''; $galeri_error = '';
+$galeri_msg    = ''; $galeri_error  = '';
+$galeri_action = '';
 if ($page === 'galeri' && $db_ready) {
     $galeri_action = isset($_GET['action']) ? $_GET['action'] : '';
-    // DELETE
-    if (isset($_POST['deleted']) && is_array(@$_POST['delete'])) {
+
+    if (isset($_POST['deleted']) && isset($_POST['delete']) && is_array($_POST['delete'])) {
         foreach ($_POST['delete'] as $v) {
             $id = (int)$v;
             $koneksi_db->sql_query("DELETE FROM `mod_data_foto` WHERE `id`='$id'");
         }
         $galeri_msg = 'Foto berhasil dihapus.';
     }
-    // ADD
+
     if ($galeri_action === 'add' && isset($_POST['submit'])) {
         $nama = trim(strip_tags($_POST['nama']));
-        $ket = $_POST['ket'];
-        if(empty($nama)) $galeri_error = 'Nama foto wajib diisi.';
-        else {
+        $ket  = $_POST['ket'];
+        if (empty($nama)) {
+            $galeri_error = 'Nama foto wajib diisi.';
+        } else {
             $foto_name = 'na.jpg';
-            if(isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
+            if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
                 $ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
-                if(in_array($ext,['jpg','jpeg','png','webp'])) {
+                if (in_array($ext, array('jpg','jpeg','png','webp'))) {
                     $foto_name = 'galeri_'.time().'.'.$ext;
                     move_uploaded_file($_FILES['image']['tmp_name'], 'images/foto/'.$foto_name);
                 }
             }
             $ins = $koneksi_db->sql_query("INSERT INTO `mod_data_foto` (`nama`,`foto`,`ket`,`tanggal`) VALUES ('$nama','$foto_name','$ket',NOW())");
-            if($ins) { $galeri_msg = 'Foto berhasil ditambahkan.'; $galeri_action = ''; }
+            if ($ins) { $galeri_msg = 'Foto berhasil ditambahkan.'; $galeri_action = ''; }
             else $galeri_error = 'Gagal menambah foto.';
         }
     }
-    // EDIT
+
     if ($galeri_action === 'edit' && isset($_POST['submit'])) {
-        $id = (int)$_GET['id'];
+        $id   = (int)$_GET['id'];
         $nama = trim(strip_tags($_POST['nama']));
-        $ket = $_POST['ket'];
-        $row = $koneksi_db->sql_fetchrow($koneksi_db->sql_query("SELECT * FROM `mod_data_foto` WHERE id='$id'"));
+        $ket  = $_POST['ket'];
+        $row  = $koneksi_db->sql_fetchrow($koneksi_db->sql_query("SELECT * FROM `mod_data_foto` WHERE id='$id'"));
         $foto_name = $row['foto'];
-        if(isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
+        if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
             $ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
-            if(in_array($ext,['jpg','jpeg','png','webp'])) {
+            if (in_array($ext, array('jpg','jpeg','png','webp'))) {
                 $foto_name = 'galeri_'.time().'.'.$ext;
                 move_uploaded_file($_FILES['image']['tmp_name'], 'images/foto/'.$foto_name);
             }
         }
         $koneksi_db->sql_query("UPDATE `mod_data_foto` SET `nama`='$nama',`foto`='$foto_name',`ket`='$ket' WHERE `id`='$id'");
-        $galeri_msg = 'Foto berhasil diperbarui.'; $galeri_action = '';
+        $galeri_msg    = 'Foto berhasil diperbarui.';
+        $galeri_action = '';
     }
 }
 
 // ══════════════════════════════════════════════════════════════
 // TESTIMONI ACTIONS
 // ══════════════════════════════════════════════════════════════
-$testi_msg = ''; $testi_error = '';
+$testi_msg    = ''; $testi_error  = '';
+$testi_action = '';
 if ($page === 'testimoni' && $db_ready) {
     $testi_action = isset($_GET['action']) ? $_GET['action'] : '';
-    // DELETE
-    if (isset($_POST['deleted']) && is_array(@$_POST['delete'])) {
+
+    if (isset($_POST['deleted']) && isset($_POST['delete']) && is_array($_POST['delete'])) {
         foreach ($_POST['delete'] as $v) {
             $id = (int)$v;
             $koneksi_db->sql_query("DELETE FROM `mod_data_testi` WHERE `id`='$id'");
         }
         $testi_msg = 'Testimoni berhasil dihapus.';
     }
-    // TOGGLE STATUS
+
     if ($testi_action === 'pub') {
-        $id = (int)$_GET['id'];
+        $id  = (int)$_GET['id'];
         $pub = (int)$_GET['pub'];
         $koneksi_db->sql_query("UPDATE `mod_data_testi` SET `status`='$pub' WHERE `id`='$id'");
-        $testi_msg = 'Status publikasi berhasil diperbarui.'; $testi_action = '';
+        $testi_msg    = 'Status publikasi berhasil diperbarui.';
+        $testi_action = '';
     }
-    // ADD
+
     if ($testi_action === 'add' && isset($_POST['submit'])) {
-        $nama = trim(strip_tags($_POST['nama']));
+        $nama  = trim(strip_tags($_POST['nama']));
         $email = trim(strip_tags($_POST['email']));
-        $ket = $_POST['ket'];
-        if(empty($nama)) $testi_error = 'Nama wajib diisi.';
-        else {
+        $ket   = $_POST['ket'];
+        if (empty($nama)) {
+            $testi_error = 'Nama wajib diisi.';
+        } else {
             $foto_name = 'na.jpg';
-            if(isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
+            if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
                 $ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
-                if(in_array($ext,['jpg','jpeg','png','webp'])) {
+                if (in_array($ext, array('jpg','jpeg','png','webp'))) {
                     $foto_name = 'testi_'.time().'.'.$ext;
                     move_uploaded_file($_FILES['image']['tmp_name'], 'images/testi/'.$foto_name);
                 }
             }
             $ins = $koneksi_db->sql_query("INSERT INTO `mod_data_testi` (`nama`,`ket`,`email`,`tanggal`,`foto`,`status`) VALUES ('$nama','$ket','$email',CURDATE(),'$foto_name','1')");
-            if($ins) { $testi_msg = 'Testimoni berhasil ditambahkan.'; $testi_action = ''; }
+            if ($ins) { $testi_msg = 'Testimoni berhasil ditambahkan.'; $testi_action = ''; }
             else $testi_error = 'Gagal menambah testimoni.';
         }
     }
-    // EDIT
+
     if ($testi_action === 'edit' && isset($_POST['submit'])) {
-        $id = (int)$_GET['id'];
-        $nama = trim(strip_tags($_POST['nama']));
+        $id    = (int)$_GET['id'];
+        $nama  = trim(strip_tags($_POST['nama']));
         $email = trim(strip_tags($_POST['email']));
-        $ket = $_POST['ket'];
-        $row = $koneksi_db->sql_fetchrow($koneksi_db->sql_query("SELECT * FROM `mod_data_testi` WHERE id='$id'"));
+        $ket   = $_POST['ket'];
+        $row   = $koneksi_db->sql_fetchrow($koneksi_db->sql_query("SELECT * FROM `mod_data_testi` WHERE id='$id'"));
         $foto_name = $row['foto'];
-        if(isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
+        if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
             $ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
-            if(in_array($ext,['jpg','jpeg','png','webp'])) {
+            if (in_array($ext, array('jpg','jpeg','png','webp'))) {
                 $foto_name = 'testi_'.time().'.'.$ext;
                 move_uploaded_file($_FILES['image']['tmp_name'], 'images/testi/'.$foto_name);
             }
         }
         $koneksi_db->sql_query("UPDATE `mod_data_testi` SET `nama`='$nama',`foto`='$foto_name',`ket`='$ket',`email`='$email' WHERE `id`='$id'");
-        $testi_msg = 'Testimoni berhasil diperbarui.'; $testi_action = '';
+        $testi_msg    = 'Testimoni berhasil diperbarui.';
+        $testi_action = '';
     }
 }
 
 // ══════════════════════════════════════════════════════════════
 // BERITA & KEGIATAN ACTIONS
 // ══════════════════════════════════════════════════════════════
-$berita_msg = ''; $berita_error = '';
+$berita_msg    = ''; $berita_error  = '';
+$berita_action = '';
 if ($page === 'berita' && $db_ready) {
     $berita_action = isset($_GET['action']) ? $_GET['action'] : '';
-    // DELETE
-    if (isset($_POST['deleted']) && is_array(@$_POST['delete'])) {
+
+    if (isset($_POST['deleted']) && isset($_POST['delete']) && is_array($_POST['delete'])) {
         foreach ($_POST['delete'] as $v) {
             $id = (int)$v;
             $koneksi_db->sql_query("DELETE FROM `artikel` WHERE `id`='$id'");
         }
         $berita_msg = 'Artikel berhasil dihapus.';
     }
-    // TOGGLE PUBLIKASI
+
     if ($berita_action === 'pub') {
-        $id = (int)$_GET['id'];
+        $id  = (int)$_GET['id'];
         $pub = (int)$_GET['pub'];
         $koneksi_db->sql_query("UPDATE `artikel` SET `publikasi`='$pub' WHERE `id`='$id'");
-        $berita_msg = 'Status publikasi berhasil diperbarui.'; $berita_action = '';
+        $berita_msg    = 'Status publikasi berhasil diperbarui.';
+        $berita_action = '';
     }
-    // ADD
+
     if ($berita_action === 'add' && isset($_POST['submit'])) {
-        $judul = trim(strip_tags($_POST['judul']));
+        $judul  = trim(strip_tags($_POST['judul']));
         $konten = $_POST['konten'];
-        $tags = trim(strip_tags($_POST['tags']));
-        if(empty($judul)) $berita_error = 'Judul wajib diisi.';
-        else {
+        $tags   = trim(strip_tags($_POST['tags']));
+        if (empty($judul)) {
+            $berita_error = 'Judul wajib diisi.';
+        } else {
             $foto_name = '';
-            if(isset($_FILES['gambar']) && $_FILES['gambar']['error'] === 0) {
+            if (isset($_FILES['gambar']) && $_FILES['gambar']['error'] === 0) {
                 $ext = strtolower(pathinfo($_FILES['gambar']['name'], PATHINFO_EXTENSION));
-                if(in_array($ext,['jpg','jpeg','png','webp'])) {
+                if (in_array($ext, array('jpg','jpeg','png','webp'))) {
                     $foto_name = 'berita_'.time().'.'.$ext;
                     move_uploaded_file($_FILES['gambar']['tmp_name'], 'images/artikel/'.$foto_name);
                 }
             }
             $user = $userName;
-            $ins = $koneksi_db->sql_query("INSERT INTO `artikel` (`judul`,`gambar`,`konten`,`tgl`,`user`,`publikasi`,`tags`) VALUES ('$judul','$foto_name','$konten',NOW(),'$user','1','$tags')");
-            if($ins) { $berita_msg = 'Artikel berhasil ditambahkan.'; $berita_action = ''; }
+            $ins  = $koneksi_db->sql_query("INSERT INTO `artikel` (`judul`,`gambar`,`konten`,`tgl`,`user`,`publikasi`,`tags`) VALUES ('$judul','$foto_name','$konten',NOW(),'$user','1','$tags')");
+            if ($ins) { $berita_msg = 'Artikel berhasil ditambahkan.'; $berita_action = ''; }
             else $berita_error = 'Gagal menambah artikel.';
         }
     }
-    // EDIT
+
     if ($berita_action === 'edit' && isset($_POST['submit'])) {
-        $id = (int)$_GET['id'];
-        $judul = trim(strip_tags($_POST['judul']));
+        $id     = (int)$_GET['id'];
+        $judul  = trim(strip_tags($_POST['judul']));
         $konten = $_POST['konten'];
-        $tags = trim(strip_tags($_POST['tags']));
-        $row = $koneksi_db->sql_fetchrow($koneksi_db->sql_query("SELECT * FROM `artikel` WHERE id='$id'"));
+        $tags   = trim(strip_tags($_POST['tags']));
+        $row    = $koneksi_db->sql_fetchrow($koneksi_db->sql_query("SELECT * FROM `artikel` WHERE id='$id'"));
         $foto_name = $row['gambar'];
-        if(isset($_FILES['gambar']) && $_FILES['gambar']['error'] === 0) {
+        if (isset($_FILES['gambar']) && $_FILES['gambar']['error'] === 0) {
             $ext = strtolower(pathinfo($_FILES['gambar']['name'], PATHINFO_EXTENSION));
-            if(in_array($ext,['jpg','jpeg','png','webp'])) {
+            if (in_array($ext, array('jpg','jpeg','png','webp'))) {
                 $foto_name = 'berita_'.time().'.'.$ext;
                 move_uploaded_file($_FILES['gambar']['tmp_name'], 'images/artikel/'.$foto_name);
             }
         }
         $koneksi_db->sql_query("UPDATE `artikel` SET `judul`='$judul',`gambar`='$foto_name',`konten`='$konten',`tags`='$tags' WHERE `id`='$id'");
-        $berita_msg = 'Artikel berhasil diperbarui.'; $berita_action = '';
+        $berita_msg    = 'Artikel berhasil diperbarui.';
+        $berita_action = '';
     }
 }
 
-// Page titles
-$pageTitles = [
-    'home' => ['Dashboard', 'Overview'],
-    'flipbook' => ['E-Book Manager', 'Kelola E-Book'],
-    'pengguna' => ['Kelola Akun', 'Manajemen Pengguna'],
-    'program' => ['Program MBKM', 'Kelola Program MBKM'],
-    'sambutan' => ['Tentang', 'Profil & Tentang'],
-    'galeri' => ['Galeri Kegiatan', 'Dokumentasi MBKM'],
-    'testimoni' => ['Testimoni', 'Kelola Testimoni'],
-    'berita'    => ['Berita & Kegiatan', 'Kelola Artikel'],
-    'program'   => ['Program MBKM', 'Kelola Program MBKM'],
-    'sambutan'  => ['Konfigurasi Website', 'Profil & Tentang'],
-    'galeri'    => ['Galeri Kegiatan', 'Kelola Galeri Foto'],
-];
-$pageTitle = isset($pageTitles[$page]) ? $pageTitles[$page] : ['Dashboard', 'Overview'];
+// ══════════════════════════════════════════════════════════════
+// PAGE TITLES — no duplicate keys
+// ══════════════════════════════════════════════════════════════
+$pageTitles = array(
+    'home'        => array('Dashboard',          'Overview'),
+    'flipbook'    => array('E-Book Manager',      'Kelola E-Book'),
+    'pengguna'    => array('Kelola Akun',         'Manajemen Pengguna'),
+    'program'     => array('Program MBKM',        'Kelola Program MBKM'),
+    'sambutan'    => array('Konfigurasi Website', 'Profil & Tentang'),
+    'galeri'      => array('Galeri Kegiatan',     'Kelola Galeri Foto'),
+    'testimoni'   => array('Testimoni',           'Kelola Testimoni'),
+    'berita'      => array('Berita & Kegiatan',   'Kelola Artikel'),
+    'upload_user' => array('Upload Konten',       'Upload & Review Konten'),
+);
+$pageTitle = isset($pageTitles[$page]) ? $pageTitles[$page] : array('Dashboard', 'Overview');
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $pageTitle[0] ?> - MBKM IAI PI Bandung</title>
+    <title><?php echo $pageTitle[0]; ?> - MBKM IAI PI Bandung</title>
     <link rel="icon" href="images/favicon.ico" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <?php if ($page === 'flipbook' && isset($fb_aksi) && $fb_aksi === 'tambah'): ?>
+    <?php if ($page === 'flipbook' && $fb_aksi === 'tambah'): ?>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <?php endif; ?>
@@ -563,9 +698,10 @@ $pageTitle = isset($pageTitles[$page]) ? $pageTitles[$page] : ['Dashboard', 'Ove
         display: flex; align-items: center; gap: 12px; flex-shrink: 0; position: relative;
     }
     .sidebar-brand-icon {
-        width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary-500), var(--primary-300));
-        border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-        box-shadow: 0 4px 12px rgba(56,147,74,.25);
+        width: 40px; height: 40px;
+        background: linear-gradient(135deg, var(--primary-500), var(--primary-300));
+        border-radius: 10px; display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0; box-shadow: 0 4px 12px rgba(56,147,74,.25);
     }
     .sidebar-brand-icon svg { width: 20px; height: 20px; fill: #fff; }
     .sidebar-brand h2 { font-size: 14px; font-weight: 800; color: #fff; letter-spacing: -.2px; line-height: 1.3; }
@@ -589,22 +725,6 @@ $pageTitle = isset($pageTitles[$page]) ? $pageTitles[$page] : ['Dashboard', 'Ove
         width: 3px; height: 18px; background: var(--primary-400); border-radius: 0 3px 3px 0;
     }
     .nav-item svg { width: 18px; height: 18px; fill: currentColor; flex-shrink: 0; opacity: .65; }
-
-    /* Dropdown sidebar */
-    .nav-dropdown-toggle {
-        cursor: pointer; display: flex; align-items: center; user-select: none;
-        transition: color .2s;
-    }
-    .nav-dropdown-toggle:hover { color: rgba(255,255,255,.5); }
-    .nav-dropdown-toggle svg { transition: transform .3s ease; }
-    .nav-dropdown-toggle.open svg { transform: rotate(180deg); }
-    .nav-dropdown-toggle.open { color: rgba(255,255,255,.45); }
-    .nav-dropdown-items {
-        max-height: 0; overflow: hidden; transition: max-height .35s cubic-bezier(.4,0,.2,1);
-        padding-left: 10px; border-left: 2px solid rgba(255,255,255,.06); margin-left: 14px;
-    }
-    .nav-dropdown-items.open { max-height: 300px; }
-    .nav-dropdown-items .nav-item { font-size: 12.5px; padding: 7px 12px; }
     .nav-item.active svg, .nav-item:hover svg { opacity: 1; }
     .nav-badge { margin-left: auto; background: var(--primary-500); color: #fff; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 8px; }
 
@@ -710,7 +830,7 @@ $pageTitle = isset($pageTitles[$page]) ? $pageTitles[$page] : ['Dashboard', 'Ove
     /* ═══ PANEL / CARD ═══ */
     .panel {
         background: var(--surface-card); border: 1px solid var(--border);
-        border-radius: var(--radius-lg); overflow: hidden;
+        border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 20px;
     }
     .panel-header {
         padding: 18px 22px; border-bottom: 1px solid var(--border);
@@ -731,8 +851,8 @@ $pageTitle = isset($pageTitles[$page]) ? $pageTitles[$page] : ['Dashboard', 'Ove
     .qa-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .qa-icon svg { width: 18px; height: 18px; fill: currentColor; }
     .qa-icon.green { background: var(--primary-50); color: var(--primary-600); }
-    .qa-icon.blue { background: #e3f2fd; color: #1976d2; }
-    .qa-icon.teal { background: #e0f2f1; color: #00897b; }
+    .qa-icon.blue  { background: #e3f2fd; color: #1976d2; }
+    .qa-icon.teal  { background: #e0f2f1; color: #00897b; }
     .qa-title { font-size: 13px; font-weight: 600; }
     .qa-desc { font-size: 11.5px; color: var(--text-muted); margin-top: 1px; }
     .qa-arrow {
@@ -750,10 +870,10 @@ $pageTitle = isset($pageTitles[$page]) ? $pageTitles[$page] : ['Dashboard', 'Ove
     .info-item:last-child { border-bottom: none; }
     .info-label { color: var(--text-muted); font-weight: 500; display: flex; align-items: center; gap: 7px; }
     .info-label svg { width: 14px; height: 14px; fill: var(--text-muted); }
-    .info-value { font-weight: 600; font-variant-numeric: tabular-nums; }
+    .info-value { font-weight: 600; }
     .info-badge { font-size: 10.5px; font-weight: 700; padding: 2px 9px; border-radius: 5px; }
     .info-badge.green { background: var(--primary-50); color: var(--primary-600); }
-    .info-badge.blue { background: #e3f2fd; color: #1565c0; }
+    .info-badge.blue  { background: #e3f2fd; color: #1565c0; }
 
     /* ═══ PAGE HEADER ═══ */
     .page-header {
@@ -778,70 +898,60 @@ $pageTitle = isset($pageTitles[$page]) ? $pageTitles[$page] : ['Dashboard', 'Ove
         text-decoration: none; border: none; cursor: pointer; transition: all .2s;
     }
     .btn-primary { background: var(--primary-600); color: #fff; }
-    .btn-primary:hover { background: var(--primary-700); }
+    .btn-primary:hover { background: var(--primary-700); color: #fff; }
     .btn-outline { background: var(--surface-card); color: var(--text-primary); border: 1px solid var(--border); }
     .btn-outline:hover { background: var(--surface); }
     .btn svg { width: 15px; height: 15px; fill: currentColor; }
 
-    /* ═══ MESSAGES ═══ */
-    .msg-ok { background: var(--primary-50); border-left: 4px solid var(--primary-500); color: #2e7d32; padding: 12px 16px; border-radius: 8px; margin-bottom: 18px; font-size: 13px; font-weight: 600; }
-    .msg-err { background: #fbe9e7; border-left: 4px solid #f44336; color: #c62828; padding: 12px 16px; border-radius: 8px; margin-bottom: 18px; font-size: 13px; font-weight: 600; }
+    /* ═══ ALERTS / MESSAGES ═══ */
+    .msg-ok, .alert, .alert-success {
+        background: var(--primary-50); border-left: 4px solid var(--primary-500);
+        color: #2e7d32; padding: 12px 16px; border-radius: 8px; margin-bottom: 18px;
+        font-size: 13px; font-weight: 600;
+    }
+    .msg-err, .alert-error {
+        background: #fbe9e7; border-left: 4px solid #f44336;
+        color: #c62828; padding: 12px 16px; border-radius: 8px; margin-bottom: 18px;
+        font-size: 13px; font-weight: 600;
+    }
 
     /* ═══ TABLE ═══ */
-    .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .data-table thead th {
+    .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .data-table, .table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .data-table thead th, .table thead th {
         padding: 12px 16px; font-weight: 700; text-align: left; font-size: 11.5px;
         text-transform: uppercase; letter-spacing: .5px; color: var(--text-muted);
-        background: var(--surface); border-bottom: 2px solid var(--border);
+        background: var(--surface); border-bottom: 2px solid var(--border); white-space: nowrap;
     }
-    .data-table tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; }
-    .data-table tbody tr:hover { background: #f8faf7; }
-    .data-table td { padding: 12px 16px; vertical-align: middle; }
-    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; }
-    .badge-aktif { background: var(--primary-50); color: var(--primary-600); }
+    .data-table tbody tr, .table tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; }
+    .data-table tbody tr:hover, .table.table-hover tbody tr:hover { background: #f8faf7; }
+    .data-table td, .table td { padding: 12px 16px; vertical-align: middle; color: var(--text-secondary); }
+    .data-table td b, .table td b { color: var(--text-primary); font-weight: 600; }
+    .text-center { text-align: center; }
+
+    .badge {
+        display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px;
+        border-radius: 6px; font-size: 11px; font-weight: 700;
+        text-decoration: none; transition: all .2s; white-space: nowrap;
+    }
+    .badge:hover { text-decoration: none; filter: brightness(.92); }
+    .badge-aktif    { background: var(--primary-50); color: var(--primary-600); }
     .badge-nonaktif { background: #fbe9e7; color: #c62828; }
-    .badge-level { background: #e8eaf6; color: #5c6bc0; }
+    .badge-level    { background: #e8eaf6; color: #5c6bc0; }
+
     .action-btn {
         display: inline-flex; align-items: center; gap: 4px;
         padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 600;
         text-decoration: none; margin: 2px; transition: all .2s; border: none; cursor: pointer;
     }
-    .action-edit { background: #fff8e1; color: #f57f17; }
-    .action-edit:hover { background: #ffc107; color: #fff; }
+    .action-edit   { background: #fff8e1; color: #f57f17; }
+    .action-edit:hover   { background: #ffc107; color: #fff; }
     .action-toggle { background: #e3f2fd; color: #1565c0; }
     .action-toggle:hover { background: #2196f3; color: #fff; }
-    .action-del { background: #ffebee; color: #c62828; }
-    .action-del:hover { background: #f44336; color: #fff; }
-    .action-reset { background: #f3e5f5; color: #7b1fa2; }
-    .action-reset:hover { background: #9c27b0; color: #fff; }
-
-    .empty-state { text-align: center; padding: 48px 20px; color: var(--text-muted); }
-    .empty-state span { display: block; font-size: 42px; margin-bottom: 10px; }
-
-    /* ═══ ALIASES for CRUD views ═══ */
-    .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .table, .table.table-hover { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .table thead tr { background: var(--surface); }
-    .table thead th {
-        padding: 11px 16px; font-weight: 700; text-align: left; font-size: 11px;
-        text-transform: uppercase; letter-spacing: .6px; color: var(--text-muted);
-        border-bottom: 2px solid var(--border); white-space: nowrap;
-    }
-    .table tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; }
-    .table.table-hover tbody tr:hover { background: rgba(97,141,79,.04); }
-    .table td { padding: 11px 16px; vertical-align: middle; color: var(--text-secondary); }
-    .table td b { color: var(--text-dark); font-weight: 600; }
-    .table td small { font-size: 11.5px; }
-    .table td img { display: block; }
-    .text-center { text-align: center; }
-    .panel { background: #fff; border-radius: var(--radius); border: 1px solid var(--border); padding: 20px; margin-bottom: 20px; }
-    .panel-header {
-        display: flex; align-items: center; justify-content: space-between;
-        padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px solid var(--border);
-    }
-    .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 18px; font-size: 13px; font-weight: 600; }
-    .alert-success { background: var(--primary-50); border-left: 4px solid var(--primary-500); color: #2e7d32; }
-    .alert-error { background: #fbe9e7; border-left: 4px solid #f44336; color: #c62828; }
+    .action-del    { background: #ffebee; color: #c62828; }
+    .action-del:hover    { background: #f44336; color: #fff; border-color: #f44336; }
+    .action-reset  { background: #f3e5f5; color: #7b1fa2; }
+    .action-reset:hover  { background: #9c27b0; color: #fff; }
     .action-delete {
         display: inline-flex; align-items: center; gap: 4px;
         padding: 6px 14px; border-radius: 6px; font-size: 11.5px; font-weight: 600;
@@ -849,12 +959,9 @@ $pageTitle = isset($pageTitles[$page]) ? $pageTitles[$page] : ['Dashboard', 'Ove
         cursor: pointer; transition: all .2s;
     }
     .action-delete:hover { background: #f44336; color: #fff; border-color: #f44336; }
-    .badge {
-        display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px;
-        border-radius: 20px; font-size: 10.5px; font-weight: 700;
-        text-decoration: none; transition: all .2s; white-space: nowrap;
-    }
-    .badge:hover { text-decoration: none; filter: brightness(.92); }
+
+    .empty-state { text-align: center; padding: 48px 20px; color: var(--text-muted); }
+    .empty-state span { display: block; font-size: 42px; margin-bottom: 10px; }
 
     /* ═══ FORM ═══ */
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -868,26 +975,23 @@ $pageTitle = isset($pageTitles[$page]) ? $pageTitles[$page] : ['Dashboard', 'Ove
         background: #fafdf9; transition: border .2s;
     }
     .form-control:focus { border-color: var(--primary-400); outline: none; background: #fff; }
-    select.form-control { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='%238a9a8e'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+    select.form-control {
+        -webkit-appearance: none; -moz-appearance: none; appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='%238a9a8e'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px;
+    }
     .form-hint { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
     .form-actions { display: flex; gap: 8px; margin-top: 22px; }
 
-    /* Checkbox */
-    input[type="checkbox"] {
-        width: 16px; height: 16px; accent-color: var(--primary-600); cursor: pointer;
-        border-radius: 3px; vertical-align: middle;
-    }
-    /* File input */
-    input[type="file"].form-control {
-        padding: 8px 12px; font-size: 12.5px;
-        background: #fafdf9; cursor: pointer;
-    }
-    input[type="file"].form-control::file-selector-button {
+    input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--primary-600); cursor: pointer; vertical-align: middle; }
+
+    input[type="file"].form-control { padding: 8px 12px; font-size: 12.5px; cursor: pointer; }
+    input[type="file"].form-control::-webkit-file-upload-button {
         padding: 5px 14px; border: 1px solid var(--border); border-radius: 6px;
         background: var(--surface); color: var(--text-secondary); font-size: 12px;
         font-weight: 600; cursor: pointer; margin-right: 10px; transition: all .2s;
     }
-    input[type="file"].form-control::file-selector-button:hover {
+    input[type="file"].form-control::-webkit-file-upload-button:hover {
         background: var(--primary-50); border-color: var(--primary-400); color: var(--primary-600);
     }
 
@@ -907,7 +1011,8 @@ $pageTitle = isset($pageTitles[$page]) ? $pageTitles[$page] : ['Dashboard', 'Ove
     }
     .modal-overlay.show { display: flex; }
     .modal-box {
-        background: #fff; border-radius: var(--radius-lg); padding: 28px; max-width: 400px; width: 92%;
+        background: #fff; border-radius: var(--radius-lg); padding: 28px;
+        max-width: 400px; width: 92%;
         box-shadow: 0 20px 60px rgba(0,0,0,.2); text-align: center;
     }
     .modal-box h3 { font-size: 16px; margin: 10px 0 6px; }
@@ -931,34 +1036,14 @@ $pageTitle = isset($pageTitles[$page]) ? $pageTitles[$page] : ['Dashboard', 'Ove
         font-size: 11.5px; border-top: 1px solid var(--border); margin-top: auto;
     }
     .dash-footer a { color: var(--primary-600); text-decoration: none; font-weight: 600; }
-    
-    .margin-bottom-20 { margin-bottom: 20px; }
-    .margin-bottom-30 { margin-bottom: 30px; }
 
-    /* Overlay */
-    .sidebar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:199; }
-    .sidebar-overlay.show { display:block; }
-
-    /* ═══ RESPONSIVE ═══ */
-    @media (max-width:1024px) { .stats-row { grid-template-columns: repeat(2,1fr); } .home-grid,.form-grid { grid-template-columns: 1fr; } }
-    @media (max-width:768px) {
-        .sidebar { transform: translateX(-100%); } .sidebar.open { transform: translateX(0); }
-        .sidebar-overlay.show { display: block; } .main-wrapper { margin-left: 0; }
-        .topbar-toggle { display: flex; } .content { padding: 18px 14px; }
-        .welcome-card { padding: 26px 22px; } .welcome-clock-big { font-size: 32px; }
-        .welcome-text h1 { font-size: 18px; }
-        .welcome-inner .welcome-graphic { display: none; }
-        .stats-row { grid-template-columns: 1fr 1fr; gap: 10px; }
-        .form-grid { grid-template-columns: 1fr; }
-    }
-    @media (max-width:480px) { .stats-row { grid-template-columns: 1fr; } .topbar-visit { display: none; } }
-
-    /* Animations */
-    @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
-    .content > *:nth-child(1) { animation: fadeUp .4s var(--ease) both; }
-    .content > *:nth-child(2) { animation: fadeUp .4s var(--ease) .06s both; }
-    .content > *:nth-child(3) { animation: fadeUp .4s var(--ease) .12s both; }
-    .content > *:nth-child(4) { animation: fadeUp .4s var(--ease) .18s both; }
+    /* Icon picker */
+    .icon-item { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:8px 4px; border-radius:8px; cursor:pointer; border:2px solid transparent; transition:all .18s; gap:4px; min-width:46px; }
+    .icon-item:hover { background:#e8f5e9; border-color:#618D4F; }
+    .icon-item.selected { background:#306238; border-color:#306238; }
+    .icon-item.selected i, .icon-item.selected span { color:#fff !important; }
+    .icon-item i { font-size:18px; color:#444; }
+    .icon-item span { font-size:8.5px; color:#888; text-align:center; word-break:break-all; max-width:40px; }
     </style>
 </head>
 <body>
@@ -978,50 +1063,64 @@ $pageTitle = isset($pageTitles[$page]) ? $pageTitles[$page] : ['Dashboard', 'Ove
     </div>
     <nav class="sidebar-nav">
         <div class="nav-label">Menu Utama</div>
-        <a href="dashboard.php" class="nav-item <?= $page==='home'?'active':'' ?>">
+        <a href="dashboard.php" class="nav-item <?php echo $page==='home'?'active':''; ?>">
             <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg> Dashboard
         </a>
-        <a href="dashboard.php?page=flipbook" class="nav-item <?= $page==='flipbook'?'active':'' ?>">
+
+        <?php if ($isAdmin): ?>
+        <a href="dashboard.php?page=flipbook" class="nav-item <?php echo $page==='flipbook'?'active':''; ?>">
             <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
             E-Book / Flipbook
-            <?php if($totalBooks > 0): ?><span class="nav-badge"><?= $totalBooks ?></span><?php endif; ?>
+            <?php if ($totalBooks > 0): ?><span class="nav-badge"><?php echo $totalBooks; ?></span><?php endif; ?>
         </a>
 
         <div class="nav-label">Kelola Beranda</div>
-        <a href="dashboard.php?page=program" class="nav-item <?= $page==='program'?'active':'' ?>">
+        <a href="dashboard.php?page=program" class="nav-item <?php echo $page==='program'?'active':''; ?>">
             <svg viewBox="0 0 24 24"><path d="M4 10h3v7H4zM10.5 10h3v7h-3zM2 19h20v3H2zM17 10h3v7h-3zM12 1L2 6v2h20V6z"/></svg> Program MBKM
         </a>
-        <a href="dashboard.php?page=sambutan" class="nav-item <?= $page==='sambutan'?'active':'' ?>">
-            <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg> Konfigurasi Website
+        <a href="dashboard.php?page=sambutan" class="nav-item <?php echo $page==='sambutan'?'active':''; ?>">
+            <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24-1.13-.56-1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg> Konfigurasi Website
         </a>
-        <a href="dashboard.php?page=galeri" class="nav-item <?= $page==='galeri'?'active':'' ?>">
+        <a href="dashboard.php?page=galeri" class="nav-item <?php echo $page==='galeri'?'active':''; ?>">
             <svg viewBox="0 0 24 24"><path d="M22 16V4c0-1.1-.9-2-2-2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2zm-11-4l2.03 2.71L16 11l4 5H8l3-4zM2 6v14c0 1.1.9 2 2 2h14v-2H4V6H2z"/></svg> Galeri Kegiatan
         </a>
-        <a href="dashboard.php?page=testimoni" class="nav-item <?= $page==='testimoni'?'active':'' ?>">
+        <a href="dashboard.php?page=testimoni" class="nav-item <?php echo $page==='testimoni'?'active':''; ?>">
             <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/></svg> Testimoni
         </a>
-        <a href="dashboard.php?page=berita" class="nav-item <?= $page==='berita'?'active':'' ?>">
+        <a href="dashboard.php?page=berita" class="nav-item <?php echo $page==='berita'?'active':''; ?>">
             <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg> Berita & Kegiatan
         </a>
+        <?php endif; ?>
 
+        <?php if ($isUser): ?>
+        <div class="nav-label">Menu Mahasiswa</div>
+        <a href="dashboard.php?page=upload_user" class="nav-item <?php echo $page==='upload_user'?'active':''; ?>">
+            <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg> Upload Laporan
+        </a>
+        <?php endif; ?>
+
+        <?php if ($isAdmin): ?>
         <div class="nav-label">Pengaturan</div>
-        <a href="dashboard.php?page=pengguna" class="nav-item <?= $page==='pengguna'?'active':'' ?>">
+        <a href="dashboard.php?page=pengguna" class="nav-item <?php echo $page==='pengguna'?'active':''; ?>">
             <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg> Kelola Akun
         </a>
+        <a href="dashboard.php?page=upload_user" class="nav-item <?php echo $page==='upload_user'?'active':''; ?>">
+            <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg> Upload dari User
+        </a>
+        <?php endif; ?>
 
         <div class="nav-label">Lainnya</div>
         <a href="index.php" target="_blank" class="nav-item">
             <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
             Lihat Website
-            <svg viewBox="0 0 24 24" style="width:12px;height:12px;margin-left:auto;opacity:.35"><path d="M19 19H5V5h7V3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
         </a>
     </nav>
     <div class="sidebar-footer">
         <div class="sidebar-user">
-            <div class="sidebar-avatar"><?= strtoupper(substr($userName,0,1)) ?></div>
+            <div class="sidebar-avatar"><?php echo strtoupper(substr($userName,0,1)); ?></div>
             <div>
-                <div class="sidebar-user-name"><?= $userName ?></div>
-                <div class="sidebar-user-role">Administrator</div>
+                <div class="sidebar-user-name"><?php echo $userName; ?></div>
+                <div class="sidebar-user-role"><?php echo htmlspecialchars($_level); ?></div>
             </div>
             <a href="dashboard.php?aksi=logout" class="sidebar-logout" title="Keluar">
                 <svg viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
@@ -1036,7 +1135,7 @@ $pageTitle = isset($pageTitles[$page]) ? $pageTitles[$page] : ['Dashboard', 'Ove
         <button class="topbar-toggle" onclick="toggleSidebar()">
             <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
         </button>
-        <div class="topbar-title"><?= $pageTitle[0] ?> <span>/ <?= $pageTitle[1] ?></span></div>
+        <div class="topbar-title"><?php echo $pageTitle[0]; ?> <span>/ <?php echo $pageTitle[1]; ?></span></div>
         <div class="topbar-right">
             <div class="topbar-clock">
                 <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
@@ -1059,7 +1158,7 @@ if ($page === 'home'):
         <div class="welcome-card">
             <div class="welcome-inner">
                 <div class="welcome-text">
-                    <h1>Selamat datang, <?= $userName ?>!</h1>
+                    <h1>Selamat datang, <?php echo $userName; ?>!</h1>
                     <p>Kelola konten Sistem Informasi MBKM IAI PI Bandung dari dashboard ini.</p>
                 </div>
                 <div class="welcome-graphic">
@@ -1072,26 +1171,35 @@ if ($page === 'home'):
         <div class="stats-row">
             <div class="stat-card">
                 <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg></div>
-                <div class="stat-value"><?= $totalBooks ?></div><div class="stat-label">Total E-Book</div>
+                <div class="stat-value"><?php echo $totalBooks; ?></div>
+                <div class="stat-label">Total E-Book</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></div>
-                <div class="stat-value"><?= $totalUsers ?></div><div class="stat-label">Total Pengguna</div>
+                <div class="stat-value"><?php echo $totalUsers; ?></div>
+                <div class="stat-label">Total Pengguna</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg></div>
-                <div class="stat-value"><?= $totalPages ?></div><div class="stat-label">Total Halaman</div>
+                <div class="stat-value"><?php echo $totalPages; ?></div>
+                <div class="stat-label">Total Artikel</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg></div>
-                <div class="stat-value"><?= number_format($totalVisits) ?></div><div class="stat-label">Total Kunjungan</div>
+                <div class="stat-value"><?php echo number_format($totalVisits); ?></div>
+                <div class="stat-label">Total Kunjungan</div>
             </div>
         </div>
 
         <div class="home-grid">
             <div class="panel">
-                <div class="panel-header"><div class="panel-title"><svg viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg> Akses Cepat</div></div>
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <svg viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg> Akses Cepat
+                    </div>
+                </div>
                 <div class="panel-body">
+                    <?php if ($isAdmin): ?>
                     <a href="dashboard.php?page=flipbook" class="quick-action">
                         <div class="qa-icon green"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg></div>
                         <div><div class="qa-title">Kelola E-Book</div><div class="qa-desc">Upload dan atur buku flipbook PDF</div></div>
@@ -1102,21 +1210,42 @@ if ($page === 'home'):
                         <div><div class="qa-title">Kelola Akun Pengguna</div><div class="qa-desc">Tambah, edit, dan atur hak akses</div></div>
                         <div class="qa-arrow"><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></div>
                     </a>
-                    <a href="index.php" target="_blank" class="quick-action">
-                        <div class="qa-icon teal"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93z"/></svg></div>
-                        <div><div class="qa-title">Lihat Halaman Publik</div><div class="qa-desc">Buka website di tab baru</div></div>
-                        <div class="qa-arrow"><svg viewBox="0 0 24 24"><path d="M19 19H5V5h7V3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg></div>
+                    <?php endif; ?>
+                    
+                    <a href="dashboard.php?page=upload_user" class="quick-action">
+                        <div class="qa-icon teal"><svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg></div>
+                        <div><div class="qa-title">Upload Laporan</div><div class="qa-desc">Kirim dan pantau status laporan MBKM</div></div>
+                        <div class="qa-arrow"><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></div>
                     </a>
                 </div>
             </div>
             <div class="panel">
-                <div class="panel-header"><div class="panel-title"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg> Informasi Sistem</div></div>
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg> Informasi Sistem
+                    </div>
+                </div>
                 <div class="panel-body">
-                    <div class="info-item"><span class="info-label"><svg viewBox="0 0 24 24"><path d="M20 18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"/></svg> Platform</span><span class="info-badge green">CMS Custom</span></div>
-                    <div class="info-item"><span class="info-label"><svg viewBox="0 0 24 24"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6z"/></svg> PHP</span><span class="info-value"><?= phpversion() ?></span></div>
-                    <div class="info-item"><span class="info-label"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg> Status</span><span class="info-badge green">● Online</span></div>
-                    <div class="info-item"><span class="info-label"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg> Login</span><span class="info-value"><?= date('d M Y, H:i') ?></span></div>
-                    <div class="info-item"><span class="info-label"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> Akun</span><span class="info-badge blue"><?= $userName ?></span></div>
+                    <div class="info-item">
+                        <span class="info-label"><svg viewBox="0 0 24 24"><path d="M20 18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"/></svg> Platform</span>
+                        <span class="info-badge green">CMS Custom</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><svg viewBox="0 0 24 24"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6z"/></svg> PHP Version</span>
+                        <span class="info-value"><?php echo phpversion(); ?></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg> Status DB</span>
+                        <span class="info-badge <?php echo $db_ready ? 'green' : 'blue'; ?>"><?php echo $db_ready ? '● Online' : '● Offline'; ?></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg> Sesi</span>
+                        <span class="info-value"><?php echo date('H:i'); ?></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> Akun</span>
+                        <span class="info-badge blue"><?php echo $userName; ?></span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1126,7 +1255,6 @@ if ($page === 'home'):
 // PAGE: FLIPBOOK
 // ══════════════════════════════════════════════════════════════
 elseif ($page === 'flipbook' && $db_ready):
-    $fb_aksi = isset($fb_aksi) ? $fb_aksi : (isset($_GET['aksi']) ? $_GET['aksi'] : '');
 ?>
         <div class="page-header">
             <div>
@@ -1143,18 +1271,18 @@ elseif ($page === 'flipbook' && $db_ready):
             </div>
         </div>
 
-        <?php if ($fb_msg): ?><div class="msg-ok"><?= $fb_msg ?></div><?php endif; ?>
-        <?php if ($fb_error): ?><div class="msg-err"><?= $fb_error ?></div><?php endif; ?>
+        <?php if ($fb_msg): ?><div class="msg-ok"><?php echo $fb_msg; ?></div><?php endif; ?>
+        <?php if ($fb_error): ?><div class="msg-err"><?php echo $fb_error; ?></div><?php endif; ?>
 
 <?php if ($fb_aksi === 'tambah'): ?>
         <!-- Crop Modal -->
         <div class="crop-modal" id="cropModal">
             <div class="crop-box">
-                <h5><svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:#fff;vertical-align:middle;margin-right:4px"><path d="M9.64 7.64c.23-.5.36-1.05.36-1.64 0-2.21-1.79-4-4-4S2 3.79 2 6s1.79 4 4 4c.59 0 1.14-.13 1.64-.36L10 12l-2.36 2.36C7.14 14.13 6.59 14 6 14c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4c0-.59-.13-1.14-.36-1.64L12 14l7 7h3v-1L9.64 7.64z"/></svg> Potong Gambar Cover</h5>
-                <img id="cropImgEl" src="">
+                <h5>Potong Gambar Cover</h5>
+                <img id="cropImgEl" src="" alt="crop">
                 <div class="crop-actions">
-                    <button class="crop-ok" onclick="applyCrop()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;vertical-align:middle"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Pakai</button>
-                    <button class="crop-cancel" onclick="cancelCrop()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;vertical-align:middle"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg> Batal</button>
+                    <button class="crop-ok" onclick="applyCrop()">Pakai</button>
+                    <button class="crop-cancel" onclick="cancelCrop()">Batal</button>
                 </div>
             </div>
         </div>
@@ -1174,10 +1302,10 @@ elseif ($page === 'flipbook' && $db_ready):
                             <div class="form-group">
                                 <label>Cover Buku <span style="font-weight:400;color:var(--text-muted)">(opsional)</span></label>
                                 <div class="cover-drop" id="coverWrap">
-                                    <div class="cover-drop-label"><svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:var(--text-muted);vertical-align:middle"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg> Pilih gambar untuk dipotong</div>
+                                    <div class="cover-drop-label">Pilih gambar untuk dipotong</div>
                                     <button type="button" class="btn btn-outline" onclick="document.getElementById('rawCoverInput').click()">Pilih Gambar</button>
                                     <input type="file" id="rawCoverInput" accept="image/*" style="display:none" onchange="initCrop(this)">
-                                    <img id="coverPreviewImg" class="cover-preview" style="display:none">
+                                    <img id="coverPreviewImg" class="cover-preview" style="display:none" alt="cover preview">
                                 </div>
                                 <input type="hidden" name="cover_base64" id="coverBase64">
                                 <div class="form-hint">Otomatis dipotong ke rasio 220:300</div>
@@ -1185,7 +1313,7 @@ elseif ($page === 'flipbook' && $db_ready):
                         </div>
                     </div>
                     <div class="form-actions">
-                        <button type="submit" name="submit" class="btn btn-primary"><svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:currentColor;vertical-align:middle"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg> Simpan Buku</button>
+                        <button type="submit" name="submit" class="btn btn-primary">Simpan Buku</button>
                         <a href="dashboard.php?page=flipbook" class="btn btn-outline">Batal</a>
                     </div>
                 </form>
@@ -1193,28 +1321,34 @@ elseif ($page === 'flipbook' && $db_ready):
         </div>
 
 <?php elseif ($fb_aksi === 'edit' && isset($_GET['id'])):
-    $id = (int)$_GET['id'];
+    $id  = (int)$_GET['id'];
     $row = $koneksi_db->sql_fetchrow($koneksi_db->sql_query("SELECT * FROM mod_data_flipbook WHERE id='$id'"));
     if ($row):
 ?>
         <div class="panel">
-            <div class="panel-header"><div class="panel-title">✏️ Edit Buku</div></div>
+            <div class="panel-header"><div class="panel-title">Edit Buku</div></div>
             <div class="panel-body-padded">
                 <form method="post" action="dashboard.php?page=flipbook&aksi=edit" enctype="multipart/form-data">
-                    <input type="hidden" name="id" value="<?= $id ?>">
+                    <input type="hidden" name="id" value="<?php echo $id; ?>">
                     <div class="form-grid">
-                        <div class="form-group"><label>Judul</label><input type="text" name="judul" class="form-control" value="<?= htmlspecialchars($row['judul']) ?>" required></div>
-                        <div class="form-group"><label>Kategori</label><input type="text" name="kategori" class="form-control" value="<?= htmlspecialchars($row['kategori']) ?>"></div>
-                        <div class="form-group full"><label>Deskripsi</label><textarea name="deskripsi" rows="3" class="form-control"><?= htmlspecialchars($row['deskripsi']) ?></textarea></div>
-                        <div class="form-group"><label>Ganti PDF <span style="font-weight:400;color:var(--text-muted)">(opsional)</span></label><input type="file" name="file_pdf" accept=".pdf" class="form-control"><div class="form-hint">Saat ini: <?= htmlspecialchars($row['file_pdf']) ?></div></div>
+                        <div class="form-group"><label>Judul</label><input type="text" name="judul" class="form-control" value="<?php echo htmlspecialchars($row['judul']); ?>" required></div>
+                        <div class="form-group"><label>Kategori</label><input type="text" name="kategori" class="form-control" value="<?php echo htmlspecialchars($row['kategori']); ?>"></div>
+                        <div class="form-group full"><label>Deskripsi</label><textarea name="deskripsi" rows="3" class="form-control"><?php echo htmlspecialchars($row['deskripsi']); ?></textarea></div>
+                        <div class="form-group">
+                            <label>Ganti PDF <span style="font-weight:400;color:var(--text-muted)">(opsional)</span></label>
+                            <input type="file" name="file_pdf" accept=".pdf" class="form-control">
+                            <div class="form-hint">Saat ini: <?php echo htmlspecialchars($row['file_pdf']); ?></div>
+                        </div>
                         <div class="form-group">
                             <label>Ganti Cover <span style="font-weight:400;color:var(--text-muted)">(opsional)</span></label>
-                            <?php if (!empty($row['cover'])): ?><img src="/images/flipbook/<?= htmlspecialchars($row['cover']) ?>" style="height:70px;border-radius:6px;margin-bottom:8px;display:block;"><?php endif; ?>
+                            <?php if (!empty($row['cover'])): ?>
+                            <img src="/images/flipbook/<?php echo htmlspecialchars($row['cover']); ?>" style="height:70px;border-radius:6px;margin-bottom:8px;display:block;" alt="cover">
+                            <?php endif; ?>
                             <input type="file" name="cover" accept=".jpg,.jpeg,.png,.webp" class="form-control">
                         </div>
                     </div>
                     <div class="form-actions">
-                        <button type="submit" name="submit" class="btn btn-primary"><svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:currentColor;vertical-align:middle"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg> Update</button>
+                        <button type="submit" name="submit" class="btn btn-primary">Update</button>
                         <a href="dashboard.php?page=flipbook" class="btn btn-outline">Batal</a>
                     </div>
                 </form>
@@ -1223,10 +1357,11 @@ elseif ($page === 'flipbook' && $db_ready):
 <?php else: ?><div class="msg-err">Data tidak ditemukan.</div><?php endif; ?>
 
 <?php else:
-    // LIST
-    $rows = [];
-    $search_fb = isset($_GET['q']) ? cleantext($_GET['q']) : '';
-    $where_fb = '';
+    // LIST FLIPBOOK
+    $rows       = array();
+    $search_fb  = '';
+    if (isset($_GET['q'])) $search_fb = htmlspecialchars(strip_tags(trim($_GET['q'])));
+    $where_fb   = '';
     if ($search_fb !== '') {
         $where_fb = " WHERE judul LIKE '%$search_fb%' OR deskripsi LIKE '%$search_fb%' OR kategori LIKE '%$search_fb%'";
     }
@@ -1235,44 +1370,53 @@ elseif ($page === 'flipbook' && $db_ready):
 ?>
         <div class="panel">
             <div class="panel-header" style="justify-content:space-between;flex-wrap:wrap;gap:10px;">
-                <div class="panel-title" style="flex-grow:1;">Daftar Buku (<?= count($rows) ?>)</div>
+                <div class="panel-title">Daftar Buku (<?php echo count($rows); ?>)</div>
                 <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
                     <form method="get" action="dashboard.php" style="display:flex;gap:4px;margin:0;">
                         <input type="hidden" name="page" value="flipbook">
-                        <input type="text" name="q" value="<?= htmlspecialchars($search_fb) ?>" placeholder="Cari buku..." class="form-control" style="padding:6px 12px;font-size:13.5px;min-height:unset;width:200px;">
-                        <button type="submit" class="btn btn-primary" style="padding:6px 12px;font-size:13.5px;min-height:unset;"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></button>
-                        <?php if ($search_fb): ?><a href="dashboard.php?page=flipbook" class="btn btn-outline" style="padding:6px;min-height:unset;"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></a><?php endif; ?>
+                        <input type="text" name="q" value="<?php echo htmlspecialchars($search_fb); ?>" placeholder="Cari buku..." class="form-control" style="padding:6px 12px;width:200px;">
+                        <button type="submit" class="btn btn-primary" style="padding:6px 12px;">Cari</button>
+                        <?php if ($search_fb): ?><a href="dashboard.php?page=flipbook" class="btn btn-outline" style="padding:6px 10px;">X</a><?php endif; ?>
                     </form>
-                    <button type="submit" name="bulk_delete_fb" form="fbBulkForm" class="btn btn-outline" style="color:#c62828;border-color:#ffcdd2;font-size:11.5px;padding:6px 14px" onclick="return confirm('Hapus semua buku yang dipilih? File PDF dan cover juga akan dihapus.')">
-                        <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:currentColor;vertical-align:middle"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg> Hapus Terpilih
-                    </button>
+                    <button type="submit" name="bulk_delete_fb" form="fbBulkForm" class="btn btn-outline" style="color:#c62828;border-color:#ffcdd2;"
+                        onclick="return confirm('Hapus semua buku yang dipilih?')">Hapus Terpilih</button>
                 </div>
             </div>
             <?php if (empty($rows)): ?>
-            <div class="empty-state"><span><svg viewBox="0 0 24 24" style="width:42px;height:42px;fill:var(--text-muted)"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg></span>Belum ada buku. Klik <b>+ Tambah Buku</b> untuk memulai.</div>
+            <div class="empty-state"><span>&#128218;</span>Belum ada buku. Klik <b>+ Tambah Buku</b> untuk memulai.</div>
             <?php else: ?>
             <form method="POST" action="dashboard.php?page=flipbook" id="fbBulkForm">
             <div style="overflow-x:auto">
             <table class="data-table">
-                <thead><tr><th style="width:36px"><input type="checkbox" onclick="toggleAllFb(this)"></th><th>#</th><th>Cover</th><th>Judul</th><th>Kategori</th><th>PDF</th><th>Tanggal</th><th>Status</th><th>Aksi</th></tr></thead>
+                <thead>
+                    <tr>
+                        <th style="width:36px"><input type="checkbox" onclick="toggleAllFb(this)"></th>
+                        <th>No</th><th>Cover</th><th>Judul</th><th>Kategori</th>
+                        <th>PDF</th><th>Tanggal</th><th>Status</th><th>Aksi</th>
+                    </tr>
+                </thead>
                 <tbody>
                 <?php foreach ($rows as $i => $r):
-                    $thumb = !empty($r['cover']) ? '<img src="/images/flipbook/'.htmlspecialchars($r['cover']).'" style="width:100px;height:141px;object-fit:cover;border-radius:2px;box-shadow:0 4px 10px rgba(0,0,0,0.15); border:1px solid #eee;">' : '<div style="width:100px;height:141px;background:#f0f0f0;border-radius:2px;display:flex;align-items:center;justify-content:center;border:1px solid #eee;"><svg viewBox="0 0 24 24" style="width:36px;height:36px;fill:#ccc"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg></div>';
-                    $stat = $r['status']==1 ? '<span class="badge badge-aktif"><svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:currentColor;vertical-align:middle"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Aktif</span>' : '<span class="badge badge-nonaktif"><svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:currentColor;vertical-align:middle"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg> Non</span>';
+                    $thumb = !empty($r['cover'])
+                        ? '<img src="/images/flipbook/'.htmlspecialchars($r['cover']).'" style="width:100px;height:141px;object-fit:cover;border-radius:2px;box-shadow:0 4px 10px rgba(0,0,0,.15);border:1px solid #eee;" alt="cover">'
+                        : '<div style="width:100px;height:141px;background:#f0f0f0;border-radius:2px;display:flex;align-items:center;justify-content:center;border:1px solid #eee;color:#ccc;font-size:11px;">No Cover</div>';
+                    $stat = $r['status'] == 1
+                        ? '<span class="badge badge-aktif">Aktif</span>'
+                        : '<span class="badge badge-nonaktif">Non</span>';
                 ?>
                 <tr>
-                    <td><input type="checkbox" name="fb_delete[]" value="<?= $r['id'] ?>"></td>
-                    <td><?= $i+1 ?></td>
-                    <td><?= $thumb ?></td>
-                    <td><b><?= htmlspecialchars($r['judul']) ?></b></td>
-                    <td><small><?= htmlspecialchars($r['kategori']) ?: '-' ?></small></td>
-                    <td><a href="/<?= htmlspecialchars($r['file_pdf']) ?>" target="_blank" class="action-btn action-toggle"><svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:currentColor;vertical-align:middle"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg> Preview</a></td>
-                    <td style="font-size:12px"><?= date('d M Y', strtotime($r['tanggal'])) ?></td>
-                    <td><?= $stat ?></td>
+                    <td><input type="checkbox" name="fb_delete[]" value="<?php echo $r['id']; ?>"></td>
+                    <td><?php echo $i+1; ?></td>
+                    <td><?php echo $thumb; ?></td>
+                    <td><b><?php echo htmlspecialchars($r['judul']); ?></b></td>
+                    <td><small><?php echo htmlspecialchars($r['kategori']) ? htmlspecialchars($r['kategori']) : '-'; ?></small></td>
+                    <td><a href="/<?php echo htmlspecialchars($r['file_pdf']); ?>" target="_blank" class="action-btn action-toggle">Preview</a></td>
+                    <td style="font-size:12px"><?php echo date('d M Y', strtotime($r['tanggal'])); ?></td>
+                    <td><?php echo $stat; ?></td>
                     <td>
-                        <a href="dashboard.php?page=flipbook&aksi=edit&id=<?= $r['id'] ?>" class="action-btn action-edit"><svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:currentColor;vertical-align:middle"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg> Edit</a>
-                        <a href="dashboard.php?page=flipbook&aksi=toggle&id=<?= $r['id'] ?>" class="action-btn action-toggle"><?= $r['status']==1?'<svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:currentColor;vertical-align:middle"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg> Non':'<svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:currentColor;vertical-align:middle"><path d="M8 5v14l11-7z"/></svg> Aktif' ?></a>
-                        <button type="button" onclick="showDeleteModal(<?= $r['id'] ?>,'<?= addslashes(htmlspecialchars($r['judul'])) ?>')" class="action-btn action-del"><svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:currentColor;vertical-align:middle"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg> Hapus</button>
+                        <a href="dashboard.php?page=flipbook&aksi=edit&id=<?php echo $r['id']; ?>" class="action-btn action-edit">Edit</a>
+                        <a href="dashboard.php?page=flipbook&aksi=toggle&id=<?php echo $r['id']; ?>" class="action-btn action-toggle"><?php echo $r['status']==1 ? 'Non' : 'Aktif'; ?></a>
+                        <button type="button" onclick="showDeleteModal(<?php echo $r['id']; ?>,'<?php echo addslashes(htmlspecialchars($r['judul'])); ?>')" class="action-btn action-del">Hapus</button>
                     </td>
                 </tr>
                 <?php endforeach; ?>
@@ -1286,158 +1430,198 @@ elseif ($page === 'flipbook' && $db_ready):
 
 <?php
 // ══════════════════════════════════════════════════════════════
-// PAGE: PENGGUNA
+// PAGE: PENGGUNA (Admin only)
 // ══════════════════════════════════════════════════════════════
-elseif ($page === 'pengguna' && $db_ready):
-    $user_action = isset($user_action) ? $user_action : (isset($_GET['action']) ? $_GET['action'] : '');
+elseif ($page === 'pengguna' && $db_ready && $isAdmin):
 ?>
         <div class="page-header">
             <div>
-                <h2><svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:var(--primary-600);vertical-align:middle;margin-right:4px"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg> Kelola Akun Pengguna</h2>
+                <h2>Kelola Akun Pengguna</h2>
                 <p>Tambah, edit, dan atur hak akses pengguna</p>
             </div>
             <div class="btn-group">
-                <a href="dashboard.php?page=pengguna" class="btn btn-outline">
-                    <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg> Daftar
-                </a>
+                <a href="dashboard.php?page=pengguna" class="btn btn-outline">Daftar</a>
                 <a href="dashboard.php?page=pengguna&action=add" class="btn btn-primary">
-                    <svg viewBox="0 0 24 24"><path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> Tambah Pengguna
+                    <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Tambah Akun
                 </a>
             </div>
         </div>
 
-        <?php if ($user_msg): ?><div class="msg-ok"><?= $user_msg ?></div><?php endif; ?>
-        <?php if ($user_error): ?><div class="msg-err"><?= $user_error ?></div><?php endif; ?>
+        <?php if ($peng_msg): ?><div class="msg-ok"><?php echo $peng_msg; ?></div><?php endif; ?>
+        <?php if ($peng_error): ?><div class="msg-err"><?php echo $peng_error; ?></div><?php endif; ?>
 
-<?php if ($user_action === 'add'): ?>
+<?php if ($peng_action === 'add'): ?>
         <div class="panel">
-            <div class="panel-header"><div class="panel-title">Tambah Pengguna Baru</div></div>
+            <div class="panel-header"><div class="panel-title">Tambah Akun Baru</div></div>
             <div class="panel-body-padded">
-                <?php
-                    $q_id = $koneksi_db->sql_query("SELECT MAX(id) as mx FROM mod_data_jumlah"); $dj = $koneksi_db->sql_fetchrow($q_id);
-                    $user_code = date('ys') . ($dj ? $dj['mx'] : '0');
-                ?>
                 <form method="post" action="dashboard.php?page=pengguna&action=add">
                     <div class="form-grid">
-                        <div class="form-group"><label>Kode Pengguna</label><input type="text" class="form-control" value="<?= $user_code ?>" disabled><input type="hidden" name="user" value="<?= $user_code ?>"></div>
-                        <div class="form-group"><label>Nama Lengkap <span class="req">*</span></label><input type="text" name="nama" class="form-control" required></div>
-                        <div class="form-group"><label>Alamat</label><input type="text" name="alamat" class="form-control"></div>
-                        <div class="form-group"><label>No. Telp</label><input type="text" name="telp" class="form-control"></div>
-                        <div class="form-group"><label>Email</label><input type="email" name="email" class="form-control"></div>
-                        <div class="form-group"><label>Level <span class="req">*</span></label>
-                            <select name="level" class="form-control" required>
-                                <option value="">-- Pilih --</option>
-                                <option value="Administrator">Administrator</option>
+                        <div class="form-group">
+                            <label>Nama Lengkap</label>
+                            <input type="text" name="nama" class="form-control" placeholder="Nama asli pengguna">
+                        </div>
+                        <div class="form-group">
+                            <label>Username <span class="req">*</span></label>
+                            <input type="text" name="uname" class="form-control" required placeholder="Contoh: mahasiswa01">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" name="email" class="form-control" placeholder="email@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Level / Hak Akses <span class="req">*</span></label>
+                            <select name="level" class="form-control">
+                                <option value="User">User — Hanya bisa upload konten</option>
                                 <option value="Editor">Editor</option>
-                                <option value="User">User</option>
+                                <option value="Administrator">Administrator — Akses penuh</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Password <span class="req">*</span></label>
+                            <input type="password" name="password" class="form-control" required placeholder="Minimal 6 karakter">
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" name="submit" class="btn btn-primary">Tambah Akun</button>
+                        <a href="dashboard.php?page=pengguna" class="btn btn-outline">Batal</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+<?php elseif ($peng_action === 'edit' && !empty($_GET['id'])):
+    $id      = (int)$_GET['id'];
+    $er      = $koneksi_db->sql_query("SELECT * FROM `pengguna` WHERE UserId='$id'");
+    $ed      = array('UserId'=>0,'user'=>'','email'=>'','level'=>'User','tipe'=>'aktif','nama'=>'');
+    if ($er) { $fet = $koneksi_db->sql_fetchrow($er); if ($fet) $ed = array_merge($ed, (array)$fet); }
+?>
+        <div class="panel">
+            <div class="panel-header"><div class="panel-title">Edit Akun: <?php echo htmlspecialchars($ed['user']); ?></div></div>
+            <div class="panel-body-padded">
+                <form method="post" action="dashboard.php?page=pengguna&action=edit&id=<?php echo $id; ?>">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Nama Lengkap</label>
+                            <input type="text" name="nama" class="form-control" value="<?php echo htmlspecialchars($ed['nama']); ?>">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" name="email" class="form-control" value="<?php echo htmlspecialchars($ed['email']); ?>">
+                        </div>
+                        <div class="form-group">
+                            <label>Level</label>
+                            <select name="level" class="form-control">
+                                <option value="User" <?php echo $ed['level']==='User'?'selected':''; ?>>User</option>
+                                <option value="Editor" <?php echo $ed['level']==='Editor'?'selected':''; ?>>Editor</option>
+                                <option value="Administrator" <?php echo $ed['level']==='Administrator'?'selected':''; ?>>Administrator</option>
                             </select>
                         </div>
                     </div>
                     <div class="form-actions">
-                        <button type="submit" name="submit" class="btn btn-primary"><svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:currentColor;vertical-align:middle"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg> Tambah</button>
+                        <button type="submit" name="submit" class="btn btn-primary">Simpan</button>
                         <a href="dashboard.php?page=pengguna" class="btn btn-outline">Batal</a>
                     </div>
                 </form>
             </div>
         </div>
 
-<?php elseif ($user_action === 'edit' && !empty($_GET['id'])):
-    $id = $_GET['id'];
-    $q = $koneksi_db->sql_query("SELECT * FROM `pengguna` WHERE md5(`UserId`)='$id'");
-    $getdata = $koneksi_db->sql_fetchrow($q);
-    if ($getdata):
+<?php elseif ($peng_action === 'reset' && !empty($_GET['id'])):
+    $id   = (int)$_GET['id'];
+    $ru_q = $koneksi_db->sql_query("SELECT user FROM `pengguna` WHERE UserId='$id'");
+    $ru   = $koneksi_db->sql_fetchrow($ru_q);
 ?>
         <div class="panel">
-            <div class="panel-header"><div class="panel-title"><svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:var(--text-muted);vertical-align:middle;margin-right:4px"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg> Edit Pengguna: <?= htmlspecialchars($getdata['nama']) ?></div></div>
+            <div class="panel-header"><div class="panel-title">Reset Password: <?php echo htmlspecialchars(isset($ru['user']) ? $ru['user'] : ''); ?></div></div>
             <div class="panel-body-padded">
-                <form method="post" action="dashboard.php?page=pengguna&action=edit&id=<?= $id ?>">
-                    <div class="form-grid">
-                        <div class="form-group"><label>Nama</label><input type="text" name="nama" class="form-control" value="<?= htmlspecialchars($getdata['nama']) ?>"></div>
-                        <div class="form-group"><label>Email</label><input type="email" name="email" class="form-control" value="<?= htmlspecialchars($getdata['email']) ?>"></div>
-                        <div class="form-group"><label>Alamat</label><input type="text" name="alamat" class="form-control" value="<?= htmlspecialchars($getdata['alamat']) ?>"></div>
-                        <div class="form-group"><label>No. Telp</label><input type="text" name="telp" class="form-control" value="<?= htmlspecialchars($getdata['telp']) ?>"></div>
-                    </div>
-                    <div class="form-actions">
-                        <button type="submit" name="submit" class="btn btn-primary"><svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:currentColor;vertical-align:middle"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg> Simpan</button>
-                        <a href="dashboard.php?page=pengguna" class="btn btn-outline">Batal</a>
-                    </div>
-                </form>
-            </div>
-        </div>
-<?php else: ?><div class="msg-err">Data tidak ditemukan.</div><?php endif; ?>
-
-<?php elseif ($user_action === 'reset' && !empty($_GET['id'])):
-    $id = $_GET['id'];
-    $q = $koneksi_db->sql_query("SELECT * FROM `pengguna` WHERE md5(`UserId`)='$id'");
-    $getdata = $koneksi_db->sql_fetchrow($q);
-    if ($getdata):
-?>
-        <div class="panel">
-            <div class="panel-header"><div class="panel-title"><svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:var(--text-muted);vertical-align:middle;margin-right:4px"><path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg> Reset Password: <?= htmlspecialchars($getdata['nama']) ?></div></div>
-            <div class="panel-body-padded">
-                <form method="post" action="dashboard.php?page=pengguna&action=reset&id=<?= $id ?>">
+                <form method="post" action="dashboard.php?page=pengguna&action=reset&id=<?php echo $id; ?>">
                     <div class="form-group" style="max-width:400px">
                         <label>Password Baru <span class="req">*</span></label>
-                        <input type="text" name="pass" class="form-control" required placeholder="Masukkan password baru...">
+                        <input type="text" name="new_password" class="form-control" required placeholder="Masukkan password baru...">
                     </div>
                     <div class="form-actions">
-                        <button type="submit" name="submit" class="btn btn-primary"><svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:currentColor;vertical-align:middle"><path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg> Reset Password</button>
+                        <button type="submit" name="submit_reset" class="btn btn-primary">Reset Password</button>
                         <a href="dashboard.php?page=pengguna" class="btn btn-outline">Batal</a>
                     </div>
                 </form>
             </div>
         </div>
-<?php else: ?><div class="msg-err">Data tidak ditemukan.</div><?php endif; ?>
 
 <?php else:
-    // LIST
-    $users = [];
-    $search_user = isset($_GET['q']) ? cleantext($_GET['q']) : '';
-    $where_user = '';
+    // LIST PENGGUNA
+    $users       = array();
+    $search_user = '';
+    if (isset($_GET['q'])) $search_user = htmlspecialchars(strip_tags(trim($_GET['q'])));
+    $where_user  = '';
     if ($search_user !== '') {
-        $where_user = " WHERE email LIKE '%$search_user%' OR nama LIKE '%$search_user%' OR user LIKE '%$search_user%' OR alamat LIKE '%$search_user%'";
+        $where_user = " WHERE email LIKE '%$search_user%' OR nama LIKE '%$search_user%' OR user LIKE '%$search_user%'";
     }
-    $q = $koneksi_db->sql_query("SELECT * FROM `pengguna` $where_user ORDER BY `UserId` ASC");
+    $q = $koneksi_db->sql_query("SELECT * FROM `pengguna` $where_user ORDER BY level ASC, UserId ASC");
     while ($d = $koneksi_db->sql_fetchrow($q)) $users[] = $d;
 ?>
         <div class="panel">
             <div class="panel-header" style="justify-content:space-between;flex-wrap:wrap;gap:10px;">
-                <div class="panel-title" style="flex-grow:1;">Daftar Pengguna (<?= count($users) ?>)</div>
+                <div class="panel-title">Daftar Pengguna (<?php echo count($users); ?>)</div>
                 <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
                     <form method="get" action="dashboard.php" style="display:flex;gap:4px;margin:0;">
                         <input type="hidden" name="page" value="pengguna">
-                        <input type="text" name="q" value="<?= htmlspecialchars($search_user) ?>" placeholder="Cari pengguna..." class="form-control" style="padding:6px 12px;font-size:13.5px;min-height:unset;width:200px;">
-                        <button type="submit" class="btn btn-primary" style="padding:6px 12px;font-size:13.5px;min-height:unset;"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></button>
-                        <?php if ($search_user): ?><a href="dashboard.php?page=pengguna" class="btn btn-outline" style="padding:6px;min-height:unset;"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></a><?php endif; ?>
+                        <input type="text" name="q" value="<?php echo htmlspecialchars($search_user); ?>" placeholder="Cari pengguna..." class="form-control" style="padding:6px 12px;width:200px;">
+                        <button type="submit" class="btn btn-primary" style="padding:6px 12px;">Cari</button>
+                        <?php if ($search_user): ?><a href="dashboard.php?page=pengguna" class="btn btn-outline" style="padding:6px 10px;">X</a><?php endif; ?>
                     </form>
-                    <button type="submit" name="deleted" form="userBulkForm" class="btn btn-outline" style="color:#c62828;border-color:#ffcdd2;font-size:11.5px;padding:6px 14px" onclick="return confirm('Hapus pengguna yang dipilih?')">
-                        <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:currentColor;vertical-align:middle"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg> Hapus Terpilih
-                    </button>
+                    <button type="submit" name="deleted" form="pengBulkForm" class="btn btn-outline" style="color:#c62828;border-color:#ffcdd2;"
+                        onclick="return confirm('Hapus akun yang dipilih?')">Hapus Terpilih</button>
                 </div>
             </div>
             <?php if (empty($users)): ?>
-            <div class="empty-state"><span><svg viewBox="0 0 24 24" style="width:42px;height:42px;fill:var(--text-muted)"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></span>Belum ada data pengguna.</div>
+            <div class="empty-state"><span>&#128100;</span>Belum ada data pengguna.</div>
             <?php else: ?>
-            <form method="POST" action="dashboard.php?page=pengguna" id="userBulkForm">
-            <div style="overflow-x:auto">
+            <form method="POST" action="dashboard.php?page=pengguna" id="pengBulkForm">
+            <div class="table-responsive">
             <table class="data-table">
-                <thead><tr><th>#</th><th>Nama / Kode</th><th>Alamat</th><th>Email</th><th>Level</th><th>Aksi</th><th><input type="checkbox" onclick="toggleAll(this)"></th></tr></thead>
+                <thead>
+                    <tr>
+                        <th>No</th><th>Username / Nama</th><th>Email</th><th>Level</th><th>Status</th><th>Aksi</th>
+                        <th><input type="checkbox" onclick="toggleAll(this)"></th>
+                    </tr>
+                </thead>
                 <tbody>
                 <?php foreach ($users as $i => $u):
-                    $uid = md5($u['UserId']);
-                    $levelClass = $u['level']==='Administrator' ? 'green' : ($u['level']==='Editor' ? 'blue' : '');
+                    $aktif = isset($u['tipe']) ? $u['tipe'] : 'aktif';
+                    $namal = isset($u['nama']) ? $u['nama'] : '';
                 ?>
                 <tr>
-                    <td><?= $i+1 ?></td>
-                    <td><b><?= htmlspecialchars($u['nama']) ?></b><br><small style="color:var(--text-muted)"><?= htmlspecialchars($u['user']) ?></small></td>
-                    <td><?= htmlspecialchars($u['alamat']) ?><br><small>Telp. <?= htmlspecialchars($u['telp']) ?></small></td>
-                    <td><?= htmlspecialchars($u['email']) ?></td>
-                    <td><span class="badge badge-level"><?= $u['level'] ?></span></td>
+                    <td><?php echo $i+1; ?></td>
                     <td>
-                        <a href="dashboard.php?page=pengguna&action=edit&id=<?= $uid ?>" class="action-btn action-edit"><svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:currentColor;vertical-align:middle"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg> Edit</a>
-                        <a href="dashboard.php?page=pengguna&action=reset&id=<?= $uid ?>" class="action-btn action-reset"><svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:currentColor;vertical-align:middle"><path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg> Reset</a>
+                        <b><?php echo htmlspecialchars($u['user']); ?></b><br>
+                        <small style="color:var(--text-muted)"><?php echo htmlspecialchars($namal); ?></small>
                     </td>
-                    <td><input type="checkbox" name="delete[]" value="<?= htmlspecialchars($u['user']) ?>"></td>
+                    <td><small><?php echo htmlspecialchars($u['email']); ?></small></td>
+                    <td>
+                        <?php if ($u['level']==='Administrator'): ?>
+                        <span class="badge" style="background:#e8f5e9;color:#2e7d32;">Admin</span>
+                        <?php elseif ($u['level']==='Editor'): ?>
+                        <span class="badge" style="background:#fff9c4;color:#f57f17;">Editor</span>
+                        <?php else: ?>
+                        <span class="badge badge-level">User</span>
+                        <?php endif; ?>
+                    </td>
+                    <td>
+                        <?php if ($aktif === 'aktif'): ?>
+                        <span class="badge badge-aktif">Aktif</span>
+                        <?php else: ?>
+                        <span class="badge badge-nonaktif">Nonaktif</span>
+                        <?php endif; ?>
+                    </td>
+                    <td>
+                        <a href="dashboard.php?page=pengguna&action=edit&id=<?php echo (int)$u['UserId']; ?>" class="action-btn action-edit">Edit</a>
+                        <a href="dashboard.php?page=pengguna&action=reset&id=<?php echo (int)$u['UserId']; ?>" class="action-btn action-reset">Reset</a>
+                        <?php if ($aktif === 'aktif'): ?>
+                        <a href="dashboard.php?page=pengguna&action=toggle&st=nonaktif&id=<?php echo (int)$u['UserId']; ?>" class="action-btn action-del">Non</a>
+                        <?php else: ?>
+                        <a href="dashboard.php?page=pengguna&action=toggle&st=aktif&id=<?php echo (int)$u['UserId']; ?>" class="action-btn action-toggle">Aktif</a>
+                        <?php endif; ?>
+                    </td>
+                    <td><input type="checkbox" name="delete[]" value="<?php echo (int)$u['UserId']; ?>"></td>
                 </tr>
                 <?php endforeach; ?>
                 </tbody>
@@ -1450,98 +1634,82 @@ elseif ($page === 'pengguna' && $db_ready):
 
 <?php
 // ══════════════════════════════════════════════════════════════
-// VIEW: GALERI KEGIATAN
+// PAGE: GALERI
 // ══════════════════════════════════════════════════════════════
-elseif ($page === 'galeri'):
+elseif ($page === 'galeri' && $db_ready):
 ?>
     <div class="page-header">
         <div>
-            <h2><svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:currentColor;vertical-align:middle;margin-right:8px"><path d="M22 16V4c0-1.1-.9-2-2-2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2zm-11-4l2.03 2.71L16 11l4 5H8l3-4zM2 6v14c0 1.1.9 2 2 2h14v-2H4V6H2z"/></svg> Galeri Kegiatan</h2>
+            <h2>Galeri Kegiatan</h2>
             <p>Kelola foto dokumentasi kegiatan MBKM.</p>
         </div>
-        <?php if (!isset($galeri_action) || $galeri_action === ''): ?>
+        <?php if ($galeri_action === ''): ?>
         <a href="dashboard.php?page=galeri&action=add" class="add-btn">
             <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Tambah Foto
         </a>
         <?php else: ?>
-        <a href="dashboard.php?page=galeri" class="btn btn-outline">
-            <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;vertical-align:middle"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg> Kembali
-        </a>
+        <a href="dashboard.php?page=galeri" class="btn btn-outline">Kembali</a>
         <?php endif; ?>
     </div>
+    <?php if ($galeri_msg): ?><div class="msg-ok"><?php echo $galeri_msg; ?></div><?php endif; ?>
+    <?php if ($galeri_error): ?><div class="msg-err"><?php echo $galeri_error; ?></div><?php endif; ?>
 
-    <?php if ($galeri_msg): ?><div class="alert alert-success"><?= $galeri_msg ?></div><?php endif; ?>
-    <?php if ($galeri_error): ?><div class="alert alert-error"><?= $galeri_error ?></div><?php endif; ?>
-
-    <?php if (isset($galeri_action) && ($galeri_action === 'add' || $galeri_action === 'edit')):
-        $ed = ['nama'=>'','foto'=>'','ket'=>''];
+    <?php if ($galeri_action === 'add' || $galeri_action === 'edit'):
+        $ed = array('nama'=>'','foto'=>'','ket'=>'');
         if ($galeri_action === 'edit') {
-            $id = (int)$_GET['id'];
+            $id  = (int)$_GET['id'];
             $res = $koneksi_db->sql_query("SELECT * FROM `mod_data_foto` WHERE id='$id'");
-            $ed = $koneksi_db->sql_fetchrow($res);
+            $ed  = $koneksi_db->sql_fetchrow($res);
         }
     ?>
     <div class="panel">
+        <div class="panel-body-padded">
         <form method="POST" action="" enctype="multipart/form-data">
+            <div class="form-group"><label>Nama / Judul Foto</label><input type="text" name="nama" class="form-control" value="<?php echo htmlspecialchars($ed['nama']); ?>" required></div>
+            <div class="form-group"><label>Keterangan</label><textarea name="ket" class="form-control" rows="4"><?php echo htmlspecialchars($ed['ket']); ?></textarea></div>
             <div class="form-group">
-                <label>Nama / Judul Foto</label>
-                <input type="text" name="nama" class="form-control" value="<?= htmlspecialchars($ed['nama']) ?>" required>
-            </div>
-            <div class="form-group">
-                <label>Keterangan</label>
-                <textarea name="ket" class="form-control" rows="4"><?= htmlspecialchars($ed['ket']) ?></textarea>
-            </div>
-            <div class="form-group">
-                <label>Upload Foto (JPG/PNG/WebP, maks 1MB)</label>
+                <label>Upload Foto (JPG/PNG/WebP)</label>
                 <input type="file" name="image" accept="image/*" class="form-control">
-                <?php if ($galeri_action === 'edit' && $ed['foto']): ?>
-                <div style="margin-top:10px"><img src="images/foto/<?= $ed['foto'] ?>" style="max-width:160px;border-radius:8px;border:1px solid #eee"></div>
+                <?php if ($galeri_action === 'edit' && !empty($ed['foto'])): ?>
+                <div style="margin-top:10px"><img src="images/foto/<?php echo $ed['foto']; ?>" style="max-width:160px;border-radius:8px;" alt="foto"></div>
                 <?php endif; ?>
             </div>
-            <div style="margin-top:20px">
-                <button type="submit" name="submit" class="add-btn">Simpan Foto</button>
+            <div class="form-actions">
+                <button type="submit" name="submit" class="btn btn-primary">Simpan Foto</button>
+                <a href="dashboard.php?page=galeri" class="btn btn-outline">Batal</a>
             </div>
         </form>
+        </div>
     </div>
     <?php else: ?>
     <div class="panel">
         <form method="POST" action="">
         <div class="panel-header" style="justify-content:flex-end">
-            <button type="submit" name="deleted" class="btn action-delete" onclick="return confirm('Hapus foto yang dipilih?')">Hapus Terpilih</button>
+            <button type="submit" name="deleted" class="action-delete" onclick="return confirm('Hapus foto yang dipilih?')">Hapus Terpilih</button>
         </div>
         <div class="table-responsive">
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th width="40">No</th>
-                    <th width="80">Foto</th>
-                    <th>Judul</th>
-                    <th>Keterangan</th>
-                    <th width="100">Aksi</th>
-                    <th width="40"><input type="checkbox" onclick="for(c in document.getElementsByName('delete[]')) document.getElementsByName('delete[]').item(c).checked = this.checked"></th>
-                </tr>
-            </thead>
+        <table class="data-table">
+            <thead><tr>
+                <th>No</th><th>Foto</th><th>Judul</th><th>Keterangan</th><th>Aksi</th>
+                <th><input type="checkbox" onclick="toggleAll(this)"></th>
+            </tr></thead>
             <tbody>
             <?php
-            $search_galeri = isset($_GET['q']) ? trim($_GET['q']) : '';
-            $where_galeri = $search_galeri ? "WHERE `nama` LIKE '%$search_galeri%'" : '';
-            $res = $koneksi_db->sql_query("SELECT * FROM `mod_data_foto` $where_galeri ORDER BY id DESC");
-            $i = 0;
-            while ($r = $koneksi_db->sql_fetchrow($res)):
+            $res = $koneksi_db->sql_query("SELECT * FROM `mod_data_foto` ORDER BY id DESC");
+            $i   = 0;
+            if ($res) while ($r = $koneksi_db->sql_fetchrow($res)):
                 $i++;
             ?>
                 <tr>
-                    <td><?= $i ?></td>
-                    <td><img src="images/foto/<?= htmlspecialchars($r['foto']) ?>" style="width:60px;height:60px;object-fit:cover;border-radius:6px;border:1px solid #eee"></td>
-                    <td><b><?= htmlspecialchars($r['nama']) ?></b></td>
-                    <td><small><?= mb_substr(strip_tags($r['ket']),0,80) ?>...</small></td>
-                    <td>
-                        <a href="dashboard.php?page=galeri&action=edit&id=<?= $r['id'] ?>" class="action-btn action-edit"><svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:currentColor;vertical-align:middle"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/></svg> Edit</a>
-                    </td>
-                    <td><input type="checkbox" name="delete[]" value="<?= $r['id'] ?>"></td>
+                    <td><?php echo $i; ?></td>
+                    <td><img src="images/foto/<?php echo htmlspecialchars($r['foto']); ?>" style="width:60px;height:60px;object-fit:cover;border-radius:6px;" alt="foto"></td>
+                    <td><b><?php echo htmlspecialchars($r['nama']); ?></b></td>
+                    <td><small><?php echo mb_substr(strip_tags($r['ket']),0,80); ?>...</small></td>
+                    <td><a href="dashboard.php?page=galeri&action=edit&id=<?php echo $r['id']; ?>" class="action-btn action-edit">Edit</a></td>
+                    <td><input type="checkbox" name="delete[]" value="<?php echo $r['id']; ?>"></td>
                 </tr>
             <?php endwhile; ?>
-            <?php if($i===0): ?><tr><td colspan="6" class="text-center">Belum ada data galeri.</td></tr><?php endif; ?>
+            <?php if ($i === 0): ?><tr><td colspan="6" class="text-center" style="padding:30px;color:#aaa;">Belum ada data galeri.</td></tr><?php endif; ?>
             </tbody>
         </table>
         </div>
@@ -1551,107 +1719,89 @@ elseif ($page === 'galeri'):
 
 <?php
 // ══════════════════════════════════════════════════════════════
-// VIEW: TESTIMONI
+// PAGE: TESTIMONI
 // ══════════════════════════════════════════════════════════════
-elseif ($page === 'testimoni'):
+elseif ($page === 'testimoni' && $db_ready):
 ?>
     <div class="page-header">
         <div>
-            <h2><svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:currentColor;vertical-align:middle;margin-right:8px"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/></svg> Kelola Testimoni</h2>
+            <h2>Kelola Testimoni</h2>
             <p>Atur testimoni mahasiswa yang tampil di beranda.</p>
         </div>
-        <?php if (!isset($testi_action) || $testi_action === ''): ?>
+        <?php if ($testi_action === ''): ?>
         <a href="dashboard.php?page=testimoni&action=add" class="add-btn">
             <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Tambah Testimoni
         </a>
         <?php else: ?>
-        <a href="dashboard.php?page=testimoni" class="btn btn-outline">
-            <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;vertical-align:middle"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg> Kembali
-        </a>
+        <a href="dashboard.php?page=testimoni" class="btn btn-outline">Kembali</a>
         <?php endif; ?>
     </div>
+    <?php if ($testi_msg): ?><div class="msg-ok"><?php echo $testi_msg; ?></div><?php endif; ?>
+    <?php if ($testi_error): ?><div class="msg-err"><?php echo $testi_error; ?></div><?php endif; ?>
 
-    <?php if ($testi_msg): ?><div class="alert alert-success"><?= $testi_msg ?></div><?php endif; ?>
-    <?php if ($testi_error): ?><div class="alert alert-error"><?= $testi_error ?></div><?php endif; ?>
-
-    <?php if (isset($testi_action) && ($testi_action === 'add' || $testi_action === 'edit')):
-        $ed = ['nama'=>'','email'=>'','ket'=>'','foto'=>''];
+    <?php if ($testi_action === 'add' || $testi_action === 'edit'):
+        $ed = array('nama'=>'','email'=>'','ket'=>'','foto'=>'');
         if ($testi_action === 'edit') {
-            $id = (int)$_GET['id'];
+            $id  = (int)$_GET['id'];
             $res = $koneksi_db->sql_query("SELECT * FROM `mod_data_testi` WHERE id='$id'");
-            $ed = $koneksi_db->sql_fetchrow($res);
+            $ed  = $koneksi_db->sql_fetchrow($res);
         }
     ?>
     <div class="panel">
+        <div class="panel-body-padded">
         <form method="POST" action="" enctype="multipart/form-data">
-            <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:16px">
-                <div class="form-group">
-                    <label>Nama</label>
-                    <input type="text" name="nama" class="form-control" value="<?= htmlspecialchars($ed['nama']) ?>" required>
-                </div>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($ed['email']) ?>">
-                </div>
+            <div class="form-grid">
+                <div class="form-group"><label>Nama</label><input type="text" name="nama" class="form-control" value="<?php echo htmlspecialchars($ed['nama']); ?>" required></div>
+                <div class="form-group"><label>Email</label><input type="email" name="email" class="form-control" value="<?php echo htmlspecialchars($ed['email']); ?>"></div>
             </div>
+            <div class="form-group"><label>Isi Testimoni</label><textarea name="ket" class="form-control" rows="5"><?php echo htmlspecialchars($ed['ket']); ?></textarea></div>
             <div class="form-group">
-                <label>Isi Testimoni</label>
-                <textarea name="ket" class="form-control" rows="5"><?= htmlspecialchars($ed['ket']) ?></textarea>
-            </div>
-            <div class="form-group">
-                <label>Foto Profil (JPG/PNG, maks 1MB)</label>
+                <label>Foto Profil (JPG/PNG)</label>
                 <input type="file" name="image" accept="image/*" class="form-control">
-                <?php if ($testi_action === 'edit' && $ed['foto'] && $ed['foto'] !== 'na.jpg'): ?>
-                <div style="margin-top:10px"><img src="images/testi/<?= $ed['foto'] ?>" style="width:60px;height:60px;object-fit:cover;border-radius:50%;border:2px solid var(--primary-200)"></div>
+                <?php if ($testi_action === 'edit' && !empty($ed['foto']) && $ed['foto'] !== 'na.jpg'): ?>
+                <div style="margin-top:10px"><img src="images/testi/<?php echo $ed['foto']; ?>" style="width:60px;height:60px;object-fit:cover;border-radius:50%;" alt="foto"></div>
                 <?php endif; ?>
             </div>
-            <div style="margin-top:20px">
-                <button type="submit" name="submit" class="add-btn">Simpan Testimoni</button>
+            <div class="form-actions">
+                <button type="submit" name="submit" class="btn btn-primary">Simpan Testimoni</button>
+                <a href="dashboard.php?page=testimoni" class="btn btn-outline">Batal</a>
             </div>
         </form>
+        </div>
     </div>
     <?php else: ?>
     <div class="panel">
         <form method="POST" action="">
         <div class="panel-header" style="justify-content:flex-end">
-            <button type="submit" name="deleted" class="btn action-delete" onclick="return confirm('Hapus testimoni yang dipilih?')">Hapus Terpilih</button>
+            <button type="submit" name="deleted" class="action-delete" onclick="return confirm('Hapus testimoni yang dipilih?')">Hapus Terpilih</button>
         </div>
         <div class="table-responsive">
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th width="40">No</th>
-                    <th width="50">Foto</th>
-                    <th>Nama</th>
-                    <th>Testimoni</th>
-                    <th width="70">Status</th>
-                    <th width="80">Aksi</th>
-                    <th width="40"><input type="checkbox" onclick="for(c in document.getElementsByName('delete[]')) document.getElementsByName('delete[]').item(c).checked = this.checked"></th>
-                </tr>
-            </thead>
+        <table class="data-table">
+            <thead><tr>
+                <th>No</th><th>Foto</th><th>Nama</th><th>Testimoni</th><th>Status</th><th>Aksi</th>
+                <th><input type="checkbox" onclick="toggleAll(this)"></th>
+            </tr></thead>
             <tbody>
             <?php
             $res = $koneksi_db->sql_query("SELECT * FROM `mod_data_testi` ORDER BY id DESC");
-            $i = 0;
-            while ($r = $koneksi_db->sql_fetchrow($res)):
+            $i   = 0;
+            if ($res) while ($r = $koneksi_db->sql_fetchrow($res)):
                 $i++;
-                $status_badge = $r['status'] == '1'
-                    ? '<a href="dashboard.php?page=testimoni&action=pub&id='.$r['id'].'&pub=0" class="badge" style="background:#c8e6c9;color:#2e7d32;cursor:pointer" title="Klik untuk nonaktifkan">Aktif</a>'
-                    : '<a href="dashboard.php?page=testimoni&action=pub&id='.$r['id'].'&pub=1" class="badge" style="background:#ffcdd2;color:#c62828;cursor:pointer" title="Klik untuk aktifkan">Nonaktif</a>';
+                $pub_badge = $r['status'] == '1'
+                    ? '<a href="dashboard.php?page=testimoni&action=pub&id='.$r['id'].'&pub=0" class="badge" style="background:#c8e6c9;color:#2e7d32;cursor:pointer">Aktif</a>'
+                    : '<a href="dashboard.php?page=testimoni&action=pub&id='.$r['id'].'&pub=1" class="badge" style="background:#ffcdd2;color:#c62828;cursor:pointer">Nonaktif</a>';
             ?>
                 <tr>
-                    <td><?= $i ?></td>
-                    <td><img src="images/testi/<?= htmlspecialchars($r['foto']) ?>" style="width:40px;height:40px;object-fit:cover;border-radius:50%;border:1px solid #eee"></td>
-                    <td><b><?= htmlspecialchars($r['nama']) ?></b><br><small style="color:var(--text-muted)"><?= htmlspecialchars($r['email']) ?></small></td>
-                    <td><small><i><?= mb_substr(strip_tags($r['ket']),0,80) ?>...</i></small></td>
-                    <td><?= $status_badge ?></td>
-                    <td>
-                        <a href="dashboard.php?page=testimoni&action=edit&id=<?= $r['id'] ?>" class="action-btn action-edit"><svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:currentColor;vertical-align:middle"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/></svg> Edit</a>
-                    </td>
-                    <td><input type="checkbox" name="delete[]" value="<?= $r['id'] ?>"></td>
+                    <td><?php echo $i; ?></td>
+                    <td><img src="images/testi/<?php echo htmlspecialchars($r['foto']); ?>" style="width:40px;height:40px;object-fit:cover;border-radius:50%;" alt="foto"></td>
+                    <td><b><?php echo htmlspecialchars($r['nama']); ?></b><br><small><?php echo htmlspecialchars($r['email']); ?></small></td>
+                    <td><small><i><?php echo mb_substr(strip_tags($r['ket']),0,80); ?>...</i></small></td>
+                    <td><?php echo $pub_badge; ?></td>
+                    <td><a href="dashboard.php?page=testimoni&action=edit&id=<?php echo $r['id']; ?>" class="action-btn action-edit">Edit</a></td>
+                    <td><input type="checkbox" name="delete[]" value="<?php echo $r['id']; ?>"></td>
                 </tr>
             <?php endwhile; ?>
-            <?php if($i===0): ?><tr><td colspan="7" class="text-center">Belum ada data testimoni.</td></tr><?php endif; ?>
+            <?php if ($i === 0): ?><tr><td colspan="7" class="text-center" style="padding:30px;color:#aaa;">Belum ada data testimoni.</td></tr><?php endif; ?>
             </tbody>
         </table>
         </div>
@@ -1661,127 +1811,98 @@ elseif ($page === 'testimoni'):
 
 <?php
 // ══════════════════════════════════════════════════════════════
-// VIEW: BERITA & KEGIATAN
+// PAGE: BERITA & KEGIATAN
 // ══════════════════════════════════════════════════════════════
-elseif ($page === 'berita'):
+elseif ($page === 'berita' && $db_ready):
 ?>
     <div class="page-header">
         <div>
-            <h2><svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:currentColor;vertical-align:middle;margin-right:8px"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg> Berita & Kegiatan</h2>
+            <h2>Berita &amp; Kegiatan</h2>
             <p>Tulis dan kelola artikel berita kegiatan MBKM.</p>
         </div>
-        <?php if (!isset($berita_action) || $berita_action === ''): ?>
+        <?php if ($berita_action === ''): ?>
         <a href="dashboard.php?page=berita&action=add" class="add-btn">
             <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Tulis Artikel
         </a>
         <?php else: ?>
-        <a href="dashboard.php?page=berita" class="btn btn-outline">
-            <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;vertical-align:middle"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg> Kembali
-        </a>
+        <a href="dashboard.php?page=berita" class="btn btn-outline">Kembali</a>
         <?php endif; ?>
     </div>
+    <?php if ($berita_msg): ?><div class="msg-ok"><?php echo $berita_msg; ?></div><?php endif; ?>
+    <?php if ($berita_error): ?><div class="msg-err"><?php echo $berita_error; ?></div><?php endif; ?>
 
-    <?php if ($berita_msg): ?><div class="alert alert-success"><?= $berita_msg ?></div><?php endif; ?>
-    <?php if ($berita_error): ?><div class="alert alert-error"><?= $berita_error ?></div><?php endif; ?>
-
-    <?php if (isset($berita_action) && ($berita_action === 'add' || $berita_action === 'edit')):
-        $ed = ['judul'=>'','gambar'=>'','konten'=>'','tags'=>''];
+    <?php if ($berita_action === 'add' || $berita_action === 'edit'):
+        $ed = array('judul'=>'','gambar'=>'','konten'=>'','tags'=>'');
         if ($berita_action === 'edit') {
-            $id = (int)$_GET['id'];
+            $id  = (int)$_GET['id'];
             $res = $koneksi_db->sql_query("SELECT * FROM `artikel` WHERE id='$id'");
-            $ed = $koneksi_db->sql_fetchrow($res);
+            $ed  = $koneksi_db->sql_fetchrow($res);
         }
     ?>
     <div class="panel">
+        <div class="panel-body-padded">
         <form method="POST" action="" enctype="multipart/form-data">
-            <div class="form-group">
-                <label>Judul Artikel</label>
-                <input type="text" name="judul" class="form-control" value="<?= htmlspecialchars($ed['judul']) ?>" required>
-            </div>
-            <div class="form-group">
-                <label>Konten Artikel</label>
-                <textarea name="konten" id="kontenBerita" class="form-control" rows="10"><?= htmlspecialchars($ed['konten']) ?></textarea>
-            </div>
-            <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:16px">
+            <div class="form-group"><label>Judul Artikel</label><input type="text" name="judul" class="form-control" value="<?php echo htmlspecialchars($ed['judul']); ?>" required></div>
+            <div class="form-group"><label>Konten Artikel</label><textarea name="konten" id="kontenBerita" class="form-control" rows="10"><?php echo htmlspecialchars($ed['konten']); ?></textarea></div>
+            <div class="form-grid">
+                <div class="form-group"><label>Tags / Kategori</label><input type="text" name="tags" class="form-control" value="<?php echo htmlspecialchars($ed['tags']); ?>" placeholder="MBKM, Pendidikan, dst"></div>
                 <div class="form-group">
-                    <label>Tags / Kategori</label>
-                    <input type="text" name="tags" class="form-control" value="<?= htmlspecialchars($ed['tags']) ?>" placeholder="MBKM, Pendidikan, dst">
-                </div>
-                <div class="form-group">
-                    <label>Gambar Cover (JPG/PNG/WebP)</label>
+                    <label>Gambar Cover</label>
                     <input type="file" name="gambar" accept="image/*" class="form-control">
-                    <?php if ($berita_action === 'edit' && $ed['gambar']): ?>
-                    <div style="margin-top:10px"><img src="images/artikel/<?= $ed['gambar'] ?>" style="max-width:140px;border-radius:8px;border:1px solid #eee"></div>
+                    <?php if ($berita_action === 'edit' && !empty($ed['gambar'])): ?>
+                    <div style="margin-top:10px"><img src="images/artikel/<?php echo $ed['gambar']; ?>" style="max-width:140px;border-radius:8px;" alt="cover"></div>
                     <?php endif; ?>
                 </div>
             </div>
-            <div style="margin-top:20px">
-                <button type="submit" name="submit" class="add-btn">Publikasikan Artikel</button>
+            <div class="form-actions">
+                <button type="submit" name="submit" class="btn btn-primary">Publikasikan Artikel</button>
+                <a href="dashboard.php?page=berita" class="btn btn-outline">Batal</a>
             </div>
         </form>
+        </div>
     </div>
     <script src="plugin/ckeditor/ckeditor.js"></script>
-    <script>
-        if (typeof CKEDITOR !== 'undefined') {
-            CKEDITOR.replace('kontenBerita', {
-                height: 350,
-                toolbar: [
-                    ['Bold', 'Italic', 'Underline', 'Strike'],
-                    ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', 'Blockquote'],
-                    ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
-                    ['Link', 'Unlink', 'Image'],
-                    ['Source']
-                ]
-            });
-        }
-    </script>
+    <script>if (typeof CKEDITOR !== 'undefined') { CKEDITOR.replace('kontenBerita', { height: 350 }); }</script>
     <?php else: ?>
     <div class="panel">
         <form method="POST" action="">
         <div class="panel-header" style="justify-content:flex-end">
-            <button type="submit" name="deleted" class="btn action-delete" onclick="return confirm('Hapus artikel yang dipilih?')">Hapus Terpilih</button>
+            <button type="submit" name="deleted" class="action-delete" onclick="return confirm('Hapus artikel yang dipilih?')">Hapus Terpilih</button>
         </div>
         <div class="table-responsive">
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th width="40">No</th>
-                    <th width="70">Cover</th>
-                    <th>Judul</th>
-                    <th width="100">Penulis</th>
-                    <th width="100">Tanggal</th>
-                    <th width="70">Status</th>
-                    <th width="80">Aksi</th>
-                    <th width="40"><input type="checkbox" onclick="for(c in document.getElementsByName('delete[]')) document.getElementsByName('delete[]').item(c).checked = this.checked"></th>
-                </tr>
-            </thead>
+        <table class="data-table">
+            <thead><tr>
+                <th>No</th><th>Cover</th><th>Judul</th><th>Penulis</th><th>Tanggal</th><th>Status</th><th>Aksi</th>
+                <th><input type="checkbox" onclick="toggleAll(this)"></th>
+            </tr></thead>
             <tbody>
             <?php
-            $search_berita = isset($_GET['q']) ? trim($_GET['q']) : '';
-            $where_berita = $search_berita ? "WHERE `judul` LIKE '%$search_berita%'" : '';
+            $search_berita = isset($_GET['q']) ? htmlspecialchars(strip_tags(trim($_GET['q']))) : '';
+            $where_berita  = $search_berita ? "WHERE `judul` LIKE '%$search_berita%'" : '';
             $res = $koneksi_db->sql_query("SELECT * FROM `artikel` $where_berita ORDER BY id DESC LIMIT 50");
-            $i = 0;
-            while ($r = $koneksi_db->sql_fetchrow($res)):
+            $i   = 0;
+            if ($res) while ($r = $koneksi_db->sql_fetchrow($res)):
                 $i++;
-                $cover = $r['gambar'] ? '<img src="images/artikel/'.htmlspecialchars($r['gambar']).'" style="width:50px;height:35px;object-fit:cover;border-radius:4px;border:1px solid #eee">' : '<span style="color:var(--text-muted);font-size:11px">—</span>';
+                $cover     = $r['gambar'] ? '<img src="images/artikel/'.htmlspecialchars($r['gambar']).'" style="width:50px;height:35px;object-fit:cover;border-radius:4px;" alt="cover">' : '&mdash;';
                 $pub_badge = $r['publikasi'] == '1'
                     ? '<a href="dashboard.php?page=berita&action=pub&id='.$r['id'].'&pub=0" class="badge" style="background:#c8e6c9;color:#2e7d32;cursor:pointer">Publik</a>'
                     : '<a href="dashboard.php?page=berita&action=pub&id='.$r['id'].'&pub=1" class="badge" style="background:#fff9c4;color:#f57f17;cursor:pointer">Draft</a>';
             ?>
                 <tr>
-                    <td><?= $i ?></td>
-                    <td><?= $cover ?></td>
-                    <td><b><?= htmlspecialchars(mb_substr($r['judul'],0,60)) ?></b><?php if($r['tags']): ?><br><small style="color:var(--text-muted)"><?= htmlspecialchars($r['tags']) ?></small><?php endif; ?></td>
-                    <td><small><?= htmlspecialchars($r['user']) ?></small></td>
-                    <td><small><?= date('d M Y', strtotime($r['tgl'])) ?></small></td>
-                    <td><?= $pub_badge ?></td>
+                    <td><?php echo $i; ?></td>
+                    <td><?php echo $cover; ?></td>
                     <td>
-                        <a href="dashboard.php?page=berita&action=edit&id=<?= $r['id'] ?>" class="action-btn action-edit"><svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:currentColor;vertical-align:middle"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/></svg> Edit</a>
+                        <b><?php echo htmlspecialchars(mb_substr($r['judul'],0,60)); ?></b>
+                        <?php if ($r['tags']): ?><br><small style="color:var(--text-muted)"><?php echo htmlspecialchars($r['tags']); ?></small><?php endif; ?>
                     </td>
-                    <td><input type="checkbox" name="delete[]" value="<?= $r['id'] ?>"></td>
+                    <td><small><?php echo htmlspecialchars($r['user']); ?></small></td>
+                    <td><small><?php echo date('d M Y', strtotime($r['tgl'])); ?></small></td>
+                    <td><?php echo $pub_badge; ?></td>
+                    <td><a href="dashboard.php?page=berita&action=edit&id=<?php echo $r['id']; ?>" class="action-btn action-edit">Edit</a></td>
+                    <td><input type="checkbox" name="delete[]" value="<?php echo $r['id']; ?>"></td>
                 </tr>
             <?php endwhile; ?>
-            <?php if($i===0): ?><tr><td colspan="8" class="text-center">Belum ada artikel.</td></tr><?php endif; ?>
+            <?php if ($i === 0): ?><tr><td colspan="8" class="text-center" style="padding:30px;color:#aaa;">Belum ada artikel.</td></tr><?php endif; ?>
             </tbody>
         </table>
         </div>
@@ -1789,15 +1910,113 @@ elseif ($page === 'berita'):
     </div>
     <?php endif; ?>
 
-<?php 
+<?php
 // ══════════════════════════════════════════════════════════════
-// VIEW: PROGRAM MBKM
+// PAGE: UPLOAD USER
 // ══════════════════════════════════════════════════════════════
-elseif ($page === 'program'): 
+elseif ($page === 'upload_user' && $db_ready):
 ?>
     <div class="page-header">
         <div>
-            <h2><svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:currentColor;vertical-align:middle;margin-right:8px"><path d="M4 10h3v7H4zM10.5 10h3v7h-3zM2 19h20v3H2zM17 10h3v7h-3zM12 1L2 6v2h20V6z"/></svg> Kelola Program MBKM</h2>
+            <h2><?php echo $isUser ? 'Upload Konten Saya' : 'Semua Upload dari User'; ?></h2>
+            <p><?php echo $isUser ? 'Upload laporan atau dokumen Anda di sini.' : 'Review dan kelola konten yang diupload oleh user.'; ?></p>
+        </div>
+        <?php if ($isUser): ?>
+        <a href="dashboard.php?page=upload_user&action=add" class="add-btn">
+            <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Upload Baru
+        </a>
+        <?php endif; ?>
+    </div>
+    <?php if ($upload_msg): ?><div class="msg-ok"><?php echo $upload_msg; ?></div><?php endif; ?>
+    <?php if ($upload_error): ?><div class="msg-err"><?php echo $upload_error; ?></div><?php endif; ?>
+
+    <?php if ($isUser && $up_action === 'add'): ?>
+    <div class="panel">
+        <div class="panel-body-padded">
+        <form method="POST" action="" enctype="multipart/form-data">
+            <div class="form-group"><label>Judul Konten / Dokumen</label><input type="text" name="judul" class="form-control" required placeholder="Judul file yang diupload"></div>
+            <div class="form-group">
+                <label>Jenis Dokumen</label>
+                <select name="jenis" class="form-control">
+                    <option>Laporan Kegiatan</option>
+                    <option>Laporan Akhir</option>
+                    <option>Sertifikat</option>
+                    <option>Dokumentasi Foto</option>
+                    <option>Lainnya</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Keterangan (Opsional)</label><textarea name="keterangan" class="form-control" rows="4" placeholder="Tambahkan catatan jika perlu"></textarea></div>
+            <div class="form-group"><label>File (PDF, DOC, JPG, PNG, ZIP)</label><input type="file" name="file_upload" class="form-control" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.zip"></div>
+            <div class="form-actions">
+                <button type="submit" name="submit_upload" class="btn btn-primary">Kirim Upload</button>
+                <a href="dashboard.php?page=upload_user" class="btn btn-outline">Batal</a>
+            </div>
+        </form>
+        </div>
+    </div>
+    <?php else: ?>
+    <div class="panel">
+        <?php if ($isAdmin): ?><form method="POST" action=""><?php endif; ?>
+        <?php if ($isAdmin): ?>
+        <div class="panel-header" style="justify-content:flex-end">
+            <button type="submit" name="deleted" class="action-delete" onclick="return confirm('Hapus upload terpilih?')">Hapus Terpilih</button>
+        </div>
+        <?php endif; ?>
+        <div class="table-responsive">
+        <table class="data-table">
+            <thead><tr>
+                <th>No</th><th>Judul</th><th>Jenis</th><th>Pengirim</th><th>File</th><th>Status</th><th>Tanggal</th>
+                <?php if ($isAdmin): ?><th>Aksi Admin</th><th><input type="checkbox" onclick="toggleAll(this)"></th><?php endif; ?>
+            </tr></thead>
+            <tbody>
+            <?php
+            $where_up = $isUser ? "WHERE user='$userName'" : '';
+            $res      = @$koneksi_db->sql_query("SELECT * FROM `user_uploads` $where_up ORDER BY id DESC");
+            $i        = 0;
+            if ($res) while ($r = $koneksi_db->sql_fetchrow($res)):
+                $i++;
+                $st_key    = isset($r['status']) ? $r['status'] : 'pending';
+                $st_colors = array('pending'=>array('#fff9c4','#f57f17'),'disetujui'=>array('#e8f5e9','#2e7d32'),'ditolak'=>array('#ffebee','#c62828'));
+                $st_col    = isset($st_colors[$st_key]) ? $st_colors[$st_key] : $st_colors['pending'];
+            ?>
+                <tr>
+                    <td><?php echo $i; ?></td>
+                    <td><b><?php echo htmlspecialchars($r['judul']); ?></b></td>
+                    <td><small><?php echo htmlspecialchars($r['jenis']); ?></small></td>
+                    <td><small><?php echo htmlspecialchars($r['user']); ?></small></td>
+                    <td>
+                        <?php if ($r['file_path']): ?>
+                        <a href="files/uploads/<?php echo htmlspecialchars($r['file_path']); ?>" target="_blank" class="action-btn action-toggle">Unduh</a>
+                        <?php else: ?><span style="color:#aaa">Tidak ada file</span><?php endif; ?>
+                    </td>
+                    <td><span class="badge" style="background:<?php echo $st_col[0]; ?>;color:<?php echo $st_col[1]; ?>;"><?php echo ucfirst($st_key); ?></span></td>
+                    <td><small><?php echo date('d M Y', strtotime($r['tgl_upload'])); ?></small></td>
+                    <?php if ($isAdmin): ?>
+                    <td>
+                        <a href="dashboard.php?page=upload_user&action=setstatus&st=disetujui&id=<?php echo $r['id']; ?>" class="action-btn action-toggle">Setuju</a>
+                        <a href="dashboard.php?page=upload_user&action=setstatus&st=ditolak&id=<?php echo $r['id']; ?>" class="action-btn action-del">Tolak</a>
+                    </td>
+                    <td><input type="checkbox" name="delete[]" value="<?php echo $r['id']; ?>"></td>
+                    <?php endif; ?>
+                </tr>
+            <?php endwhile; ?>
+            <?php if ($i === 0): ?><tr><td colspan="9" class="text-center" style="padding:30px;color:#aaa;">Belum ada upload.</td></tr><?php endif; ?>
+            </tbody>
+        </table>
+        </div>
+        <?php if ($isAdmin): ?></form><?php endif; ?>
+    </div>
+    <?php endif; ?>
+
+<?php
+// ══════════════════════════════════════════════════════════════
+// PAGE: PROGRAM MBKM
+// ══════════════════════════════════════════════════════════════
+elseif ($page === 'program' && $db_ready):
+?>
+    <div class="page-header">
+        <div>
+            <h2>Kelola Program MBKM</h2>
             <p>Atur indikator atau daftar program yang tampil di beranda.</p>
         </div>
         <?php if ($prog_action === ''): ?>
@@ -1805,199 +2024,136 @@ elseif ($page === 'program'):
             <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Tambah Program
         </a>
         <?php else: ?>
-        <a href="dashboard.php?page=program" class="btn btn-outline">
-            <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;vertical-align:middle"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg> Kembali
-        </a>
+        <a href="dashboard.php?page=program" class="btn btn-outline">Kembali</a>
         <?php endif; ?>
     </div>
+    <?php if ($prog_msg): ?><div class="msg-ok"><?php echo $prog_msg; ?></div><?php endif; ?>
+    <?php if ($prog_error): ?><div class="msg-err"><?php echo $prog_error; ?></div><?php endif; ?>
 
-    <?php if ($prog_msg): ?>
-        <div class="alert alert-success"><?= $prog_msg ?></div>
-    <?php endif; ?>
-    <?php if ($prog_error): ?>
-        <div class="alert alert-error"><?= $prog_error ?></div>
-    <?php endif; ?>
-
-    <?php if ($prog_action === 'add' || $prog_action === 'edit'): 
-        $edit_data = ['judul'=>'','icon'=>'','konten'=>'','aktif'=>'Y'];
+    <?php if ($prog_action === 'add' || $prog_action === 'edit'):
+        $edit_data = array('judul'=>'','icon'=>'fa-star','konten'=>'','aktif'=>'Y');
         if ($prog_action === 'edit') {
-            $id = (int)$_GET['id'];
+            $id  = (int)$_GET['id'];
             $res = $koneksi_db->sql_query("SELECT * FROM `halaman` WHERE id='$id'");
             if ($h_data = $koneksi_db->sql_fetchrow($res)) {
-                $edit_data['judul'] = $h_data['judul'];
+                $edit_data['judul']  = $h_data['judul'];
                 $edit_data['konten'] = $h_data['konten'];
-                $edit_data['icon'] = isset($h_data['icon']) ? $h_data['icon'] : 'fa-star';
-                $edit_data['aktif'] = isset($h_data['aktif']) ? $h_data['aktif'] : 'Y';
+                $edit_data['icon']   = isset($h_data['icon'])  ? $h_data['icon']  : 'fa-star';
+                $edit_data['aktif']  = isset($h_data['aktif']) ? $h_data['aktif'] : 'Y';
             }
         }
     ?>
     <div class="panel">
+        <div class="panel-body-padded">
         <form method="POST" action="">
+            <div class="form-group"><label>Judul Program</label><input type="text" name="judul" class="form-control" value="<?php echo htmlspecialchars($edit_data['judul']); ?>" required></div>
             <div class="form-group">
-                <label>Judul Halaman Dinamis / Program</label>
-                <input type="text" name="judul" class="form-control" value="<?= htmlspecialchars($edit_data['judul']) ?>" required>
-            </div>
-            <div class="form-group">
-                <label>Status Tayang</label>
+                <label>Status</label>
                 <select name="aktif" class="form-control">
-                    <option value="Y" <?= $edit_data['aktif'] === 'Y' ? 'selected' : '' ?>>Tampil (Aktif)</option>
-                    <option value="N" <?= $edit_data['aktif'] === 'N' ? 'selected' : '' ?>>Sembunyikan (Draft)</option>
+                    <option value="Y" <?php echo $edit_data['aktif']==='Y'?'selected':''; ?>>Tampil (Aktif)</option>
+                    <option value="N" <?php echo $edit_data['aktif']==='N'?'selected':''; ?>>Sembunyikan (Draft)</option>
                 </select>
             </div>
+            <div class="form-group"><label>Isi Konten</label><textarea name="konten" class="form-control" rows="8"><?php echo htmlspecialchars($edit_data['konten']); ?></textarea></div>
             <div class="form-group">
-                <label>Isi Konten & Penjelasan</label>
-                <textarea name="konten" class="form-control" style="min-height:200px;font-family:inherit;padding:12px;"><?= htmlspecialchars($edit_data['konten']) ?></textarea>
-                <div style="font-size:11px;color:#888;margin-top:6px;">Silakan tulis penjelasan halaman di atas. Konten ini langsung tampil ketika item di beranda di klik.</div>
-            </div>
-            <div class="form-group">
-                <label>Pilih Icon</label>
-                <input type="hidden" name="icon" id="selectedIconInput" value="<?= htmlspecialchars($edit_data['icon']) ?>">
-                <!-- Preview -->
-                <div id="iconPreviewWrap" style="display:flex;align-items:center;gap:12px;margin-bottom:12px;padding:12px 16px;background:var(--bg-secondary,#f8f9fa);border-radius:8px;border:1px solid #e0e0e0;">
-                    <div id="iconPreviewBox" style="width:44px;height:44px;border-radius:10px;background:var(--primary-600,#306238);display:flex;align-items:center;justify-content:center;">
-                        <i id="iconPreviewEl" class="fa <?= htmlspecialchars(!empty($edit_data['icon']) ? $edit_data['icon'] : 'fa-star') ?>" style="font-size:20px;color:#fff;"></i>
+                <label>Pilih Icon (Font Awesome)</label>
+                <input type="hidden" name="icon" id="selectedIconInput" value="<?php echo htmlspecialchars($edit_data['icon']); ?>">
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;padding:12px 16px;background:#f8f9fa;border-radius:8px;border:1px solid #e0e0e0;">
+                    <div style="width:44px;height:44px;border-radius:10px;background:var(--primary-600);display:flex;align-items:center;justify-content:center;">
+                        <i id="iconPreviewEl" class="fa <?php echo htmlspecialchars($edit_data['icon']); ?>" style="font-size:20px;color:#fff;"></i>
                     </div>
                     <div>
-                        <div style="font-weight:700;font-size:13px;color:#333;" id="iconPreviewName"><?= htmlspecialchars(!empty($edit_data['icon']) ? $edit_data['icon'] : 'fa-star') ?></div>
-                        <div style="font-size:11px;color:#888;">Icon terpilih — klik icon di bawah untuk ganti</div>
+                        <div style="font-weight:700;font-size:13px;" id="iconPreviewName"><?php echo htmlspecialchars($edit_data['icon']); ?></div>
+                        <div style="font-size:11px;color:#888;">Klik icon di bawah untuk ganti</div>
                     </div>
                 </div>
-                <!-- Search -->
-                <input type="text" id="iconSearchInput" placeholder="&#xf002;  Cari icon... (contoh: user, book, home)" style="width:100%;padding:9px 14px;border:1.5px solid #ddd;border-radius:8px;font-size:13px;margin-bottom:10px;font-family:inherit;outline:none;transition:border .2s;" oninput="filterIcons(this.value)" onfocus="this.style.borderColor='var(--primary-600,#306238)'" onblur="this.style.borderColor='#ddd'">
-                <!-- Grid -->
+                <input type="text" id="iconSearchInput" placeholder="Cari icon..." style="width:100%;padding:9px 14px;border:1.5px solid #ddd;border-radius:8px;font-size:13px;margin-bottom:10px;font-family:inherit;outline:none;" oninput="filterIcons(this.value)">
                 <div id="iconPickerGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(48px,1fr));gap:6px;max-height:280px;overflow-y:auto;padding:8px;background:#fff;border:1.5px solid #e0e0e0;border-radius:8px;"></div>
                 <div id="iconNoResult" style="display:none;text-align:center;padding:24px;color:#aaa;font-size:13px;">Tidak ada icon yang cocok.</div>
             </div>
-            <style>
-            .icon-item { display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px;border-radius:8px;cursor:pointer;border:2px solid transparent;transition:all .18s;gap:4px;min-width:46px; }
-            .icon-item:hover { background:#e8f5e9;border-color:#618D4F; }
-            .icon-item.selected { background:#306238;border-color:#306238; }
-            .icon-item.selected i,.icon-item.selected span { color:#fff !important; }
-            .icon-item i { font-size:18px;color:#444; }
-            .icon-item span { font-size:8.5px;color:#888;text-align:center;word-break:break-all;max-width:44px;line-height:1.2; }
-            #iconPickerGrid::-webkit-scrollbar { width:5px; }
-            #iconPickerGrid::-webkit-scrollbar-track { background:#f5f5f5;border-radius:4px; }
-            #iconPickerGrid::-webkit-scrollbar-thumb { background:#618D4F;border-radius:4px; }
-            </style>
-            <script>
-            var _iconList = [
-                'fa-home','fa-user','fa-users','fa-user-circle','fa-user-tie','fa-user-graduate','fa-user-check',
-                'fa-book','fa-book-open','fa-books','fa-graduation-cap','fa-school','fa-university','fa-chalkboard','fa-chalkboard-teacher',
-                'fa-star','fa-star-half-alt','fa-heart','fa-thumbs-up','fa-trophy','fa-award','fa-medal',
-                'fa-check','fa-check-circle','fa-check-square','fa-times','fa-times-circle','fa-exclamation-triangle','fa-info-circle',
-                'fa-cog','fa-cogs','fa-wrench','fa-tools','fa-hammer','fa-sliders-h','fa-tachometer-alt',
-                'fa-chart-bar','fa-chart-line','fa-chart-pie','fa-chart-area','fa-analytics','fa-poll','fa-poll-h',
-                'fa-envelope','fa-envelope-open','fa-paper-plane','fa-inbox','fa-at','fa-mail-bulk',
-                'fa-phone','fa-phone-alt','fa-mobile-alt','fa-fax','fa-headset','fa-comments','fa-comment','fa-comment-dots','fa-comment-alt',
-                'fa-map-marker-alt','fa-map','fa-globe','fa-globe-asia','fa-compass','fa-road','fa-route','fa-location-arrow',
-                'fa-calendar','fa-calendar-alt','fa-calendar-check','fa-calendar-plus','fa-clock','fa-history','fa-hourglass-half',
-                'fa-file','fa-file-alt','fa-file-pdf','fa-file-word','fa-file-excel','fa-file-image','fa-file-archive','fa-file-signature',
-                'fa-folder','fa-folder-open','fa-folder-plus','fa-archive','fa-save','fa-database','fa-server','fa-hdd',
-                'fa-laptop','fa-desktop','fa-tablet-alt','fa-mobile-alt','fa-keyboard','fa-mouse','fa-print','fa-fax',
-                'fa-image','fa-images','fa-camera','fa-camera-retro','fa-video','fa-film','fa-play','fa-play-circle','fa-pause','fa-stop',
-                'fa-music','fa-headphones','fa-microphone','fa-volume-up','fa-podcast','fa-radio','fa-broadcast-tower',
-                'fa-lock','fa-lock-open','fa-key','fa-shield-alt','fa-shield-check','fa-user-shield','fa-fingerprint','fa-id-card',
-                'fa-shopping-cart','fa-shopping-bag','fa-store','fa-barcode','fa-qrcode','fa-tag','fa-tags','fa-ticket-alt',
-                'fa-dollar-sign','fa-euro-sign','fa-pound-sign','fa-coins','fa-credit-card','fa-wallet','fa-piggy-bank','fa-receipt',
-                'fa-plane','fa-car','fa-bus','fa-train','fa-bicycle','fa-motorcycle','fa-ship','fa-rocket',
-                'fa-flask','fa-atom','fa-dna','fa-microscope','fa-stethoscope','fa-heartbeat','fa-ambulance','fa-hospital','fa-pills','fa-syringe',
-                'fa-tree','fa-leaf','fa-seedling','fa-sun','fa-moon','fa-cloud','fa-umbrella','fa-snowflake','fa-fire','fa-water',
-                'fa-bread-slice','fa-coffee','fa-pizza-slice','fa-hamburger','fa-apple-alt','fa-carrot','fa-fish','fa-utensils',
-                'fa-pen','fa-pen-alt','fa-pencil-alt','fa-highlighter','fa-eraser','fa-ruler','fa-ruler-combined','fa-compass','fa-paint-brush','fa-palette',
-                'fa-th','fa-th-large','fa-th-list','fa-list','fa-list-ol','fa-list-ul','fa-grip-lines','fa-grip-horizontal','fa-grip-vertical',
-                'fa-link','fa-unlink','fa-external-link-alt','fa-share-alt','fa-share','fa-copy','fa-cut','fa-paste',
-                'fa-download','fa-upload','fa-sync','fa-sync-alt','fa-redo','fa-undo','fa-exchange-alt','fa-random',
-                'fa-search','fa-search-plus','fa-search-minus','fa-binoculars','fa-eye','fa-eye-slash','fa-crosshairs',
-                'fa-arrow-up','fa-arrow-down','fa-arrow-left','fa-arrow-right','fa-arrows-alt','fa-expand','fa-compress','fa-expand-alt',
-                'fa-plus','fa-plus-circle','fa-minus','fa-minus-circle','fa-times','fa-times-circle','fa-ellipsis-h','fa-ellipsis-v',
-                'fa-bars','fa-stream','fa-layer-group','fa-object-group','fa-clone','fa-sitemap','fa-project-diagram','fa-network-wired',
-                'fa-wifi','fa-signal','fa-rss','fa-satellite','fa-satellite-dish','fa-broadcast','fa-tower-cell',
-                'fa-code','fa-code-branch','fa-terminal','fa-bug','fa-brackets-curly','fa-laptop-code','fa-microchip','fa-robot',
-                'fa-football-ball','fa-basketball-ball','fa-volleyball-ball','fa-baseball-ball','fa-tennis-ball','fa-running','fa-swimming-pool','fa-dumbbell',
-                'fa-hands-helping','fa-handshake','fa-hand-holding-heart','fa-hand-holding-usd','fa-people-carry','fa-donate','fa-hand-sparkles',
-                'fa-mosque','fa-pray','fa-quran','fa-kaaba','fa-star-and-crescent','fa-place-of-worship','fa-hands-praying'
-            ];
-            var _currentIcon = document.getElementById('selectedIconInput').value || 'fa-star';
-
-            function buildIconGrid(filter) {
-                var grid = document.getElementById('iconPickerGrid');
-                var noResult = document.getElementById('iconNoResult');
-                var filtered = filter ? _iconList.filter(function(ic){ return ic.indexOf(filter.toLowerCase()) !== -1; }) : _iconList;
-                grid.innerHTML = '';
-                if (!filtered.length) { noResult.style.display='block'; grid.style.display='none'; return; }
-                noResult.style.display='none'; grid.style.display='grid';
-                filtered.forEach(function(ic) {
-                    var el = document.createElement('div');
-                    el.className = 'icon-item' + (ic === _currentIcon ? ' selected' : '');
-                    el.title = ic;
-                    el.innerHTML = '<i class="fa '+ic+'"></i><span>'+ic.replace('fa-','')+'</span>';
-                    el.onclick = function() {
-                        _currentIcon = ic;
-                        document.getElementById('selectedIconInput').value = ic;
-                        document.getElementById('iconPreviewEl').className = 'fa '+ic;
-                        document.getElementById('iconPreviewName').textContent = ic;
-                        document.querySelectorAll('.icon-item').forEach(function(e){ e.classList.remove('selected'); });
-                        el.classList.add('selected');
-                    };
-                    grid.appendChild(el);
-                });
-            }
-            function filterIcons(val) { buildIconGrid(val.trim()); }
-            document.addEventListener('DOMContentLoaded', function(){ buildIconGrid(''); });
-            </script>
-            <div style="margin-top:20px;">
-                <button type="submit" name="submit" class="add-btn">Simpan Program</button>
+            <div class="form-actions">
+                <button type="submit" name="submit" class="btn btn-primary">Simpan Program</button>
+                <a href="dashboard.php?page=program" class="btn btn-outline">Batal</a>
             </div>
         </form>
+        </div>
     </div>
+    <script>
+    var _iconList = ['fa-home','fa-user','fa-users','fa-user-graduate','fa-star','fa-heart','fa-thumbs-up','fa-trophy','fa-award','fa-check','fa-check-circle','fa-cog','fa-cogs','fa-chart-bar','fa-chart-line','fa-envelope','fa-phone','fa-map-marker-alt','fa-calendar','fa-calendar-alt','fa-file','fa-file-pdf','fa-file-word','fa-folder','fa-folder-open','fa-laptop','fa-desktop','fa-image','fa-images','fa-camera','fa-video','fa-music','fa-lock','fa-key','fa-shield-alt','fa-shopping-cart','fa-store','fa-dollar-sign','fa-coins','fa-plane','fa-car','fa-bus','fa-rocket','fa-flask','fa-atom','fa-tree','fa-leaf','fa-sun','fa-moon','fa-cloud','fa-pen','fa-pencil-alt','fa-search','fa-eye','fa-link','fa-download','fa-upload','fa-sync','fa-plus','fa-minus','fa-bars','fa-code','fa-bug','fa-robot','fa-running','fa-hands-helping','fa-handshake','fa-mosque','fa-book','fa-book-open','fa-graduation-cap','fa-school','fa-university','fa-chalkboard-teacher','fa-medal','fa-info-circle','fa-exclamation-triangle','fa-wrench','fa-tools','fa-chart-pie','fa-poll','fa-paper-plane','fa-headset','fa-comments','fa-comment-dots','fa-map','fa-globe','fa-compass','fa-clock','fa-history','fa-file-alt','fa-file-excel','fa-archive','fa-save','fa-database','fa-video','fa-headphones','fa-microphone','fa-fingerprint','fa-id-card','fa-tag','fa-tags','fa-receipt','fa-train','fa-bicycle','fa-ship','fa-stethoscope','fa-heartbeat','fa-hospital','fa-pills','fa-seedling','fa-fire','fa-water','fa-coffee','fa-utensils','fa-highlighter','fa-eraser','fa-ruler','fa-paint-brush','fa-palette','fa-list','fa-share-alt','fa-copy','fa-random','fa-binoculars','fa-arrow-up','fa-arrow-down','fa-arrow-left','fa-arrow-right','fa-expand','fa-compress','fa-plus-circle','fa-times-circle','fa-ellipsis-h','fa-layer-group','fa-sitemap','fa-wifi','fa-signal','fa-rss','fa-terminal','fa-laptop-code','fa-microchip','fa-football-ball','fa-basketball-ball','fa-dumbbell','fa-donate','fa-hand-sparkles','fa-pray','fa-quran','fa-place-of-worship'];
+    var _currentIcon = document.getElementById('selectedIconInput').value || 'fa-star';
+    function buildIconGrid(filter) {
+        var grid = document.getElementById('iconPickerGrid');
+        var noResult = document.getElementById('iconNoResult');
+        var filtered = filter ? _iconList.filter(function(ic){ return ic.indexOf(filter.toLowerCase()) !== -1; }) : _iconList;
+        grid.innerHTML = '';
+        if (!filtered.length) { noResult.style.display='block'; grid.style.display='none'; return; }
+        noResult.style.display='none'; grid.style.display='grid';
+        filtered.forEach(function(ic) {
+            var el = document.createElement('div');
+            el.className = 'icon-item' + (ic === _currentIcon ? ' selected' : '');
+            el.title = ic;
+            el.innerHTML = '<i class="fa '+ic+'"></i><span>'+ic.replace('fa-','')+'</span>';
+            el.onclick = function() {
+                _currentIcon = ic;
+                document.getElementById('selectedIconInput').value = ic;
+                document.getElementById('iconPreviewEl').className = 'fa '+ic;
+                document.getElementById('iconPreviewName').textContent = ic;
+                var items = document.querySelectorAll('.icon-item');
+                for (var j = 0; j < items.length; j++) items[j].classList.remove('selected');
+                el.classList.add('selected');
+            };
+            grid.appendChild(el);
+        });
+    }
+    function filterIcons(val) { buildIconGrid(val.trim()); }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function(){ buildIconGrid(''); });
+    } else {
+        buildIconGrid('');
+    }
+    </script>
     <?php else: ?>
     <div class="panel">
         <form method="POST" action="" id="progForm">
         <div class="panel-header" style="justify-content:flex-end">
-            <button type="submit" name="deleted" class="btn action-delete" onclick="return confirm('Hapus program yang dipilih?')">Hapus Terpilih</button>
+            <button type="submit" name="deleted" class="action-delete" onclick="return confirm('Hapus program yang dipilih?')">Hapus Terpilih</button>
         </div>
         <div class="table-responsive">
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th width="40">No</th>
-                    <th>Judul Program</th>
-                    <th>Nilai/Ket</th>
-                    <th>Icon</th>
-                    <th width="100">Aksi</th>
-                    <th width="40"><input type="checkbox" onclick="for(c in document.getElementsByName('delete[]')) document.getElementsByName('delete[]').item(c).checked = this.checked"></th>
-                </tr>
-            </thead>
+        <table class="data-table">
+            <thead><tr>
+                <th>No</th><th>Judul Program</th><th>Konten</th><th>Icon</th><th>Status</th><th>Aksi</th>
+                <th><input type="checkbox" onclick="toggleAll(this)"></th>
+            </tr></thead>
             <tbody>
-            <?php 
+            <?php
             $res = $koneksi_db->sql_query("SELECT * FROM `halaman` ORDER BY id DESC");
-            $i = 0;
-            while ($r = $koneksi_db->sql_fetchrow($res)):
+            $i   = 0;
+            if ($res) while ($r = $koneksi_db->sql_fetchrow($res)):
                 $i++;
-                $icon = isset($r['icon']) ? $r['icon'] : 'fa-star';
+                $icon  = isset($r['icon'])  ? $r['icon']  : 'fa-star';
                 $aktif = isset($r['aktif']) ? $r['aktif'] : 'Y';
             ?>
                 <tr>
-                    <td><?= $i ?></td>
+                    <td><?php echo $i; ?></td>
                     <td>
-                        <b><?= htmlspecialchars($r['judul']) ?></b>
-                        <?php if($aktif === 'N'): ?> <span style="background:#ffd54f;color:#b26a00;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700;margin-left:6px;">DRAFT</span><?php endif; ?>
-                        <br><small style="color:#888;">ID: <?= $r['id'] ?></small>
+                        <b><?php echo htmlspecialchars($r['judul']); ?></b>
+                        <?php if ($aktif === 'N'): ?> <span style="background:#ffd54f;color:#b26a00;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700;">DRAFT</span><?php endif; ?>
                     </td>
-                    <td><?= mb_strimwidth(strip_tags($r['konten']), 0, 80, '...') ?></td>
-                    <td><i class="fa <?= htmlspecialchars($icon) ?>" style="font-size:18px;"></i></td>
+                    <td><small><?php echo mb_substr(strip_tags($r['konten']), 0, 60); ?>...</small></td>
+                    <td><i class="fa <?php echo htmlspecialchars($icon); ?>" style="font-size:18px;"></i></td>
+                    <td><?php echo $aktif === 'Y' ? '<span class="badge badge-aktif">Aktif</span>' : '<span class="badge badge-nonaktif">Draft</span>'; ?></td>
                     <td>
-                        <a href="dashboard.php?page=program&action=edit&id=<?= $r['id'] ?>" class="action-btn action-edit" title="Edit"><svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:currentColor;vertical-align:middle"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/></svg></a>
-                        <?php if($aktif === 'Y'): ?>
-                            <a href="dashboard.php?page=program&action=toggle&st=N&id=<?= $r['id'] ?>" class="action-btn" style="background:#ff9800;color:#fff;" title="Sembunyikan"><svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:currentColor;vertical-align:middle"><path d="M12 4c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9zm0 16c-3.86 0-7-3.14-7-7s3.14-7 7-7 7 3.14 7 7-3.14 7-7 7zm1-11h-2v3H8v2h3v3h2v-3h3v-2h-3V9z"/></svg></a>
+                        <a href="dashboard.php?page=program&action=edit&id=<?php echo $r['id']; ?>" class="action-btn action-edit">Edit</a>
+                        <?php if ($aktif === 'Y'): ?>
+                        <a href="dashboard.php?page=program&action=toggle&st=N&id=<?php echo $r['id']; ?>" class="action-btn action-del">Sembunyikan</a>
                         <?php else: ?>
-                            <a href="dashboard.php?page=program&action=toggle&st=Y&id=<?= $r['id'] ?>" class="action-btn" style="background:#4caf50;color:#fff;" title="Tampilkan"><svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:currentColor;vertical-align:middle"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg></a>
+                        <a href="dashboard.php?page=program&action=toggle&st=Y&id=<?php echo $r['id']; ?>" class="action-btn action-toggle">Tampilkan</a>
                         <?php endif; ?>
                     </td>
-                    <td><input type="checkbox" name="delete[]" value="<?= $r['id'] ?>"></td>
+                    <td><input type="checkbox" name="delete[]" value="<?php echo $r['id']; ?>"></td>
                 </tr>
             <?php endwhile; ?>
-            <?php if($i===0): ?><tr><td colspan="6" class="text-center">Belum ada data program.</td></tr><?php endif; ?>
+            <?php if ($i === 0): ?><tr><td colspan="7" class="text-center" style="padding:30px;color:#aaa;">Belum ada data program.</td></tr><?php endif; ?>
             </tbody>
         </table>
         </div>
@@ -2005,91 +2161,73 @@ elseif ($page === 'program'):
     </div>
     <?php endif; ?>
 
-<?php 
+<?php
 // ══════════════════════════════════════════════════════════════
-// VIEW: TENTANG & PROFIL
+// PAGE: SAMBUTAN / KONFIGURASI
 // ══════════════════════════════════════════════════════════════
-elseif ($page === 'sambutan'): 
-    $res = $koneksi_db->sql_query("SELECT * FROM `mod_data_profil` WHERE id='1'");
-    $profil = $koneksi_db->sql_fetchrow($res);
-    // Get current video
+elseif ($page === 'sambutan' && $db_ready):
+    $res     = $koneksi_db->sql_query("SELECT * FROM `mod_data_profil` WHERE id='1'");
+    $profil  = $koneksi_db->sql_fetchrow($res);
+    if (!$profil) $profil = array('nama'=>'','slogan'=>'','sambutan'=>'');
     $vid_row = $koneksi_db->sql_fetchrow($koneksi_db->sql_query("SELECT * FROM `mod_data_video` ORDER BY id DESC LIMIT 1"));
     $current_video = $vid_row ? $vid_row['video'] : '';
 ?>
     <div class="page-header">
         <div>
-            <h2><svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:currentColor;vertical-align:middle;margin-right:8px"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> Tentang & Profil Utama</h2>
-            <p>Atur teks tentang, nama institusi, video profil, dan informasi profil lainnya.</p>
+            <h2>Konfigurasi Website</h2>
+            <p>Atur teks tentang, nama institusi, video profil.</p>
         </div>
     </div>
-
-    <?php if ($prof_msg): ?>
-        <div class="alert alert-success"><?= $prof_msg ?></div>
-    <?php endif; ?>
-    <?php if ($prof_error): ?>
-        <div class="alert alert-error"><?= $prof_error ?></div>
-    <?php endif; ?>
+    <?php if ($prof_msg): ?><div class="msg-ok"><?php echo $prof_msg; ?></div><?php endif; ?>
+    <?php if ($prof_error): ?><div class="msg-err"><?php echo $prof_error; ?></div><?php endif; ?>
 
     <div class="panel">
+        <div class="panel-body-padded">
         <form method="POST" action="">
-            <div class="form-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <div class="form-grid">
                 <div class="form-group">
                     <label>Nama Institusi / Judul Tentang</label>
-                    <input type="text" name="nama" class="form-control" value="<?= htmlspecialchars($profil['nama']) ?>" required>
-                    <small style="color:var(--text-muted);display:block;margin-top:4px">Tampil sebagai judul di section Tentang beranda.</small>
+                    <input type="text" name="nama" class="form-control" value="<?php echo htmlspecialchars($profil['nama']); ?>" required>
                 </div>
                 <div class="form-group">
                     <label>Sub Judul / Slogan</label>
-                    <input type="text" name="slogan" class="form-control" value="<?= htmlspecialchars($profil['slogan']) ?>">
+                    <input type="text" name="slogan" class="form-control" value="<?php echo htmlspecialchars($profil['slogan']); ?>">
                 </div>
             </div>
-            <div class="form-group" style="margin-top:20px">
+            <div class="form-group">
                 <label>Teks Tentang</label>
-                <textarea name="sambutan" class="form-control" rows="8"><?= htmlspecialchars($profil['sambutan']) ?></textarea>
-                <small style="color:var(--text-muted);display:block;margin-top:6px">Konten yang tampil di section Tentang pada beranda. HTML diperbolehkan.</small>
+                <textarea name="sambutan" id="sambutan" class="form-control" rows="8"><?php echo htmlspecialchars($profil['sambutan']); ?></textarea>
             </div>
-            <div class="form-group" style="margin-top:20px">
+            <div class="form-group">
                 <label>Video YouTube (ID atau URL)</label>
                 <div style="display:flex;gap:12px;align-items:flex-start">
                     <div style="flex:1">
-                        <input type="text" name="video_id" class="form-control" value="<?= htmlspecialchars($current_video) ?>" placeholder="Contoh: dQw4w9WgXcQ atau https://youtube.com/watch?v=...">
-                        <small style="color:var(--text-muted);display:block;margin-top:4px">Masukkan YouTube Video ID atau URL lengkap. Video ini tampil di section Tentang beranda.</small>
+                        <input type="text" name="video_id" class="form-control" value="<?php echo htmlspecialchars($current_video); ?>" placeholder="Contoh: dQw4w9WgXcQ atau URL YouTube">
+                        <div class="form-hint">Masukkan YouTube Video ID atau URL lengkap.</div>
                     </div>
                     <?php if ($current_video): ?>
                     <div style="flex-shrink:0;width:160px">
-                        <img src="https://img.youtube.com/vi/<?= htmlspecialchars($current_video) ?>/mqdefault.jpg" style="width:100%;border-radius:8px;border:1px solid #eee">
+                        <img src="https://img.youtube.com/vi/<?php echo htmlspecialchars($current_video); ?>/mqdefault.jpg" style="width:100%;border-radius:8px;border:1px solid #eee;" alt="video thumbnail">
                     </div>
                     <?php endif; ?>
                 </div>
             </div>
-            
-            <div style="padding-top:20px; border-top:1px solid #eee; margin-top:20px">
-                <button type="submit" name="submit_profil" class="add-btn">Simpan Profil & Tentang</button>
+            <div class="form-actions">
+                <button type="submit" name="submit_profil" class="btn btn-primary">Simpan Konfigurasi</button>
             </div>
         </form>
+        </div>
     </div>
-
     <script src="plugin/ckeditor/ckeditor.js"></script>
-    <script>
-        if (typeof CKEDITOR !== 'undefined') {
-            CKEDITOR.replace('sambutan', {
-                height: 300,
-                toolbar: [
-                    ['Bold', 'Italic', 'Underline', 'Strike'],
-                    ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', 'Blockquote'],
-                    ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
-                    ['Link', 'Unlink'],
-                    ['Source']
-                ]
-            });
-        }
-    </script>
+    <script>if (typeof CKEDITOR !== 'undefined') { CKEDITOR.replace('sambutan', { height: 300 }); }</script>
 
-<?php endif; // end page routing ?>
+<?php else: ?>
+    <div class="msg-err">Halaman tidak ditemukan atau database tidak tersambung.</div>
+<?php endif; ?>
     </main>
 
     <footer class="dash-footer">
-        &copy; <?= date('Y') ?> MBKM IAI PI Bandung &mdash; Sistem Informasi.
+        &copy; <?php echo date('Y'); ?> MBKM IAI PI Bandung &mdash; Sistem Informasi.
         <a href="dashboard.php?aksi=logout">Keluar</a>
     </footer>
 </div>
@@ -2106,76 +2244,113 @@ elseif ($page === 'sambutan'):
         </div>
     </div>
 </div>
-<form id="deleteForm" method="post" action="" style="display:none"><input type="hidden" name="do_hapus" value="1"></form>
+<form id="deleteForm" method="post" action="" style="display:none"></form>
 
 <script>
-function tick(){
-    var n=new Date(), h=String(n.getHours()).padStart(2,'0'), m=String(n.getMinutes()).padStart(2,'0');
-    var t=h+':'+m;
-    var el=document.getElementById('clock'); if(el) el.textContent=t;
-    var el2=document.getElementById('clockBig'); if(el2) el2.textContent=t;
-    var days=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
-    var months=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-    var ds=days[n.getDay()]+', '+n.getDate()+' '+months[n.getMonth()]+' '+n.getFullYear();
-    var el3=document.getElementById('dateBig'); if(el3) el3.textContent=ds;
+// Clock
+function tick() {
+    var n = new Date();
+    var h = String(n.getHours()).padStart(2,'0');
+    var m = String(n.getMinutes()).padStart(2,'0');
+    var t = h + ':' + m;
+    var el = document.getElementById('clock');
+    if (el) el.textContent = t;
+    var el2 = document.getElementById('clockBig');
+    if (el2) el2.textContent = t;
+    var days   = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+    var months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+    var ds = days[n.getDay()] + ', ' + n.getDate() + ' ' + months[n.getMonth()] + ' ' + n.getFullYear();
+    var el3 = document.getElementById('dateBig');
+    if (el3) el3.textContent = ds;
 }
-tick(); setInterval(tick,1000);
+tick();
+setInterval(tick, 1000);
 
-function toggleSidebar(){
+// Sidebar toggle
+function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('open');
     document.getElementById('sidebarOverlay').classList.toggle('show');
 }
 
 // Delete modal
-function showDeleteModal(id,title){
-    document.getElementById('deleteModalText').textContent='Buku "'+title+'" akan dihapus permanen.';
+function showDeleteModal(id, title) {
+    document.getElementById('deleteModalText').textContent = 'Buku "' + title + '" akan dihapus permanen.';
     document.getElementById('deleteModal').classList.add('show');
-    document.getElementById('deleteConfirmBtn').onclick=function(){
-        var f=document.getElementById('deleteForm');
-        f.action='dashboard.php?page=flipbook&aksi=hapus&id='+id;
+    document.getElementById('deleteConfirmBtn').onclick = function() {
+        var f = document.getElementById('deleteForm');
+        f.action = 'dashboard.php?page=flipbook&aksi=hapus&id=' + id;
         f.submit();
     };
 }
-function closeDeleteModal(){ document.getElementById('deleteModal').classList.remove('show'); }
-document.getElementById('deleteModal').addEventListener('click',function(e){ if(e.target===this) closeDeleteModal(); });
-
-// Checkbox toggle all
-function toggleAll(el){ var cbs=document.querySelectorAll('input[name="delete[]"]'); cbs.forEach(function(c){c.checked=el.checked}); }
-function toggleAllFb(el){ var cbs=document.querySelectorAll('input[name="fb_delete[]"]'); cbs.forEach(function(c){c.checked=el.checked}); }
-
-// Animate stat numbers
-document.addEventListener('DOMContentLoaded',function(){
-    document.querySelectorAll('.stat-value').forEach(function(el){
-        var v=parseInt(el.textContent.replace(/\D/g,''))||0;
-        if(v>0){var s=0,st=null;(function step(ts){if(!st)st=ts;var p=Math.min((ts-st)/900,1);el.textContent=Math.floor((1-Math.pow(1-p,3))*v).toLocaleString('id-ID');if(p<1)requestAnimationFrame(step);})(performance.now());}
-    });
+function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.remove('show');
+}
+document.getElementById('deleteModal').addEventListener('click', function(e) {
+    if (e.target === this) closeDeleteModal();
 });
 
+// Checkbox helpers
+function toggleAll(el) {
+    var cbs = document.querySelectorAll('input[name="delete[]"]');
+    for (var i = 0; i < cbs.length; i++) cbs[i].checked = el.checked;
+}
+function toggleAllFb(el) {
+    var cbs = document.querySelectorAll('input[name="fb_delete[]"]');
+    for (var i = 0; i < cbs.length; i++) cbs[i].checked = el.checked;
+}
+
+// Animate stat numbers
+(function() {
+    var cards = document.querySelectorAll('.stat-value');
+    for (var i = 0; i < cards.length; i++) {
+        (function(el) {
+            var v = parseInt(el.textContent.replace(/\D/g,'')) || 0;
+            if (v > 0) {
+                var start = null;
+                function step(ts) {
+                    if (!start) start = ts;
+                    var p = Math.min((ts - start) / 900, 1);
+                    var val = Math.floor((1 - Math.pow(1 - p, 3)) * v);
+                    el.textContent = val.toLocaleString('id-ID');
+                    if (p < 1) requestAnimationFrame(step);
+                }
+                requestAnimationFrame(step);
+            }
+        })(cards[i]);
+    }
+})();
+
 // Cropper
-var _cropper=null;
-function initCrop(input){
-    if(!input.files||!input.files[0])return;
-    var reader=new FileReader();
-    reader.onload=function(e){
-        var img=document.getElementById('cropImgEl');img.src=e.target.result;
+var _cropper = null;
+function initCrop(input) {
+    if (!input.files || !input.files[0]) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        var img = document.getElementById('cropImgEl');
+        img.src = e.target.result;
         document.getElementById('cropModal').classList.add('open');
-        if(_cropper)_cropper.destroy();
-        img.onload=function(){_cropper=new Cropper(img,{aspectRatio:220/300,viewMode:1,dragMode:'move',autoCropArea:.9});};
+        if (_cropper) _cropper.destroy();
+        img.onload = function() {
+            _cropper = new Cropper(img, { aspectRatio: 220/300, viewMode: 1, dragMode: 'move', autoCropArea: .9 });
+        };
     };
     reader.readAsDataURL(input.files[0]);
 }
-function applyCrop(){
-    if(!_cropper)return;
-    var c=_cropper.getCroppedCanvas({width:440,height:600,imageSmoothingQuality:'high'});
-    var b=c.toDataURL('image/jpeg',.88);
-    document.getElementById('coverBase64').value=b;
-    var prev=document.getElementById('coverPreviewImg');prev.src=b;prev.style.display='block';
+function applyCrop() {
+    if (!_cropper) return;
+    var c = _cropper.getCroppedCanvas({ width: 440, height: 600, imageSmoothingQuality: 'high' });
+    var b = c.toDataURL('image/jpeg', .88);
+    document.getElementById('coverBase64').value = b;
+    var prev = document.getElementById('coverPreviewImg');
+    prev.src = b;
+    prev.style.display = 'block';
     cancelCrop();
 }
-function cancelCrop(){
+function cancelCrop() {
     document.getElementById('cropModal').classList.remove('open');
-    if(_cropper){_cropper.destroy();_cropper=null;}
-    var ri=document.getElementById('rawCoverInput');if(ri)ri.value='';
+    if (_cropper) { _cropper.destroy(); _cropper = null; }
+    var ri = document.getElementById('rawCoverInput');
+    if (ri) ri.value = '';
 }
 </script>
 </body>

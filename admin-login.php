@@ -26,11 +26,60 @@ if (function_exists('cek_login') && cek_login() && isset($_SESSION['LevelAkses']
     exit;
 }
 
-// Proses login
+// Proses login Custom (Multi-Role)
 $login_error = '';
 if (isset($_POST['submit_login']) && @$_POST['loguser'] == 1) {
-    $result = cms_loginadmin();
-    if ($result) $login_error = strip_tags($result);
+    $user     = $_POST['username'];
+    $password = md5($_POST['password']);
+    $portal   = isset($_POST['portal']) ? $_POST['portal'] : 'admin';
+    
+    // Gunakan fungsi bawaan CMS agar kompatibel 100%
+    $query = $koneksi_db->sql_query("SELECT user, password, level, email FROM pengguna WHERE user='$user' AND password='$password' AND tipe='aktif'");
+    $total = $koneksi_db->sql_numrows($query);
+    $data  = $koneksi_db->sql_fetchrow($query);
+    
+    if ($total > 0) {
+        $level = $data['level'];
+        
+        // Cek Pintu Masuk (Portal Restriction)
+        if ($portal === 'admin') {
+            // Admin pintu utama: Izinkan Administrator, admin (tutup mata dikit), atau Editor
+            if (strtolower($level) !== 'administrator' && strtolower($level) !== 'admin' && strtolower($level) !== 'editor') {
+                $login_error = "Maaf, akun abang levelnya '$level'. Portal ini khusus buat Admin. Silakan login lewat Portal Mahasiswa ya.";
+            }
+        } else {
+            // Mahasiswa pintu samping: Khusus User atau Mahasiswa
+            if (strtolower($level) === 'administrator' || strtolower($level) === 'admin' || strtolower($level) === 'editor') {
+                $login_error = "Nah lho, akun abang itu '$level' (Admin). Silakan login lewat portal khusus Admin (admin.html).";
+            }
+        }
+        
+        // Jika tidak ada error portal, baru set session & redirect
+        if (!$login_error) {
+            $_SESSION['UserName']   = $data['user'];
+            $_SESSION['LevelAkses'] = $data['level'];
+            $_SESSION['UserEmail']  = $data['email'];
+            
+            if ($level === 'Administrator' || $level === 'Editor') {
+                header("Location: dashboard.php");
+            } else {
+                header("Location: dashboard.php?page=upload_user");
+            }
+            exit;
+        } else {
+            // Jika ada error portal (salah pintu), arahkan balik dengan error
+            if ($portal === 'user') {
+                header("Location: login.php?err=" . urlencode($login_error));
+                exit;
+            }
+        }
+    } else {
+        $login_error = 'Username atau Password Salah, atau akun belum aktif.';
+        if ($portal === 'user') {
+            header("Location: login.php?err=" . urlencode($login_error));
+            exit;
+        }
+    }
 }
 
 ?>
@@ -314,6 +363,7 @@ if (isset($_POST['submit_login']) && @$_POST['loguser'] == 1) {
             </div>
 
             <input type="hidden" value="1" name="loguser">
+            <input type="hidden" value="admin" name="portal">
             <button type="submit" name="submit_login" class="btn-submit">
                 <svg viewBox="0 0 24 24"><path d="M11 7l-1.41 1.41L12.17 11H4v2h8.17l-2.58 2.58L11 17l5-5z"/></svg>
                 Masuk

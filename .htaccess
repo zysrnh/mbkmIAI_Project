@@ -61,8 +61,8 @@ RewriteRule ^index.html$ index.php [QSA,L]
 
 RewriteRule ^hubungi.html$ ./index.php?pilih=contact&modul=yes [QSA,L]
 
-RewriteRule ^register.html$ ./index.php?pilih=user&aksi=register [QSA,L]
-RewriteRule ^login.html$ ./index.php?pilih=login&modul=yes [QSA,L]
+RewriteRule ^register.html$ ./register.php [QSA,L]
+RewriteRule ^login.html$ ./login.php [QSA,L]
 
 RewriteRule ^direktori-link.html$ ./index.php?pilih=links&modul=yes [QSA,L]
 

@@ -179,7 +179,8 @@
     </div>
     
     <div class="footer-bottom">
-        &copy; <?= date('Y') ?> MBKM IAI PI Bandung. All rights reserved. Designed with precision & elegance.
+        &copy; <?= date('Y') ?> MBKM IAI PI Bandung. All rights reserved. Designed with precision & elegance. 
+        <a href="admin.html" style="margin-left:15px;color:rgba(221,229,205,0.4);text-decoration:none;font-size:11px;">Admin Portal</a>
     </div>
 </footer>
 <?php ?>

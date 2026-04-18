@@ -184,7 +184,7 @@ echo '
             <h1>MERDEKA BELAJAR<br><span class="accent">BERDAMPAK NYATA</span></h1>
             <p class="hero-sub">Institut Agama Islam Persis Bandung berkomitmen menghadirkan pengalaman belajar autentik melalui 8 program MBKM yang terstruktur dan berdampak.</p>
             <div class="hero-actions">
-                <a href="index.php?pilih=hal&id=2" class="hero-btn-primary">Daftar Sekarang</a>
+                <a href="register.php" class="hero-btn-primary">Daftar Sekarang</a>
                 <a href="index.php?pilih=flipbook&modul=yes" class="hero-btn-outline">Lihat Pedoman</a>
             </div>
         </div>
