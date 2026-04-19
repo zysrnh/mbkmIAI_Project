@@ -760,7 +760,7 @@ $prog_styles = [
 .prog-unggulan-card {
     flex: 0 0 25%;
     min-width: 0;
-    height: 550px; /* Saya tinggiin lagi biar beneran gagah */
+    height: 480px; /* Lebih kompak dan rapi */
     border-radius: 0; 
     overflow: hidden;
     position: relative;
@@ -1155,7 +1155,14 @@ window.addEventListener('DOMContentLoaded', function() {
                 if ($profil_data && !empty($profil_data['nama'])): ?>
                 <h2 class="lp-title"><?= htmlspecialchars($profil_data['nama']) ?></h2>
                 <div class="lp-divider"></div>
-                <p><?= limitTXT(strip_tags($profil_data['sambutan']), 460) ?></p>
+                <div class="sambutan-text-container">
+                    <p><?= limitTXT(strip_tags($profil_data['sambutan']), 580) ?></p>
+                    <div style="margin-top:20px;">
+                        <a href="index.php?pilih=profil&modul=yes" class="btn-primary-lp">
+                            Selengkapnya <i class="fa fa-arrow-right" style="margin-left:8px; font-size:12px;"></i>
+                        </a>
+                    </div>
+                </div>
                 <?php else: ?>
                 <h2 class="lp-title">Tentang MBKM<br>IAI PI Bandung</h2>
                 <div class="lp-divider"></div>

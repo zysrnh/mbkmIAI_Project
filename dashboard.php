@@ -500,10 +500,10 @@ if ($page === 'program' && $db_ready) {
 $prof_msg = ''; $prof_error = '';
 if ($page === 'sambutan' && $db_ready) {
     if (isset($_POST['submit_profil'])) {
-        $slogan   = trim(strip_tags($_POST['slogan']));
-        $sambutan = $_POST['sambutan'];
-        $nama     = trim(strip_tags($_POST['nama']));
-        $video_id = trim(strip_tags($_POST['video_id']));
+        $slogan   = $koneksi_db->sql_escape(trim(strip_tags($_POST['slogan'])));
+        $sambutan = $koneksi_db->sql_escape($_POST['sambutan']);
+        $nama     = $koneksi_db->sql_escape(trim(strip_tags($_POST['nama'])));
+        $video_id = $koneksi_db->sql_escape(trim(strip_tags($_POST['video_id'])));
         if (preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/', $video_id, $m)) {
             $video_id = $m[1];
         }
@@ -2183,13 +2183,6 @@ elseif ($page === 'upload_user' && $db_ready):
 <?php
 // ══════════════════════════════════════════════════════════════
 // PAGE: SAMBUTAN (KONFIGURASI)
-// ══════════════════════════════════════════════════════════════
-elseif ($page === 'sambutan' && $db_ready):
-?>
-
-<?php
-// ══════════════════════════════════════════════════════════════
-// PAGE: SAMBUTAN / KONFIGURASI
 // ══════════════════════════════════════════════════════════════
 elseif ($page === 'sambutan' && $db_ready):
     $res     = $koneksi_db->sql_query("SELECT * FROM `mod_data_profil` WHERE id='1'");

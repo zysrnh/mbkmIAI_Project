@@ -61,7 +61,10 @@ if($_GET['aksi'] == "lihat") {
     $by = '';
 
     if($data['gambar']) {
-        $isinya .= '<img src="images/artikel/' . $data['gambar'] . '" width="100%" alt="' . $data['judul'] . '">';
+        $isinya .= '
+        <div style="text-align: center; margin-bottom: 35px; margin-top: 10px;">
+            <img src="images/artikel/' . $data['gambar'] . '" alt="' . $data['judul'] . '" style="max-width: 85%; max-height: 420px; width: auto; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.05);">
+        </div>';
     }
 
     $isinya .= $data['konten'];

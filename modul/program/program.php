@@ -45,7 +45,7 @@ if (!$data) {
     
     // Tampilkan Gambar Utama jika ada
     if ($data['gambar']) {
-        $tengah .= '<div style="width: 100%; height: 450px; overflow: hidden; border-bottom: 1px solid #f0f0f0;">
+        $tengah .= '<div style="width: 100%; height: 300px; overflow: hidden; border-bottom: 1px solid #f0f0f0;">
             <img src="images/pages/'.$data['gambar'].'" style="width: 100%; height: 100%; object-fit: cover; display: block;">
         </div>';
     }

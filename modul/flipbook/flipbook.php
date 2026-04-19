@@ -1,14 +1,10 @@
 <?php
 /**
- * Flipbook Frontend — Unified Visual & Engine v4
- * Sama persis dengan modal di kiri.php:
- *  - Drag-to-pan via overflow:auto scroll
- *  - Momentum scroll
- *  - Wheel zoom toward cursor
- *  - 3D flip animation (desktop)
- *  - Mobile swipe gesture
- *  - Thumbnail strip
- *  - Bookshelf visual ala kiri.php
+ * Flipbook Frontend — Unified Visual & Engine v4 (FIXED)
+ * Fixes:
+ *  - Mixed PHP syntax (colon + curly brace) removed — semua pakai colon style
+ *  - Missing endif; ditambahkan
+ *  - @import dipindah ke atas <style>
  */
 global $koneksi_db;
 
@@ -31,12 +27,13 @@ $is_admin = isset($_SESSION['LevelAkses']) && $_SESSION['LevelAkses'] === 'Admin
 ?>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
+
 /* ── Layout override ── */
 .blog-right         { display: none !important; }
 .col-sm-8.blog-left { width: 100% !important; padding: 0 !important; }
 .blog-wrapper       { margin-top: 0 !important; background: transparent !important; padding: 0 !important; }
-
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
+.fb-hero            { margin-top: 0 !important; }
 
 :root {
     --moss-dark  : #306238;
@@ -64,7 +61,7 @@ body, section, div, button, input { font-family: 'Plus Jakarta Sans', sans-serif
 ══════════════════════════════════════ */
 .fb-hero {
     background: linear-gradient(135deg, var(--moss-dark) 0%, var(--moss-olive) 100%);
-    padding: 100px 0 60px; text-align: center;
+    padding: 48px 0 48px; text-align: center;
     position: relative; overflow: hidden;
 }
 .fb-hero::before {
@@ -94,18 +91,6 @@ body, section, div, button, input { font-family: 'Plus Jakarta Sans', sans-serif
     width: 48px; height: 3px; background: var(--moss-bg);
     border-radius: 2px; margin: 0 auto 28px; opacity: .65;
 }
-.fb-admin-btn {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: var(--white); color: var(--moss-dark);
-    padding: 11px 26px; border-radius: 30px; font-weight: 800; font-size: 14px;
-    text-decoration: none; box-shadow: 0 4px 20px rgba(0,0,0,.22);
-    transition: background .25s, transform .25s var(--ease-spring), box-shadow .25s;
-}
-.fb-admin-btn:hover {
-    background: var(--moss-bg); transform: translateY(-3px);
-    box-shadow: 0 10px 30px rgba(0,0,0,.3); text-decoration: none; color: var(--moss-dark);
-}
-
 /* ══════════════════════════════════════
    FILTER BAR
 ══════════════════════════════════════ */
@@ -126,7 +111,7 @@ body, section, div, button, input { font-family: 'Plus Jakarta Sans', sans-serif
 }
 
 /* ══════════════════════════════════════
-   BOOKSHELF (SAMA PERSIS KiriPHP)
+   BOOKSHELF
 ══════════════════════════════════════ */
 .fb-shelf-section {
     background: linear-gradient(180deg, #f0f4ed 0%, #e6ebe0 100%);
@@ -241,7 +226,7 @@ body, section, div, button, input { font-family: 'Plus Jakarta Sans', sans-serif
 .fb-empty p  { color: var(--text-muted); font-size: 14px; margin: 0 0 28px; }
 
 /* ══════════════════════════════════════════════════════════════
-   UNIFIED FLIPBOOK MODAL (identik dengan kiri.php)
+   UNIFIED FLIPBOOK MODAL
 ══════════════════════════════════════════════════════════════ */
 .ufb-overlay {
     display: none; position: fixed; inset: 0; z-index: 99999;
@@ -458,7 +443,7 @@ body, section, div, button, input { font-family: 'Plus Jakarta Sans', sans-serif
     font-size: 8.5px; text-align: center; padding: 2px 0;
 }
 
-/* ── Info section bawah ── */
+/* ── Info section ── */
 .fb-info-section {
     background: var(--moss-bg); padding: 48px 0; text-align: center;
     border-top: 2px solid rgba(97,141,79,.15);
@@ -489,24 +474,24 @@ body, section, div, button, input { font-family: 'Plus Jakarta Sans', sans-serif
             <h1>E-Book &amp; Flipbook<br>MBKM IAI PI Bandung</h1>
             <div class="fb-hero-divider"></div>
             <p>Kumpulan buku pedoman dan panduan pelaksanaan program MBKM yang dapat dibaca langsung di browser.</p>
-            <?php if ($is_admin): ?>
-            <a href="admin.php?pilih=flipbook&modul=yes" class="fb-admin-btn">
-                <svg viewBox="0 0 24 24" style="width:17px;height:17px;fill:var(--moss-dark)"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-                Tambah / Kelola Buku
-            </a>
-            <?php endif; ?>
         </div>
     </div>
 </div>
 
 <?php
+/* ── Query data ── */
 $all_books = [];
 $q = $koneksi_db->sql_query("SELECT * FROM mod_data_flipbook WHERE status='1' ORDER BY ordering ASC, id DESC");
-while ($bk = $koneksi_db->sql_fetchrow($q)) $all_books[] = $bk;
+while ($bk = $koneksi_db->sql_fetchrow($q)) {
+    $all_books[] = $bk;
+}
+
 $all_cats = [];
 foreach ($all_books as $bk) {
     $c = trim($bk['kategori']);
-    if ($c && !in_array($c, $all_cats)) $all_cats[] = $c;
+    if ($c !== '' && !in_array($c, $all_cats)) {
+        $all_cats[] = $c;
+    }
 }
 ?>
 
@@ -525,7 +510,9 @@ foreach ($all_books as $bk) {
 </div>
 <?php endif; ?>
 
-<!-- UNIFIED FLIPBOOK MODAL -->
+<!-- ═══════════════════════════════════
+     UNIFIED FLIPBOOK MODAL
+═══════════════════════════════════ -->
 <div class="ufb-overlay" id="ufbOverlay">
 <div class="ufb-modal">
     <div class="ufb-header">
@@ -609,109 +596,149 @@ foreach ($all_books as $bk) {
 
 <!-- ═══════════════════════════════════
      BOOKSHELF
-     Juga ditambahkan Sidebar Manual
 ═══════════════════════════════════ -->
 <section class="fb-shelf-section">
     <div class="container">
         <div class="row">
-            <div class="col-md-9">
-                <div class="fb-search-bar">
-                    <input type="text" id="fbSearchInput" placeholder="Cari buku pedoman..." oninput="fbSearch()">
-                    <button type="button" onclick="fbSearch()">
-                        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            <div class="col-md-8">
+                <!-- Search Box Premium -->
+                <div class="fb-search-bar" style="max-width: 100%; margin-bottom: 50px; background: #fff; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #eef2ed; padding: 5px;">
+                    <input type="text" id="fbSearchInput" placeholder="Cari judul buku atau pedoman..." oninput="fbSearch()" style="padding: 15px 25px; font-size: 15px;">
+                    <button type="button" onclick="fbSearch()" style="border-radius: 12px; padding: 0 25px;">
+                        <svg viewBox="0 0 24 24" style="width: 20px; height: 20px;"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
                     </button>
                 </div>
 
-        <?php if (empty($all_books)): ?>
-        <div class="fb-empty">
-            <div class="fb-empty-icon">
-                <svg viewBox="0 0 24 24"><path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zM21 18.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/></svg>
-            </div>
-            <h3>Belum Ada Buku</h3>
-            <p>Koleksi e-book pedoman MBKM belum tersedia saat ini.</p>
-            <?php if ($is_admin): ?>
-            <a href="admin.php?pilih=flipbook&modul=yes&aksi=tambah" class="fb-back-btn">
-                <svg viewBox="0 0 24 24" style="width:17px;height:17px;fill:#fff"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-                Upload Buku Pertama
-            </a>
-            <?php endif; ?>
-        </div>
-        <?php else: ?>
+                <?php if (empty($all_books)): ?>
 
-        <?php
-        $per_row = 7;
-        if (!empty($all_cats)) {
-            foreach ($all_cats as $cat) {
-                $cat_books = array_values(array_filter($all_books, function($b) use ($cat) {
-                    return trim($b['kategori']) === $cat;
-                }));
-                if (empty($cat_books)) continue;
-                foreach (array_chunk($cat_books, $per_row) as $ci => $row_books): ?>
-                <div class="fb-shelf-row" data-cat="<?= htmlspecialchars($cat) ?>">
-                    <?php if ($ci === 0): ?><span class="fb-shelf-label"><?= htmlspecialchars($cat) ?></span><?php endif; ?>
+                <div class="fb-empty">
+                    <div class="fb-empty-icon">
+                        <svg viewBox="0 0 24 24"><path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zM21 18.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/></svg>
+                    </div>
+                    <h3>Belum Ada Buku</h3>
+                    <p>Koleksi e-book pedoman MBKM belum tersedia saat ini.</p>
+                </div>
+
+                <?php else: ?>
+
+                <?php
+                $per_row = 5; // Disesuaikan buat kolom 8 biar gak sempit
+
+                /* ── Buku dengan kategori ── */
+                if (!empty($all_cats)):
+                    foreach ($all_cats as $cat):
+                        $cat_books = array_values(array_filter($all_books, function($b) use ($cat) {
+                            return trim($b['kategori']) === $cat;
+                        }));
+                        if (empty($cat_books)) continue;
+                        $chunks = array_chunk($cat_books, $per_row);
+                        foreach ($chunks as $ci => $row_books):
+                ?>
+                <div class="fb-shelf-row" data-cat="<?= htmlspecialchars($cat) ?>" style="margin-bottom: 60px;">
+                    <?php if ($ci === 0): ?>
+                        <span class="fb-shelf-label" style="background: #1e4d27; top: -18px; padding: 6px 16px; font-size: 11px;"><?= htmlspecialchars($cat) ?></span>
+                    <?php endif; ?>
                     <?php foreach ($row_books as $bk):
-                        $cs = !empty($bk['cover']) ? 'images/flipbook/'.htmlspecialchars($bk['cover']) : '';
+                        $cs = !empty($bk['cover']) ? 'images/flipbook/' . htmlspecialchars($bk['cover']) : '';
                         $jd = htmlspecialchars($bk['judul']);
-                        $pf = htmlspecialchars($bk['file_pdf']); ?>
-                    <div class="fb-book" onclick="openFlipbook('<?= $pf ?>','<?= addslashes($jd) ?>')" data-cat="<?= htmlspecialchars($cat) ?>">
-                        <div class="fb-book-cover">
+                        $pf = htmlspecialchars($bk['file_pdf']);
+                    ?>
+                    <div class="fb-book" onclick="openFlipbook('<?= $pf ?>','<?= addslashes($jd) ?>')" data-cat="<?= htmlspecialchars($cat) ?>" style="width: 120px;">
+                        <div class="fb-book-cover" style="width: 120px; height: 170px;">
                             <div class="fb-book-spine"></div>
-                            <?php if ($cs): ?><img src="<?= $cs ?>" alt="<?= $jd ?>">
-                            <?php else: ?><div class="fb-book-no-cover"><?= $jd ?></div><?php endif; ?>
-                            <div class="fb-book-overlay"><span>&#128214; Buka</span></div>
+                            <?php if ($cs): ?>
+                                <img src="<?= $cs ?>" alt="<?= $jd ?>">
+                            <?php else: ?>
+                                <div class="fb-book-no-cover" style="padding: 15px; font-size: 10px;"><?= $jd ?></div>
+                            <?php endif; ?>
+                            <div class="fb-book-overlay" style="background: rgba(30,77,39,0.8);"><span>&#128214; BUKA</span></div>
                         </div>
-                        <div class="fb-book-title"><?= $jd ?></div>
+                        <div class="fb-book-title" style="font-size: 11px; margin-top: 12px;"><?= $jd ?></div>
                     </div>
                     <?php endforeach; ?>
                 </div>
-        <?php   endforeach; }
-            /* No-category books */
-            $no_cat = array_values(array_filter($all_books, function($b) { return empty(trim($b['kategori'])); }));
-            if (!empty($no_cat)) {
-                foreach (array_chunk($no_cat, $per_row) as $row_books): ?>
-                <div class="fb-shelf-row" data-cat="all">
-                    <span class="fb-shelf-label">Lainnya</span>
+                <?php
+                        endforeach; // chunks
+                    endforeach; // all_cats
+
+                    /* ── Buku tanpa kategori ── */
+                    $no_cat = array_values(array_filter($all_books, function($b) {
+                        return empty(trim($b['kategori']));
+                    }));
+                    if (!empty($no_cat)):
+                        $chunks_nc = array_chunk($no_cat, $per_row);
+                        foreach ($chunks_nc as $row_books):
+                ?>
+                <div class="fb-shelf-row" data-cat="all" style="margin-bottom: 60px;">
+                    <span class="fb-shelf-label" style="background: #3e6347; top: -18px; padding: 6px 16px; font-size: 11px;">Lainnya</span>
                     <?php foreach ($row_books as $bk):
-                        $cs = !empty($bk['cover']) ? 'images/flipbook/'.htmlspecialchars($bk['cover']) : '';
+                        $cs = !empty($bk['cover']) ? 'images/flipbook/' . htmlspecialchars($bk['cover']) : '';
                         $jd = htmlspecialchars($bk['judul']);
-                        $pf = htmlspecialchars($bk['file_pdf']); ?>
-                    <div class="fb-book" onclick="openFlipbook('<?= $pf ?>','<?= addslashes($jd) ?>')" data-cat="">
-                        <div class="fb-book-cover">
+                        $pf = htmlspecialchars($bk['file_pdf']);
+                    ?>
+                    <div class="fb-book" onclick="openFlipbook('<?= $pf ?>','<?= addslashes($jd) ?>')" data-cat="" style="width: 120px;">
+                        <div class="fb-book-cover" style="width: 120px; height: 170px;">
                             <div class="fb-book-spine"></div>
-                            <?php if ($cs): ?><img src="<?= $cs ?>" alt="<?= $jd ?>">
-                            <?php else: ?><div class="fb-book-no-cover"><?= $jd ?></div><?php endif; ?>
-                            <div class="fb-book-overlay"><span>&#128214; Buka</span></div>
+                            <?php if ($cs): ?>
+                                <img src="<?= $cs ?>" alt="<?= $jd ?>">
+                            <?php else: ?>
+                                <div class="fb-book-no-cover" style="padding: 15px; font-size: 10px;"><?= $jd ?></div>
+                            <?php endif; ?>
+                            <div class="fb-book-overlay" style="background: rgba(30,77,39,0.8);"><span>&#128214; BUKA</span></div>
                         </div>
-                        <div class="fb-book-title"><?= $jd ?></div>
+                        <div class="fb-book-title" style="font-size: 11px; margin-top: 12px;"><?= $jd ?></div>
                     </div>
                     <?php endforeach; ?>
                 </div>
-        <?php   endforeach; }
-        } else {
-            foreach (array_chunk($all_books, $per_row) as $row_books): ?>
-            <div class="fb-shelf-row">
-                <?php foreach ($row_books as $bk):
-                    $cs = !empty($bk['cover']) ? 'images/flipbook/'.htmlspecialchars($bk['cover']) : '';
-                    $jd = htmlspecialchars($bk['judul']);
-                    $pf = htmlspecialchars($bk['file_pdf']); ?>
-                <div class="fb-book" onclick="openFlipbook('<?= $pf ?>','<?= addslashes($jd) ?>')">
-                    <div class="fb-book-cover">
-                        <div class="fb-book-spine"></div>
-                        <?php if ($cs): ?><img src="<?= $cs ?>" alt="<?= $jd ?>">
-                        <?php else: ?><div class="fb-book-no-cover"><?= $jd ?></div><?php endif; ?>
-                        <div class="fb-book-overlay"><span>&#128214; Buka</span></div>
-                    </div>
-                    <div class="fb-book-title"><?= $jd ?></div>
-                </div>
-                <?php endforeach; ?>
-            </div>
-        <?php   endforeach; }
-        ?>
+                <?php
+                        endforeach; // chunks_nc
+                    endif; // no_cat
 
-            </div><!-- end col-md-9 -->
-            
-            <div class="col-md-3">
+                else:
+                    /* ── Tidak ada kategori sama sekali ── */
+                    $chunks_all = array_chunk($all_books, $per_row);
+                    foreach ($chunks_all as $row_books):
+                ?>
+                <div class="fb-shelf-row" style="margin-bottom: 60px;">
+                    <?php foreach ($row_books as $bk):
+                        $cs = !empty($bk['cover']) ? 'images/flipbook/' . htmlspecialchars($bk['cover']) : '';
+                        $jd = htmlspecialchars($bk['judul']);
+                        $pf = htmlspecialchars($bk['file_pdf']);
+                    ?>
+                    <div class="fb-book" onclick="openFlipbook('<?= $pf ?>','<?= addslashes($jd) ?>')" style="width: 120px;">
+                        <div class="fb-book-cover" style="width: 120px; height: 170px;">
+                            <div class="fb-book-spine"></div>
+                            <?php if ($cs): ?>
+                                <img src="<?= $cs ?>" alt="<?= $jd ?>">
+                            <?php else: ?>
+                                <div class="fb-book-no-cover" style="padding: 15px; font-size: 10px;"><?= $jd ?></div>
+                            <?php endif; ?>
+                            <div class="fb-book-overlay" style="background: rgba(30,77,39,0.8);"><span>&#128214; BUKA</span></div>
+                        </div>
+                        <div class="fb-book-title" style="font-size: 11px; margin-top: 12px;"><?= $jd ?></div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+                <?php
+                    endforeach; // chunks_all
+                endif; // all_cats check
+                ?>
+
+                <?php endif; /* empty($all_books) */ ?>
+
+            </div><!-- end col-md-8 -->
+
+            <div class="col-md-4">
                 <div class="modern-sidebar" style="margin-top:0 !important; text-align:left;">
+                    <?php if ($is_admin): ?>
+                    <div class="sidebar-section" style="background: #fff; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #f0f0f0; margin-bottom: 30px; text-align: center;">
+                        <h4 style="margin-bottom: 15px; font-size: 16px;">Panel Admin</h4>
+                        <a href="admin.php?pilih=flipbook&modul=yes" class="btn btn-success" style="width: 100%; border-radius: 30px; padding: 10px; font-weight: 700; background: #1e4d27; border: none;">
+                            <i class="fa fa-cog"></i> Kelola Koleksi Buku
+                        </a>
+                    </div>
+                    <?php endif; ?>
+                    
                     <?php
                     ob_start();
                     include "plugin/berita.php";
@@ -720,12 +747,19 @@ foreach ($all_books as $bk) {
                     echo ob_get_clean();
                     ?>
                 </div>
-            </div><!-- end col-md-3 -->
+            </div><!-- end col-md-4 -->
+
         </div><!-- end row -->
     </div>
 </section>
 
-<!-- Info bottom -->
+        </div><!-- end row -->
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════
+     INFO BOTTOM
+═══════════════════════════════════ -->
 <section class="fb-info-section">
     <div class="container">
         <span class="fb-info-label">Informasi</span>
@@ -744,7 +778,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
     'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 /* ══════════════════════════════════════════
-   UNIFIED FLIPBOOK ENGINE (sama dengan kiri.php)
+   UNIFIED FLIPBOOK ENGINE
 ══════════════════════════════════════════ */
 var _pdf = null, _page = 1, _total = 0;
 var _busy = false, _scale = 1.3, _zoom = 1.0;
@@ -939,7 +973,9 @@ function _buildThumbs() {
     var strip = _el('ufbThumbs'); strip.innerHTML = '';
     for (var i = 1; i <= _total; i++) {
         (function(pn) {
-            var th = document.createElement('div'); th.className = 'ufb-thumb' + (pn===1?' active':''); th.dataset.page = pn;
+            var th = document.createElement('div');
+            th.className = 'ufb-thumb' + (pn === 1 ? ' active' : '');
+            th.dataset.page = pn;
             var tc = document.createElement('canvas'); th.appendChild(tc);
             var nn = document.createElement('div'); nn.className = 'ufb-thumb-n'; nn.textContent = pn; th.appendChild(nn);
             th.onclick = function() { ufbGo(pn); };
@@ -954,19 +990,20 @@ function _buildThumbs() {
         })(i);
     }
 }
+
 function _updateThumb(p) {
     document.querySelectorAll('.ufb-thumb').forEach(function(t) {
         var tp = parseInt(t.dataset.page, 10);
-        var a = _isMobile() ? (tp===p) : (tp===p || tp===p+1);
+        var a  = _isMobile() ? (tp === p) : (tp === p || tp === p + 1);
         t.classList.toggle('active', a);
-        if (a) t.scrollIntoView({ behavior:'smooth', inline:'center', block:'nearest' });
+        if (a) t.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
     });
 }
 
 function _showSwipeHint() {
     var h = _el('ufbSwipeHint'); h.classList.add('show');
-    setTimeout(function() { h.style.transition='opacity 1s'; h.style.opacity='0'; }, 2400);
-    setTimeout(function() { h.classList.remove('show'); h.style.opacity=''; h.style.transition=''; }, 3600);
+    setTimeout(function() { h.style.transition = 'opacity 1s'; h.style.opacity = '0'; }, 2400);
+    setTimeout(function() { h.classList.remove('show'); h.style.opacity = ''; h.style.transition = ''; }, 3600);
 }
 
 function openFlipbook(url, title) {
@@ -1010,18 +1047,19 @@ function ufbClose() {
     _pdf = null; _busy = false; _page = 1; _thumbsBuilt = false;
 }
 
+/* ── Keyboard ── */
 document.addEventListener('keydown', function(e) {
     if (!_el('ufbOverlay').classList.contains('active')) return;
-    if (e.key==='ArrowRight') ufbNav(1);
-    if (e.key==='ArrowLeft')  ufbNav(-1);
-    if (e.key==='Escape')     ufbClose();
-    if (e.key==='+'||e.key==='=') ufbZoom(.15);
-    if (e.key==='-') ufbZoom(-.15);
-    if (e.key==='0') ufbZoomReset();
+    if (e.key === 'ArrowRight') ufbNav(1);
+    if (e.key === 'ArrowLeft')  ufbNav(-1);
+    if (e.key === 'Escape')     ufbClose();
+    if (e.key === '+' || e.key === '=') ufbZoom(.15);
+    if (e.key === '-') ufbZoom(-.15);
+    if (e.key === '0') ufbZoomReset();
 });
-_el('ufbOverlay').addEventListener('click', function(e) { if (e.target===this) ufbClose(); });
+_el('ufbOverlay').addEventListener('click', function(e) { if (e.target === this) ufbClose(); });
 
-/* ── DRAG-TO-PAN + MOMENTUM ── */
+/* ── Drag-to-pan + Momentum ── */
 (function() {
     var wrap = _el('ufbWrap');
     var down = false, lx, ly, vx = 0, vy = 0, raf = null;
@@ -1035,7 +1073,7 @@ _el('ufbOverlay').addEventListener('click', function(e) { if (e.target===this) u
     }
     wrap.addEventListener('mousedown', function(e) {
         if (_isMobile()) return;
-        if (e.target.tagName==='BUTTON'||e.target.tagName==='A'||e.target.tagName==='INPUT') return;
+        if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A' || e.target.tagName === 'INPUT') return;
         cancel(); down = true; vx = 0; vy = 0;
         lx = e.clientX; ly = e.clientY;
         wrap.classList.add('is-dragging'); e.preventDefault();
@@ -1043,7 +1081,7 @@ _el('ufbOverlay').addEventListener('click', function(e) { if (e.target===this) u
     document.addEventListener('mousemove', function(e) {
         if (!down || _isMobile()) return;
         var dx = e.clientX - lx, dy = e.clientY - ly;
-        vx = vx*.35 + dx*.65; vy = vy*.35 + dy*.65;
+        vx = vx * .35 + dx * .65; vy = vy * .35 + dy * .65;
         wrap.scrollLeft -= dx; wrap.scrollTop -= dy;
         lx = e.clientX; ly = e.clientY;
     });
@@ -1068,31 +1106,31 @@ _el('ufbOverlay').addEventListener('click', function(e) { if (e.target===this) u
     }, { passive: false });
 })();
 
-/* ── SWIPE (mobile) ── */
+/* ── Swipe (mobile) ── */
 (function() {
     var wrap = _el('ufbWrap');
     var sx, sy, axis, deciding;
     wrap.addEventListener('touchstart', function(e) {
-        if (e.touches.length!==1) return;
+        if (e.touches.length !== 1) return;
         sx = e.touches[0].clientX; sy = e.touches[0].clientY;
         deciding = true; axis = null;
     }, { passive: true });
     wrap.addEventListener('touchmove', function(e) {
-        if (!deciding && axis!=='h') return;
+        if (!deciding && axis !== 'h') return;
         var dx = e.touches[0].clientX - sx, dy = e.touches[0].clientY - sy;
-        if (deciding && (Math.abs(dx)>8||Math.abs(dy)>8)) {
+        if (deciding && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
             axis = Math.abs(dx) > Math.abs(dy) ? 'h' : 'v'; deciding = false;
         }
-        if (axis==='h') e.preventDefault();
+        if (axis === 'h') e.preventDefault();
     }, { passive: false });
     wrap.addEventListener('touchend', function(e) {
-        if (!_isMobile()||axis!=='h') return;
+        if (!_isMobile() || axis !== 'h') return;
         var dx = e.changedTouches[0].clientX - sx;
         if (Math.abs(dx) > 42) ufbNav(dx < 0 ? 1 : -1);
     }, { passive: true });
 })();
 
-/* ── RESIZE ── */
+/* ── Resize ── */
 (function() {
     var t;
     window.addEventListener('resize', function() {
@@ -1104,7 +1142,7 @@ _el('ufbOverlay').addEventListener('click', function(e) { if (e.target===this) u
     });
 })();
 
-/* ── CATEGORY FILTER ── */
+/* ── Category Filter ── */
 function fbFilter(cat, btn) {
     document.querySelectorAll('.fb-filter-btn').forEach(function(b) { b.classList.remove('active'); });
     btn.classList.add('active');
@@ -1113,7 +1151,7 @@ function fbFilter(cat, btn) {
     });
 }
 
-/* ── SEARCH ── */
+/* ── Search ── */
 function fbSearch() {
     var q = document.getElementById('fbSearchInput').value.toLowerCase().trim();
     document.querySelectorAll('.fb-book').forEach(function(b) {

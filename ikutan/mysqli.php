@@ -55,16 +55,10 @@ class sql_db {
 			$this->query_result = @mysqli_query($this->db_connect_id, $query );
 			return $this->query_result;
 		}
-		/*
-		if ($this->query_result) {
-			$this->num_queries += 1;
-			//unset($this->row[$this->query_result]);
-			//unset($this->rowset[$this->query_result]);
-			return $this->query_result;
-		} else {
-			//return ($transaction == END_TRANSACTION) ? true : false;
-		}
-		*/
+	}
+
+	function sql_escape($text) {
+		return mysqli_real_escape_string($this->db_connect_id, $text);
 	}
 
 	function sql_numrows($query_id) {
