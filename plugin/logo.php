@@ -1,166 +1,210 @@
 <?php
 global $koneksi_db;
-echo '
+?>
 <style>
-/* Custom Navbar Styling */
+/* ── NAVBAR MAIN ── */
 header.custom-header-main {
     position: absolute;
     width: 100%;
-    top: 0;
-    left: 0;
+    top: 0; left: 0;
     z-index: 1000;
 }
-.header-wrapper {
-    width: 100%;
-}
+.header-wrapper { width: 100%; }
 .custom-navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 50px;
+    padding: 15px 5%;
     background: transparent;
+    transition: all 0.3s;
 }
-.custom-navbar .logo-left {
-    color: #fff;
-    font-size: 20px;
-    font-weight: bold;
+
+/* ── LOGO ── */
+.logo-left {
+    text-decoration: none !important;
     display: flex;
     flex-direction: column;
-    text-transform: uppercase;
-    text-decoration: none;
-}
-.custom-navbar .logo-left:hover {
     color: #fff;
-    text-decoration: none;
 }
-.custom-navbar .logo-left span {
-    font-size: 11px;
-    font-weight: normal;
-    text-transform: none;
-    letter-spacing: 0.5px;
+.logo-left strong {
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.2px;
 }
-.custom-navbar .nav-links {
+.logo-left span {
+    font-size: 8.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    opacity: 0.8;
+}
+
+/* ── NAV LINKS ── */
+.nav-links {
     list-style: none;
     display: flex;
-    margin: 0;
-    padding: 0;
+    gap: 25px;
+    margin: 0; padding: 0;
     align-items: center;
 }
-.custom-navbar .nav-links li {
-    margin: 0 15px;
-    position: relative;
-    padding: 10px 0;
-}
-.custom-navbar .nav-links a {
+.nav-links li { position: relative; }
+.nav-links a {
     color: #fff;
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 15px;
-    transition: color 0.3s ease;
-}
-.custom-navbar .nav-links a:hover {
-    color: #ffcc00;
-}
-.custom-navbar .nav-links .dropdown-menu {
-    display: block;
-    visibility: hidden;
-    opacity: 0;
-    position: absolute;
-    top: 100%;
-    right: 0;
-    left: auto;
-    background: #fff;
-    min-width: 220px;
-    border-radius: 12px;
-    padding: 12px 0;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-    transition: all 0.3s ease;
-    transform: translateY(10px);
-    border: 1px solid rgba(0,0,0,0.05);
-}
-.custom-navbar .nav-links li:hover .dropdown-menu {
-    visibility: visible;
-    opacity: 1;
-    transform: translateY(0);
-}
-.custom-navbar .nav-links .dropdown-menu a {
-    color: #444;
-    padding: 12px 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    text-decoration: none !important;
     font-size: 14px;
     font-weight: 600;
-    text-decoration: none;
-    transition: all 0.2s;
+    transition: all 0.3s;
 }
-.custom-navbar .nav-links .dropdown-menu a:hover {
-    background: #f1f5f1;
-    color: #306238;
+.nav-links a:hover { color: #ffcc00; }
+
+/* ── TOGGLE MOBILE ── */
+.nav-hamb {
+    display: none;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px;
 }
-.dikti-logo {
-    display: flex;
-    align-items: center;
+
+/* ── RESPONSIVE MOBILE ── */
+@media (max-width: 991px) {
+    .custom-navbar { padding: 12px 20px; background: rgba(0,0,0,0.5); backdrop-filter: blur(15px); }
+    .nav-hamb { display: block; }
+    
+    .nav-links {
+        position: absolute;
+        top: 100%; left: 0;
+        width: 100%;
+        background: #306238;
+        flex-direction: column;
+        gap: 0;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        align-items: flex-start;
+    }
+    .nav-links.active { max-height: 800px; padding-bottom: 20px; }
+    .nav-links li { width: 100%; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .nav-links a {
+        display: block;
+        padding: 16px 25px;
+        width: 100%;
+    }
+    .nav-links .dropdown-menu {
+        position: static !important;
+        background: rgba(0,0,0,0.1) !important;
+        display: none;
+        visibility: visible !important;
+        opacity: 1 !important;
+        transform: none !important;
+        padding: 0 0 10px 20px !important;
+        min-width: 100% !important;
+        box-shadow: none !important;
+    }
+    .nav-links .dropdown-menu.mob-active { display: block !important; }
+    .nav-links .dropdown-menu a {
+        color: rgba(255,255,255,0.8) !important;
+        padding: 10px 25px !important;
+    }
+}
+
+/* ── Desktop Dropdown ── */
+@media (min-width: 992px) {
+    .nav-links .dropdown-menu {
+        display: block;
+        visibility: hidden;
+        opacity: 0;
+        position: absolute;
+        top: 100%; right: 0;
+        background: #fff;
+        min-width: 220px;
+        border-radius: 12px;
+        padding: 12px 0;
+        box-shadow: 0 15px 45px rgba(0,0,0,0.2);
+        transition: all 0.3s;
+        transform: translateY(12px);
+    }
+    .nav-links li:hover .dropdown-menu {
+        visibility: visible;
+        opacity: 1;
+        transform: translateY(0);
+    }
+    .nav-links .dropdown-menu a {
+        color: #444 !important;
+        padding: 10px 20px;
+        display: block;
+        font-weight: 500;
+    }
+    .nav-links .dropdown-menu a:hover { background: #f8f8f8; color: #306238 !important; }
 }
 </style>
+
 <div class="header-wrapper">
     <div class="custom-navbar">
         <a href="index.php" class="logo-left">
-            MBKM IAI PI Bandung
+            <strong>MBKM IAI PI BANDUNG</strong>
             <span>Institut Agama Islam Persis Bandung</span>
         </a>
-        <ul class="nav-links">
+        
+        <button class="nav-hamb" onclick="toggleMnu()">
+            <i class="fa fa-bars"></i>
+        </button>
+
+        <ul class="nav-links" id="mainMnu">
             <li><a href="index.php" style="color: #ffcc00;">Beranda</a></li>
             <li>
-                <a href="#">Program <i class="fa fa-angle-down"></i></a>
+                <a href="javascript:void(0)" onclick="toggleDrop(this)">Program <i class="fa fa-angle-down"></i></a>
                 <div class="dropdown-menu">
-                    <a href="#">Pertukaran Mahasiswa</a>
-                    <a href="#">Magang</a>
-                    <a href="#">Kampus Mengajar/Asistensi Mengajar</a>
-                    <a href="#">Penelitian/Riset</a>
-                    <a href="#">Proyek Kemanusiaan/Bela Negara</a>
-                    <a href="#">Studi/Proyek Independent</a>
-                    <a href="#">Kegiatan Wirausaha</a>
-                    <a href="#">Membangun Desa/KKNT</a>
+                    <?php
+                    $res_prog = $koneksi_db->sql_query("SELECT judul, slug FROM mod_program ORDER BY id ASC");
+                    if ($koneksi_db->sql_numrows($res_prog) > 0) {
+                        while($row_prog = $koneksi_db->sql_fetchrow($res_prog)) {
+                            echo '<a href="index.php?pilih=program&modul=yes&id='.$row_prog['slug'].'">'.$row_prog['judul'].'</a>';
+                        }
+                    } else {
+                        echo '<a href="#">Pertukaran Mahasiswa</a>';
+                        echo '<a href="#">Magang</a>';
+                    }
+                    ?>
                 </div>
             </li>
             <li><a href="#">Tim</a></li>
             <li><a href="#">Berita</a></li>
-            <li><a href="#">SIM MBKM</a></li>
-            <li><a href="#">Tautan</a></li>
-            <li><a href="#"><i class="fa fa-globe"></i></a></li>
-            <li><a href="#"><i class="fa fa-instagram"></i></a></li>
-';
-
-// Tombol Dinamis: Dashboard (jika login) atau Login (jika belum)
-if (isset($_SESSION['UserName']) && !empty($_SESSION['UserName'])) {
-    // Tombol Dashboard untuk yang sudah login
-    echo '
-            <li>
-                <a href="dashboard.php" style="background:#ffcc00;color:#333;padding:8px 18px;border-radius:30px;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:6px;transition:all .3s">
-                    <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
-                    DASHBOARD
-                </a>
-            </li>';
-} else {
-    // Tombol Login dengan Dropdown Register
-    echo '
-            <li>
-                <a href="login.php" style="background:#ffcc00;color:#333;padding:8px 18px;border-radius:30px;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:6px;transition:all .3s">
-                    LOGIN 
-                    <i class="fa fa-angle-down"></i>
-                </a>
-                <div class="dropdown-menu">
-                    <a href="login.php"><i class="fa fa-sign-in"></i> Masuk (Login)</a>
-                    <a href="register.php" style="color:#2e7d32"><b><i class="fa fa-user-plus"></i> Daftar Akun Baru</b></a>
-                </div>
-            </li>';
-}
-
-echo '
+            
+            <?php if (isset($_SESSION['UserName']) && !empty($_SESSION['UserName'])): ?>
+                <li>
+                    <a href="dashboard.php" style="background:#ffcc00;color:#333;padding:10px 25px;border-radius:30px;font-size:12px;font-weight:800;text-align:center;">
+                        DASHBOARD
+                    </a>
+                </li>
+            <?php else: ?>
+                <li class="has-drop">
+                    <a href="javascript:void(0)" onclick="toggleDrop(this)" style="background:#ffcc00;color:#333;padding:10px 25px;border-radius:30px;font-size:12px;font-weight:800;text-align:center;">
+                        LOGIN / DAFTAR <i class="fa fa-angle-down"></i>
+                    </a>
+                    <div class="dropdown-menu">
+                        <a href="login.php"><i class="fa fa-sign-in"></i> Masuk (Login)</a>
+                        <a href="register.php" style="color:#2e7d32"><b><i class="fa fa-user-plus"></i> Daftar Akun</b></a>
+                    </div>
+                </li>
+            <?php endif; ?>
         </ul>
-
     </div>
 </div>
-';
-?>
+
+<script>
+function toggleMnu() {
+    document.getElementById('mainMnu').classList.toggle('active');
+}
+function toggleDrop(el) {
+    if (window.innerWidth < 992) {
+        var drop = el.nextElementSibling;
+        if (drop && drop.classList.contains('dropdown-menu')) {
+            drop.classList.toggle('mob-active');
+        }
+    }
+}
+</script>

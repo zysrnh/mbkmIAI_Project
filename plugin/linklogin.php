@@ -37,6 +37,7 @@ echo '
            <ul  class="dropdown-menu">
 			
 			<li><a   href="admin.php?pilih=admin_modul"> Menejemen Modul</a></li>
+			<li><a   href="admin.php?pilih=program&modul=yes"> Manajemen Program MBKM</a></li>
 <li><a   href="admin.php?pilih=admin_blok"> Widget HTML</a></li>
 		
 				<li><a   href="admin.php?pilih=testi&modul=yes"> Data Testimonial</a></li>

@@ -68,12 +68,30 @@ a.scroll-top:hover, .scroll-top:hover { background: #306238 !important; border-c
     line-height: 1.12; margin: 0 0 24px; letter-spacing: -.8px;
 }
 .lp-title--lg { font-size: 40px; }
-.lp-divider {
-    width: 48px; height: 3px;
-    background: linear-gradient(90deg, var(--moss-dark), var(--moss-mid));
-    border-radius: 3px; margin-bottom: 36px;
-}
 .lp-section { padding: 80px 0; }
+
+/* ── MOBILE GLOBAL OVERRIDES ── */
+@media (max-width: 768px) {
+    .lp-title { font-size: 24px !important; margin-bottom: 16px; text-align: center; }
+    .lp-title--lg { font-size: 28px !important; }
+    .lp-label { font-size: 9px !important; text-align: center; letter-spacing: 2.5px; }
+    .lp-divider { margin: 0 auto 28px !important; }
+    .lp-section { padding: 40px 0; }
+    
+    /* Stats fix */
+    .stat-num { font-size: 34px !important; }
+    .stat-label { font-size: 9px !important; }
+    .stat-item { padding: 15px 10px; border: none !important; }
+    .stats-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 10px; }
+    
+    /* Documentations */
+    .dokum-slide img, .dokum-slide-ph { height: 320px !important; }
+    
+    /* CTA Fix */
+    .cta-section h2 { font-size: 20px !important; text-align: center; line-height: 1.4; }
+    .cta-badge { text-align: center; margin-top: 20px; }
+    .cta-badge-name { font-size: 18px !important; }
+}
 
 /* ══════════════════════════════════════════
    SECTION 1: PROGRAM CARDS
@@ -172,6 +190,11 @@ a.scroll-top:hover, .scroll-top:hover { background: #306238 !important; border-c
     background: linear-gradient(135deg, var(--moss-dark) 0%, var(--moss-olive) 100%);
     padding: 64px 0; position: relative; overflow: hidden;
 }
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    width: 100%;
+}
 .stats-section::before {
     content: ''; position: absolute; top: -60px; right: -60px;
     width: 260px; height: 260px; border-radius: 50%; background: rgba(255,255,255,.04);
@@ -241,36 +264,40 @@ a.scroll-top:hover, .scroll-top:hover { background: #306238 !important; border-c
 /* ══════════════════════════════════════════
    SECTION 5: TESTIMONI
 ══════════════════════════════════════════ */
-.testi-section { padding: 80px 0; background: var(--moss-bg); }
-.testi-left h2 {
-    font-size: 34px; font-weight: 900; color: var(--moss-dark);
-    line-height: 1.12; margin: 0 0 16px; letter-spacing: -.5px;
-}
-.testi-left p { font-size: 14.5px; color: var(--text-muted); line-height: 1.9; margin: 0 0 24px; }
+/* ── TESTIMONI SLIDER STYLE ── */
+.testi-carousel-outer { position: relative; overflow: hidden; padding: 10px 0; }
 .testi-card {
-    background: var(--white); border-radius: var(--radius-lg); padding: 28px 30px;
-    border-left: 4px solid var(--moss-mid); margin-bottom: 18px;
-    box-shadow: var(--shadow-sm);
-    transition: box-shadow .3s, transform .3s var(--ease-out);
+    background: var(--white); border-radius: var(--radius-md); padding: 20px;
+    border: 1px solid rgba(0,0,0,0.05); margin: 10px 5px;
+    box-shadow: var(--shadow-sm); min-height: 220px;
+    display: flex; flex-direction: column; justify-content: space-between;
 }
-.testi-card:hover { box-shadow: var(--shadow-md); transform: translateX(6px); }
-.testi-card .testi-quote { font-size: 14px; color: var(--text-muted); line-height: 1.9; margin: 0 0 20px; font-style: italic; position: relative; }
+.testi-card .testi-quote { 
+    font-size: 13px; color: var(--text-muted); line-height: 1.6; 
+    margin: 0 0 15px; position: relative; padding-top: 15px;
+}
 .testi-card .testi-quote::before {
-    content: '\201C'; font-size: 52px; color: var(--moss-light);
-    line-height: 1; position: absolute; top: -12px; left: -4px;
-    font-style: normal; font-family: Georgia, serif;
+    content: '\201C'; font-size: 32px; color: var(--moss-light);
+    position: absolute; top: -10px; left: -5px; opacity: 0.5;
 }
-.testi-card .testi-quote--inner { padding-left: 30px; }
-.testi-card .testi-person { display: flex; align-items: center; gap: 14px; }
+.testi-card .testi-person { display: flex; align-items: center; gap: 10px; border-top: 1px solid #f0f3f0; padding-top: 12px; }
 .testi-avatar {
-    width: 50px; height: 50px; border-radius: 50%; overflow: hidden; flex-shrink: 0;
-    background: var(--moss-bg); display: flex; align-items: center; justify-content: center;
-    border: 2.5px solid var(--moss-light);
+    width: 36px; height: 36px; border-radius: 50%; overflow: hidden; flex-shrink: 0;
+    border: 1px solid var(--moss-light); background: #eee;
 }
-.testi-avatar img { width: 100%; height: 100%; object-fit: cover; }
-.testi-avatar svg { width: 24px; height: 24px; fill: var(--moss-mid); }
-.testi-name { font-weight: 800; font-size: 14px; color: var(--moss-dark); }
-.testi-role { font-size: 11.5px; color: var(--moss-light); font-weight: 600; margin-top: 3px; }
+.testi-name { font-weight: 800; font-size: 13px; color: var(--moss-dark); }
+.testi-role { font-size: 10px; color: var(--moss-light); font-weight: 600; }
+
+@media (max-width: 768px) {
+    .stats-grid { 
+        display: grid !important; 
+        grid-template-columns: 1fr 1fr !important; 
+        gap: 0 !important; 
+        margin: 0 !important;
+    }
+    .stats-grid > div { width: 100% !important; padding: 0 !important; float: none !important; }
+    .stat-item { border: 0.5px solid rgba(255,255,255,0.08) !important; padding: 20px 10px !important; }
+}
 
 /* ══════════════════════════════════════════
    SECTION 6: BOOKSHELF
@@ -692,11 +719,7 @@ a.scroll-top:hover, .scroll-top:hover { background: #306238 !important; border-c
 </style>
 
 <?php
-$q_prog = $koneksi_db->sql_query("SELECT * FROM halaman WHERE aktif='Y' ORDER BY id DESC LIMIT 8");
-if (!$q_prog) {
-    // Fallback if the 'aktif' column hasn't been created yet by the dashboard
-    $q_prog = $koneksi_db->sql_query("SELECT * FROM halaman ORDER BY id DESC LIMIT 8");
-}
+$q_prog = $koneksi_db->sql_query("SELECT * FROM mod_program ORDER BY id DESC LIMIT 8");
 $programs = [];
 while ($p = $koneksi_db->sql_fetchrow($q_prog)) $programs[] = $p;
 $prog_count = count($programs);
@@ -705,65 +728,399 @@ $prog_styles = [
     ['bg'=>'var(--moss-dark)',  'border'=>'var(--moss-light)', 'icon'=>'M12 3L1 9l11 6 9-4.91V17h2V9L12 3zm0 12.08L5.21 11 12 7.08 18.79 11 12 15.08zM1 17l11 6 11-6v-2L12 21 1 15v2z'],
     ['bg'=>'var(--moss-olive)', 'border'=>'var(--moss-light)', 'icon'=>'M20 6h-2.18c.07-.44.18-.86.18-1a3 3 0 0 0-6 0c0 .14.11.56.18 1H10c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-1a1 1 0 0 1 2 0c0 .22-.19.86-.25 1h-1.5c-.06-.14-.25-.78-.25-1zm-3 3h14v12H10V8z'],
     ['bg'=>'var(--moss-mid)',   'border'=>'var(--moss-bg)',   'icon'=>'M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z'],
-    ['bg'=>'#3d5a2e',          'border'=>'var(--moss-light)', 'icon'=>'M19.5 12c0-3.59-2.91-6.5-6.5-6.5S6.5 8.41 6.5 12H5c0-3.87 3.13-7 7-7s7 3.13 7 7h-1.5zM12 3C6.48 3 2 7.48 2 13v5h20v-5c0-5.52-4.48-10-10-10zm8 13H4v-3c0-4.41 3.59-8 8-8s8 3.59 8 8v3z'],
-    ['bg'=>'var(--moss-dark)',  'border'=>'var(--moss-mid)',  'icon'=>'M4 13v7h7v-4h2v4h7v-7l-8-5-8 5zm14 5h-3v-4H9v4H6v-4.43l6-3.75 6 3.75V18zM4 10l8-5 8 5H20V8l-8-5-8 5v2H4z'],
-    ['bg'=>'var(--moss-olive)', 'border'=>'var(--moss-bg)',   'icon'=>'M12 2a5 5 0 1 0 0 10A5 5 0 0 0 12 2zm0 8a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm7 5h-1v-1c0-.55-.45-1-1-1H7c-.55 0-1 .45-1 1v1H5c-1.1 0-2 .9-2 2v6h18v-6c0-1.1-.9-2-2-2zm0 6H5v-4h1v1h2v-1h8v1h2v-1h1v4z'],
-    ['bg'=>'var(--moss-mid)',   'border'=>'var(--moss-dark)', 'icon'=>'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z'],
-    ['bg'=>'#3d5a2e',          'border'=>'var(--moss-light)', 'icon'=>'M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z'],
 ];
-
-function cleanProgText($str) {
-    $str = strip_tags($str);
-    $str = str_replace(['&nbsp;','&amp;','&lt;','&gt;','&quot;','&#39;','&mdash;','&ndash;','&bull;'],
-        [' ','&','<','>','"',"'",'—','–','•'], $str);
-    $str = preg_replace('/[\x{1F000}-\x{1FFFF}]/u', '', $str);
-    $str = preg_replace('/[\x{2600}-\x{27FF}]/u', '', $str);
-    $str = preg_replace('/[\x{FE00}-\x{FE0F}]/u', '', $str);
-    $str = preg_replace('/\s+/', ' ', $str);
-    return trim($str);
-}
 ?>
+<style>
+/* ══════════════════════════════════════════
+   PROG UNGGULAN — Portrait Card + Carousel
+══════════════════════════════════════════ */
+.prog-unggulan-section {
+    background: #fff;
+    padding: 0 0 70px;
+}
+.prog-unggulan-head {
+    text-align: center;
+    padding: 56px 0 40px;
+}
+
+/* ── Carousel wrapper ── */
+.prog-carousel-outer {
+    position: relative;
+    overflow: hidden;
+    padding: 0 4px;
+    margin: 0 auto;
+}
+.prog-carousel-track {
+    /* Display diatur otomatis oleh Owl Engine */
+    transition: transform 0.58s cubic-bezier(.16,1,.3,1);
+    will-change: transform;
+}
+
+/* ── Kartu utama ── */
+.prog-unggulan-card {
+    flex: 0 0 25%;
+    min-width: 0;
+    height: 550px; /* Saya tinggiin lagi biar beneran gagah */
+    border-radius: 0; 
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    text-decoration: none !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 40px 30px;
+    transition: opacity 0.3s;
+    outline: none;
+}
+.prog-unggulan-card:hover {
+    transform: translateY(-10px) scale(1.025);
+    box-shadow: 0 22px 52px rgba(0,0,0,.26);
+    text-decoration: none;
+}
+
+/* Warna latar per kartu (cycling 4 warna) */
+.puc-c0 { background: #306238; }
+.puc-c1 { background: #545837; }
+.puc-c2 { background: #618D4F; }
+.puc-c3 { background: #3d5a2e; }
+
+/* ── Thumbnail background dengan opacity ── */
+.puc-thumb-bg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 1;
+    pointer-events: none;
+}
+.puc-thumb-bg img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    opacity: 0.20;
+    filter: saturate(0.3) contrast(1.15) brightness(1.1);
+    transition: opacity 0.42s;
+}
+.prog-unggulan-card:hover .puc-thumb-bg img {
+    opacity: 0.32;
+}
+
+/* ── Gradient overlay ── */
+.puc-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: linear-gradient(
+        165deg,
+        rgba(0,0,0,0.06) 0%,
+        rgba(0,0,0,0.20) 55%,
+        rgba(0,0,0,0.38) 100%
+    );
+}
+
+/* ── Teks konten ── */
+.puc-content {
+    position: relative;
+    z-index: 3;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+.puc-num {
+    display: block;
+    font-size: 9.5px;
+    font-weight: 800;
+    color: rgba(255,255,255,0.52);
+    text-transform: uppercase;
+    letter-spacing: 3.5px;
+    margin-bottom: 11px;
+}
+.puc-title {
+    font-size: 15.5px;
+    font-weight: 900;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    line-height: 1.32;
+    margin: 0;
+    text-shadow: 0 2px 10px rgba(0,0,0,.4);
+}
+.puc-desc {
+    font-size: 11px;
+    color: rgba(255,255,255,0.68);
+    line-height: 1.6;
+    margin: 9px 0 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* ── "Lihat →" badge bawah ── */
+.puc-badge {
+    position: relative;
+    z-index: 3;
+    align-self: flex-start;
+    margin-top: auto;
+    padding-top: 14px;
+    font-size: 10.5px;
+    font-weight: 800;
+    color: rgba(255,255,255,0.60);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    transition: color 0.25s;
+}
+.prog-unggulan-card:hover .puc-badge {
+    color: #fff;
+}
+
+/* ── Ikon besar dekoratif kanan bawah ── */
+.puc-icon-big {
+    position: absolute;
+    bottom: -12px;
+    right: -8px;
+    z-index: 2;
+    width: 115px;
+    height: 115px;
+    opacity: 0.13;
+    pointer-events: none;
+    transition: opacity 0.38s, transform 0.38s cubic-bezier(.34,1.56,.64,1);
+}
+.puc-icon-big svg {
+    width: 100%;
+    height: 100%;
+    fill: #fff;
+}
+.prog-unggulan-card:hover .puc-icon-big {
+    opacity: 0.24;
+    transform: scale(1.1) rotate(-6deg);
+}
+
+/* ── Arrow buttons ── */
+.prog-carousel-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    z-index: 10;
+    background: #306238;
+    border: 2px solid rgba(255,255,255,0.18);
+    color: #fff;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 5px 18px rgba(48,98,56,.40);
+    transition: background 0.2s, transform 0.22s cubic-bezier(.34,1.56,.64,1), opacity 0.25s;
+    padding: 0;
+}
+.prog-carousel-arrow:hover {
+    background: #618D4F;
+    transform: translateY(-50%) scale(1.1);
+}
+.prog-carousel-arrow.pca-prev { left: -10px; }
+.prog-carousel-arrow.pca-next { right: -10px; }
+.prog-carousel-arrow svg {
+    width: 22px;
+    height: 22px;
+    fill: #fff;
+    display: block;
+}
+
+/* ── Dots ── */
+.prog-carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 7px;
+    margin-top: 26px;
+}
+.pcd-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #9EBB97;
+    opacity: 0.38;
+    cursor: pointer;
+    transition: all 0.38s cubic-bezier(.34,1.56,.64,1);
+    border: none;
+    padding: 0;
+}
+.pcd-dot.active {
+    background: #306238;
+    opacity: 1;
+    width: 26px;
+    border-radius: 4px;
+}
+
+/* ── Responsive ── */
+/* ── Responsive ── */
+@media (max-width: 992px) {
+    .prog-unggulan-card {
+        flex: 0 0 50%;
+        height: 440px;
+    }
+}
+@media (max-width: 575px) {
+    .prog-unggulan-card {
+        flex: 0 0 100%;
+        height: 380px;
+    }
+    .puc-icon-big { width: 85px; height: 85px; }
+    .prog-carousel-arrow { width: 36px; height: 36px; }
+    .prog-carousel-arrow.pca-prev { left: -4px; }
+    .prog-carousel-arrow.pca-next { right: -4px; }
+}
+</style>
 
 <!-- ═══════════════════════════════════
      SECTION 1: PROGRAM MBKM
 ═══════════════════════════════════ -->
-<section class="prog-section">
-<div class="prog-section-head">
-    <span class="lp-label">Program Unggulan</span>
-    <h2 class="lp-title lp-title--lg"><?= $prog_count > 0 ? ($prog_count.' PROGRAM MBKM') : 'PROGRAM MBKM' ?></h2>
-    <div class="lp-divider" style="margin: 0 auto;"></div>
-</div>
-<div class="container" style="padding-bottom:30px;">
-    <?php if ($prog_count > 0): ?>
-    <div class="row" style="overflow:visible; display:flex; flex-wrap:wrap; align-items:stretch;">
-        <?php foreach ($programs as $i => $data):
-            $style   = $prog_styles[$i % count($prog_styles)];
-            $urlkat  = str_replace(' ', '-', $data['judul']);
-            $snippet = limitTXT(cleanProgText($data['konten']), 120);
-        ?>
-        <div class="col-sm-3" style="padding:0 12px; margin-bottom:32px; display:flex;">
-            <div class="prog-card" style="background:<?= $style['bg'] ?>; border-top-color:<?= $style['border'] ?>;">
-                <div class="pc-icon">
-                    <?php if (!empty($data['icon'])): ?>
-                        <i class="fa <?= htmlspecialchars($data['icon']) ?>" style="font-size:24px;color:#fff;"></i>
-                    <?php else: ?>
-                        <svg viewBox="0 0 24 24"><path d="<?= $style['icon'] ?>"/></svg>
-                    <?php endif; ?>
-                </div>
-                <h3><?= htmlspecialchars($data['judul']) ?></h3>
-                <p><?= htmlspecialchars(strip_tags($snippet)) ?></p>
-                <a href="pages/<?= $data['id'] ?>/<?= $urlkat ?>.html" class="pc-btn">
-                    <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
-                </a>
-            </div>
-        </div>
-        <?php endforeach; ?>
+<section class="prog-unggulan-section">
+
+    <div class="prog-unggulan-head">
+        <span class="lp-label" style="letter-spacing:4px;">Program Unggulan</span>
+        <h2 class="lp-title lp-title--lg">
+            PROGRAM MBKM IAI PI BANDUNG
+        </h2>
+        <div class="lp-divider" style="margin:0 auto;"></div>
     </div>
-    <?php else: ?>
-    <p style="text-align:center; color:#9EBB97; padding:40px 0;">Program belum tersedia.</p>
-    <?php endif; ?>
-</div>
+
+    <div class="container-fluid" style="padding:0;">
+        <?php if ($prog_count > 0): ?>
+
+        <div style="position:relative; overflow:hidden;">
+
+            <!-- Arrow Prev -->
+            <button class="prog-carousel-arrow pca-prev" id="progArrowPrev"
+                    onclick="progCarouselNav(-1)" aria-label="Sebelumnya">
+                <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+            </button>
+
+            <!-- Carousel Outer -->
+            <div class="prog-carousel-outer" id="progCarouselOuter">
+                <div class="prog-carousel-track owl-carousel owl-theme" id="progTrack">
+
+                <?php
+                /* ── Icon paths (SVG d="...") ── */
+                $puc_icons = [
+                    /* Graduation cap */
+                    'M12 3L1 9l11 6 9-4.91V17h2V9L12 3zm0 12.08L5.21 11 12 7.08 18.79 11 12 15.08zM1 17l11 6 11-6v-2L12 21 1 15v2z',
+                    /* Clipboard */
+                    'M20 6h-2.18c.07-.44.18-.86.18-1a3 3 0 0 0-6 0c0 .14.11.56.18 1H10c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-1a1 1 0 0 1 2 0c0 .22-.19.86-.25 1h-1.5c-.06-.14-.25-.78-.25-1zm-3 3h14v12H10V8z',
+                    /* Group */
+                    'M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z',
+                    /* Person */
+                    'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z',
+                    /* Calendar */
+                    'M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z',
+                    /* Article */
+                    'M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z',
+                    /* Play */
+                    'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z',
+                    /* Star */
+                    'M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z',
+                ];
+                $puc_colors = ['puc-c0','puc-c1','puc-c2','puc-c3'];
+
+                foreach ($programs as $i => $data):
+                    $snippet  = !empty($data['deskripsi_singkat'])
+                                ? $data['deskripsi_singkat']
+                                : substr(strip_tags($data['isi']), 0, 90).'...';
+                    $img_src  = !empty($data['gambar'])
+                                ? 'images/pages/'.htmlspecialchars($data['gambar'])
+                                : '';
+                    $col_cls  = $puc_colors[$i % 4];
+                    $icon_d   = $puc_icons[$i % count($puc_icons)];
+                    $num_pad  = str_pad($i + 1, 2, '0', STR_PAD_LEFT);
+                ?>
+                <a href="index.php?pilih=program&modul=yes&id=<?= htmlspecialchars($data['slug']) ?>"
+                   class="prog-unggulan-card <?= $col_cls ?>">
+
+                    <!-- Thumbnail background opacity -->
+                    <?php if ($img_src): ?>
+                    <div class="puc-thumb-bg">
+                        <img src="<?= $img_src ?>"
+                             alt="<?= htmlspecialchars($data['judul']) ?>"
+                             onerror="this.parentNode.style.display='none'">
+                    </div>
+                    <?php endif; ?>
+
+                    <!-- Overlay gelap -->
+                    <div class="puc-overlay"></div>
+
+                    <!-- Teks konten -->
+                    <div class="puc-content">
+                        <span class="puc-num">Program <?= $num_pad ?></span>
+                        <h3 class="puc-title"><?= htmlspecialchars($data['judul']) ?></h3>
+                        <p class="puc-desc"><?= htmlspecialchars($snippet) ?></p>
+                        <span class="puc-badge">Lihat Program &#8594;</span>
+                    </div>
+
+                    <!-- Ikon besar dekoratif -->
+                    <div class="puc-icon-big">
+                        <svg viewBox="0 0 24 24"><path d="<?= $icon_d ?>"/></svg>
+                    </div>
+
+                </a>
+                <?php endforeach; ?>
+
+                </div><!-- /prog-carousel-track -->
+            </div><!-- /prog-carousel-outer -->
+
+            <!-- Arrow Next -->
+            <button class="prog-carousel-arrow pca-next" id="progArrowNext"
+                    onclick="progCarouselNav(1)" aria-label="Selanjutnya">
+                <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+            </button>
+        </div><!-- /position:relative -->
+
+        <!-- Dots (hanya muncul kalau > 4) -->
+        <div class="prog-carousel-dots" id="progDots" style="display:none;"></div>
+
+        <?php else: ?>
+        <p style="text-align:center;color:#9EBB97;padding:50px 0;">
+            Belum ada program yang tersedia.
+        </p>
+        <?php endif; ?>
+    </div><!-- /container -->
+
 </section>
+
+<script>
+/* ══════════════════════════════════════════
+   PROG UNGGULAN CAROUSEL (OWL ENGINE)
+   - Seamless Infinite Loop enabled
+   - Autoplay active
+   - Customized for flush blocks
+══════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', function() {
+    if (jQuery('.prog-carousel-track').length) {
+        var owlProg = jQuery('.prog-carousel-track').owlCarousel({
+            loop: true,
+            margin: 0,
+            nav: false,
+            dots: true,
+            autoplay: true,
+            autoplayTimeout: 4000,
+            autoplayHoverPause: true,
+            smartSpeed: 800,
+            responsive: {
+                0: { items: 1 },
+                600: { items: 2 },
+                1000: { items: 4 }
+            }
+        });
+
+        /* Link panah ke Owl */
+        window.progCarouselNav = function (dir) {
+            if (dir > 0) owlProg.trigger('next.owl.carousel');
+            else owlProg.trigger('prev.owl.carousel');
+        };
+    }
+});
+</script>
 
 <!-- ═══════════════════════════════════
      SECTION 2: SAMBUTAN
@@ -814,7 +1171,7 @@ function cleanProgText($str) {
 ═══════════════════════════════════ -->
 <section class="stats-section">
     <div class="container">
-        <div class="row">
+        <div class="stats-grid">
             <?php
             $stats = [];
             $q_stat = $koneksi_db->sql_query("SELECT * FROM mod_data_stat ORDER BY id ASC LIMIT 4");
@@ -837,7 +1194,7 @@ function cleanProgText($str) {
             foreach ($stats as $s):
                 $sicon = $stat_icons[$si % 4]; $si++;
             ?>
-            <div class="col-xs-6 col-sm-3">
+            <div>
                 <div class="stat-item">
                     <div class="stat-icon-wrap">
                         <svg viewBox="0 0 24 24"><path d="<?= $sicon ?>"/></svg>
@@ -911,41 +1268,35 @@ function cleanProgText($str) {
 </section>
 
 <!-- ═══════════════════════════════════
-     SECTION 5: TESTIMONI
+     SECTION 5: TESTIMONI (SMALL CAROUSEL)
 ═══════════════════════════════════ -->
-<section class="testi-section">
+<section class="testi-section" style="padding:50px 0; background:var(--white);">
     <div class="container">
-        <div class="row" style="align-items:flex-start;">
-            <div class="col-sm-4 testi-left" style="padding-top:10px; margin-bottom:30px;">
-                <span class="lp-label">Testimoni</span>
-                <h2>BAGAIMANA<br>PENGALAMAN<br>MEREKA?</h2>
-                <div class="lp-divider"></div>
-                <p>Beragam testimoni dari mahasiswa yang telah berpartisipasi dalam program MBKM IAI PI Bandung.</p>
-            </div>
-            <div class="col-sm-8">
+        <div class="testi-head" style="text-align:center; margin-bottom:30px;">
+            <span class="lp-label">Testimoni</span>
+            <h2 class="lp-title">PENGALAMAN MEREKA</h2>
+            <div class="lp-divider" style="margin:0 auto;"></div>
+        </div>
+
+        <div class="testi-carousel-outer">
+            <div class="owl-carousel owl-theme testi-track">
                 <?php
-                $q_testi = $koneksi_db->sql_query("SELECT * FROM mod_data_testi WHERE status='1' ORDER BY id DESC LIMIT 3");
+                $q_testi = $koneksi_db->sql_query("SELECT * FROM mod_data_testi WHERE status='1' ORDER BY id DESC LIMIT 6");
                 $testis = [];
                 while ($t = $koneksi_db->sql_fetchrow($q_testi)) $testis[] = $t;
                 if (empty($testis)):
                     $testis = [
-                        ['nama'=>'Ahmad Fauzi','email'=>'Program Magang - PT. XYZ','ket'=>'Pengalaman magang melalui program MBKM sangat luar biasa. Saya mendapat banyak pengetahuan praktis yang tidak diajarkan di kelas. Tim MBKM IAI PI Bandung selalu siap membantu selama program berlangsung.','foto'=>''],
-                        ['nama'=>'Siti Nurhaliza','email'=>'Program Pertukaran Mahasiswa','ket'=>'Program pertukaran mahasiswa membuka wawasan saya tentang budaya belajar di kampus lain. Sangat direkomendasikan untuk mahasiswa semester lima ke atas.','foto'=>''],
-                        ['nama'=>'Rizky Pratama','email'=>'Kampus Mengajar - SDN Cimahi','ket'=>'Mengajar di sekolah dasar adalah pengalaman yang mengubah perspektif saya. Saya menjadi lebih menghargai dunia pendidikan dan ingin terus berkontribusi.','foto'=>''],
+                        ['nama'=>'Ahmad Fauzi','email'=>'Magang','ket'=>'Sangat luar biasa, saya mendapat ilmu praktis.','foto'=>''],
+                        ['nama'=>'Siti Nurhaliza','email'=>'Pertukaran','ket'=>'Membuka wawasan lintas kampus.','foto'=>''],
+                        ['nama'=>'Rizky Pratama','email'=>'Mengajar','ket'=>'Mengubah perspektif saya soal pendidikan.','foto'=>''],
                     ];
                 endif;
                 foreach ($testis as $t): ?>
                 <div class="testi-card">
-                    <p class="testi-quote">
-                        <span class="testi-quote--inner"><?= htmlspecialchars($t['ket']) ?></span>
-                    </p>
+                    <div class="testi-quote"><?= htmlspecialchars($t['ket']) ?></div>
                     <div class="testi-person">
                         <div class="testi-avatar">
-                            <?php if (!empty($t['foto'])): ?>
-                            <img src="images/testi/<?= $t['foto'] ?>" alt="<?= htmlspecialchars($t['nama']) ?>">
-                            <?php else: ?>
-                            <svg viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
-                            <?php endif; ?>
+                            <?php if (!empty($t['foto'])): ?><img src="images/testi/<?= $t['foto'] ?>" style="width:100%;height:100%;object-fit:cover;"><?php endif; ?>
                         </div>
                         <div>
                             <div class="testi-name"><?= htmlspecialchars($t['nama']) ?></div>
@@ -958,6 +1309,17 @@ function cleanProgText($str) {
         </div>
     </div>
 </section>
+
+<script>
+window.addEventListener('DOMContentLoaded', function() {
+    if (jQuery('.testi-track').length) {
+        jQuery('.testi-track').owlCarousel({
+            loop: true, margin: 15, nav: false, dots: true, autoplay: true, autoplayTimeout: 5000,
+            responsive: { 0: { items: 1 }, 600: { items: 2 }, 1000: { items: 3 } }
+        });
+    }
+});
+</script>
 
 <!-- ═══════════════════════════════════
      UNIFIED FLIPBOOK MODAL
@@ -1126,8 +1488,8 @@ function cleanProgText($str) {
 <section class="cta-section">
     <div class="container">
         <div class="row cta-inner" style="align-items:center;">
-            <div class="col-sm-8">
-                <h2>Mari Bergabung Dengan Program MBKM<br><span>Universitas IAI PI Bandung</span></h2>
+            <div class="col-sm-8" style="margin-bottom:20px;">
+                <h2 class="lp-title" style="color:#fff;margin-bottom:0;">Mari Bergabung Dengan Program MBKM<br><span style="color:var(--moss-bg);">Universitas IAI PI Bandung</span></h2>
             </div>
             <div class="col-sm-4 cta-badge">
                 <span class="cta-badge-name">MBKM BERDAMPAK</span>

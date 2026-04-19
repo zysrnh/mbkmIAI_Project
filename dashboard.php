@@ -68,6 +68,8 @@ if ($db_ready) {
     if ($r) { $d = $koneksi_db->sql_fetchrow($r); $totalPages = (int)$d['c']; }
     $r = @$koneksi_db->sql_query("SELECT SUM(jumlah) as c FROM statistik");
     if ($r) { $d = $koneksi_db->sql_fetchrow($r); $totalVisits = (int)$d['c']; }
+    $r = @$koneksi_db->sql_query("SELECT COUNT(*) as c FROM mod_program");
+    if ($r) { $d = $koneksi_db->sql_fetchrow($r); $totalPrograms = (int)$d['c']; } else { $totalPrograms = 0; }
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -285,8 +287,84 @@ if ($page === 'pengguna' && $db_ready && $isAdmin) {
 }
 
 // ══════════════════════════════════════════════════════════════
-// UPLOAD KONTEN USER ACTIONS
+// PROGRAM MBKM ACTIONS
 // ══════════════════════════════════════════════════════════════
+$prog_msg = ''; $prog_error = '';
+$prog_aksi = '';
+if ($page === 'program' && $db_ready && $isAdmin) {
+    // Auto-create table if not exists
+    $koneksi_db->sql_query("CREATE TABLE IF NOT EXISTS mod_program (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        judul VARCHAR(255) NOT NULL,
+        slug VARCHAR(255) NOT NULL,
+        deskripsi_singkat TEXT,
+        isi LONGTEXT,
+        gambar VARCHAR(255),
+        tgl_update TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    )");
+
+    if (!function_exists('create_slug')) {
+        function create_slug($string) {
+            $string = strtolower($string);
+            $string = preg_replace('/[^a-z0-9\-]/', '-', $string);
+            $string = preg_replace('/-+/', '-', $string);
+            return trim($string, '-');
+        }
+    }
+
+    $prog_aksi = isset($_GET['aksi']) ? $_GET['aksi'] : '';
+
+    // TAMBAH 
+    if ($prog_aksi === 'tambah' && isset($_POST['submit_program'])) {
+        $judul   = trim(strip_tags($_POST['judul']));
+        $desk    = trim(strip_tags($_POST['deskripsi_singkat']));
+        $isi     = mysqli_real_escape_string($koneksi_db->db_connect_id, $_POST['isi']);
+        $slug    = create_slug($judul);
+        
+        $foto = '';
+        if (isset($_FILES['gambar']) && $_FILES['gambar']['error'] === 0) {
+            $ext = pathinfo($_FILES['gambar']['name'], PATHINFO_EXTENSION);
+            $foto = $slug . '_' . time() . '.' . $ext;
+            if (!is_dir('images/pages')) mkdir('images/pages', 0777, true);
+            move_uploaded_file($_FILES['gambar']['tmp_name'], 'images/pages/' . $foto);
+        }
+
+        $ins = $koneksi_db->sql_query("INSERT INTO mod_program (judul, slug, deskripsi_singkat, isi, gambar) VALUES ('$judul', '$slug', '$desk', '$isi', '$foto')");
+        if ($ins) { $prog_msg = 'Program berhasil ditambahkan!'; $prog_aksi = ''; }
+        else $prog_error = 'Gagal menambah program ke database.';
+    }
+
+    // EDIT
+    if ($prog_aksi === 'edit' && isset($_POST['submit_program'])) {
+        $id      = (int)$_POST['id'];
+        $judul   = trim(strip_tags($_POST['judul']));
+        $desk    = trim(strip_tags($_POST['deskripsi_singkat']));
+        $isi     = mysqli_real_escape_string($koneksi_db->db_connect_id, $_POST['isi']);
+        $slug    = create_slug($judul);
+        
+        $foto_sql = "";
+        if (isset($_FILES['gambar']) && $_FILES['gambar']['error'] === 0) {
+            $ext = pathinfo($_FILES['gambar']['name'], PATHINFO_EXTENSION);
+            $foto = $slug . '_' . time() . '.' . $ext;
+            move_uploaded_file($_FILES['gambar']['tmp_name'], 'images/pages/' . $foto);
+            $foto_sql = ", gambar='$foto'";
+        }
+
+        $upd = $koneksi_db->sql_query("UPDATE mod_program SET judul='$judul', slug='$slug', deskripsi_singkat='$desk', isi='$isi' $foto_sql WHERE id='$id'");
+        if ($upd) { $prog_msg = 'Program berhasil diperbarui!'; $prog_aksi = ''; }
+        else $prog_error = 'Gagal update program.';
+    }
+
+    // HAPUS
+    if ($prog_aksi === 'hapus') {
+        $id = (int)$_GET['id'];
+        $koneksi_db->sql_query("DELETE FROM mod_program WHERE id='$id'");
+        header('Location: dashboard.php?page=program&msg=hapus_ok');
+        exit;
+    }
+}
+
+// Upload Laporan User Actions
 $upload_msg = ''; $upload_error = '';
 $up_action  = '';
 if ($page === 'upload_user' && $db_ready) {
@@ -559,6 +637,23 @@ if ($page === 'testimoni' && $db_ready) {
         $testi_action = '';
     }
 }
+
+// ══════════════════════════════════════════════════════════════
+// STATISTIK ACTIONS
+// ══════════════════════════════════════════════════════════════
+$stat_msg = ''; $stat_error = '';
+if ($page === 'statistik' && $db_ready) {
+    if (isset($_POST['submit_stat'])) {
+        foreach ($_POST['stat_val'] as $id => $val) {
+            $id   = (int)$id;
+            $val  = trim(strip_tags($val));
+            $nama = trim(strip_tags($_POST['stat_name'][$id]));
+            $koneksi_db->sql_query("UPDATE `mod_data_stat` SET `jum`='$val', `nama`='$nama' WHERE `id`='$id'");
+        }
+        $stat_msg = 'Statistik berhasil diperbarui!';
+    }
+}
+
 
 // ══════════════════════════════════════════════════════════════
 // BERITA & KEGIATAN ACTIONS
@@ -1045,6 +1140,17 @@ $pageTitle = isset($pageTitles[$page]) ? $pageTitles[$page] : array('Dashboard',
     .icon-item i { font-size:18px; color:#444; }
     .icon-item span { font-size:8.5px; color:#888; text-align:center; word-break:break-all; max-width:40px; }
     </style>
+    <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', function() {
+            if (document.querySelector('textarea.editor-word')) {
+                CKEDITOR.replace(document.querySelector('textarea.editor-word'), {
+                    height: 400,
+                    removeButtons: 'Source,Save,NewPage,ExportPdf,Print,Templates'
+                });
+            }
+        });
+    </script>
 </head>
 <body>
 
@@ -1077,6 +1183,9 @@ $pageTitle = isset($pageTitles[$page]) ? $pageTitles[$page] : array('Dashboard',
         <div class="nav-label">Kelola Beranda</div>
         <a href="dashboard.php?page=program" class="nav-item <?php echo $page==='program'?'active':''; ?>">
             <svg viewBox="0 0 24 24"><path d="M4 10h3v7H4zM10.5 10h3v7h-3zM2 19h20v3H2zM17 10h3v7h-3zM12 1L2 6v2h20V6z"/></svg> Program MBKM
+        </a>
+        <a href="dashboard.php?page=statistik" class="nav-item <?php echo $page==='statistik'?'active':''; ?>">
+            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg> Statistik & Angka
         </a>
         <a href="dashboard.php?page=sambutan" class="nav-item <?php echo $page==='sambutan'?'active':''; ?>">
             <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24-1.13-.56-1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg> Konfigurasi Website
@@ -1185,6 +1294,11 @@ if ($page === 'home'):
                 <div class="stat-label">Total Artikel</div>
             </div>
             <div class="stat-card">
+                <div class="stat-icon" style="background:#fff3e0; color:#ef6c00;"><svg viewBox="0 0 24 24"><path d="M4 10h3v7H4zM10.5 10h3v7h-3zM2 19h20v3H2zM17 10h3v7h-3zM12 1L2 6v2h20V6z"/></svg></div>
+                <div class="stat-value"><?php echo $totalPrograms; ?></div>
+                <div class="stat-label">Program MBKM</div>
+            </div>
+            <div class="stat-card">
                 <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg></div>
                 <div class="stat-value"><?php echo number_format($totalVisits); ?></div>
                 <div class="stat-label">Total Kunjungan</div>
@@ -1208,6 +1322,11 @@ if ($page === 'home'):
                     <a href="dashboard.php?page=pengguna" class="quick-action">
                         <div class="qa-icon blue"><svg viewBox="0 0 24 24"><path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div>
                         <div><div class="qa-title">Kelola Akun Pengguna</div><div class="qa-desc">Tambah, edit, dan atur hak akses</div></div>
+                        <div class="qa-arrow"><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></div>
+                    </a>
+                    <a href="dashboard.php?page=program" class="quick-action">
+                        <div class="qa-icon orange" style="background:#fff3e0; color:#ef6c00;"><svg viewBox="0 0 24 24"><path d="M4 10h3v7H4zM10.5 10h3v7h-3zM2 19h20v3H2zM17 10h3v7h-3zM12 1L2 6v2h20V6z"/></svg></div>
+                        <div><div class="qa-title">Kelola Program MBKM</div><div class="qa-desc">Atur konten dinamis halaman program</div></div>
                         <div class="qa-arrow"><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></div>
                     </a>
                     <?php endif; ?>
@@ -1634,6 +1753,59 @@ elseif ($page === 'pengguna' && $db_ready && $isAdmin):
 
 <?php
 // ══════════════════════════════════════════════════════════════
+// PAGE: STATISTIK
+// ══════════════════════════════════════════════════════════════
+elseif ($page === 'statistik' && $db_ready):
+?>
+    <div class="page-header">
+        <div>
+            <h2>Statistik & Angka Beranda</h2>
+            <p>Kelola angka-angka yang tampil di bagian statistik landing page.</p>
+        </div>
+    </div>
+    
+    <?php if ($stat_msg): ?><div class="msg-ok"><?php echo $stat_msg; ?></div><?php endif; ?>
+
+    <div class="panel">
+        <div class="panel-body-padded">
+            <form method="POST" action="">
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nama Statistik</th>
+                                <th>Nilai / Angka</th>
+                                <th>Keterangan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $q_stat = $koneksi_db->sql_query("SELECT * FROM mod_data_stat ORDER BY id ASC");
+                            while ($s = $koneksi_db->sql_fetchrow($q_stat)):
+                            ?>
+                            <tr>
+                                <td>
+                                    <input type="text" name="stat_name[<?php echo $s['id']; ?>]" value="<?php echo htmlspecialchars($s['nama']); ?>" class="form-control" style="font-weight:700">
+                                </td>
+                                <td>
+                                    <input type="text" name="stat_val[<?php echo $s['id']; ?>]" value="<?php echo htmlspecialchars($s['jum']); ?>" class="form-control" style="color:var(--primary-600); font-weight:800">
+                                </td>
+                                <td><small style="color:var(--text-muted)">ID: <?php echo $s['id']; ?></small></td>
+                            </tr>
+                            <?php endwhile; ?>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="form-actions" style="margin-top:20px;">
+                    <button type="submit" name="submit_stat" class="btn btn-primary">Simpan Perubahan Statistik</button>
+                    <p style="margin-top:10px; font-size:11px; color:var(--text-muted)">* Perubahan akan langsung tampil di halaman depan (Landing Page).</p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+<?php
+// ══════════════════════════════════════════════════════════════
 // PAGE: GALERI
 // ══════════════════════════════════════════════════════════════
 elseif ($page === 'galeri' && $db_ready):
@@ -2010,156 +2182,10 @@ elseif ($page === 'upload_user' && $db_ready):
 
 <?php
 // ══════════════════════════════════════════════════════════════
-// PAGE: PROGRAM MBKM
+// PAGE: SAMBUTAN (KONFIGURASI)
 // ══════════════════════════════════════════════════════════════
-elseif ($page === 'program' && $db_ready):
+elseif ($page === 'sambutan' && $db_ready):
 ?>
-    <div class="page-header">
-        <div>
-            <h2>Kelola Program MBKM</h2>
-            <p>Atur indikator atau daftar program yang tampil di beranda.</p>
-        </div>
-        <?php if ($prog_action === ''): ?>
-        <a href="dashboard.php?page=program&action=add" class="add-btn">
-            <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Tambah Program
-        </a>
-        <?php else: ?>
-        <a href="dashboard.php?page=program" class="btn btn-outline">Kembali</a>
-        <?php endif; ?>
-    </div>
-    <?php if ($prog_msg): ?><div class="msg-ok"><?php echo $prog_msg; ?></div><?php endif; ?>
-    <?php if ($prog_error): ?><div class="msg-err"><?php echo $prog_error; ?></div><?php endif; ?>
-
-    <?php if ($prog_action === 'add' || $prog_action === 'edit'):
-        $edit_data = array('judul'=>'','icon'=>'fa-star','konten'=>'','aktif'=>'Y');
-        if ($prog_action === 'edit') {
-            $id  = (int)$_GET['id'];
-            $res = $koneksi_db->sql_query("SELECT * FROM `halaman` WHERE id='$id'");
-            if ($h_data = $koneksi_db->sql_fetchrow($res)) {
-                $edit_data['judul']  = $h_data['judul'];
-                $edit_data['konten'] = $h_data['konten'];
-                $edit_data['icon']   = isset($h_data['icon'])  ? $h_data['icon']  : 'fa-star';
-                $edit_data['aktif']  = isset($h_data['aktif']) ? $h_data['aktif'] : 'Y';
-            }
-        }
-    ?>
-    <div class="panel">
-        <div class="panel-body-padded">
-        <form method="POST" action="">
-            <div class="form-group"><label>Judul Program</label><input type="text" name="judul" class="form-control" value="<?php echo htmlspecialchars($edit_data['judul']); ?>" required></div>
-            <div class="form-group">
-                <label>Status</label>
-                <select name="aktif" class="form-control">
-                    <option value="Y" <?php echo $edit_data['aktif']==='Y'?'selected':''; ?>>Tampil (Aktif)</option>
-                    <option value="N" <?php echo $edit_data['aktif']==='N'?'selected':''; ?>>Sembunyikan (Draft)</option>
-                </select>
-            </div>
-            <div class="form-group"><label>Isi Konten</label><textarea name="konten" class="form-control" rows="8"><?php echo htmlspecialchars($edit_data['konten']); ?></textarea></div>
-            <div class="form-group">
-                <label>Pilih Icon (Font Awesome)</label>
-                <input type="hidden" name="icon" id="selectedIconInput" value="<?php echo htmlspecialchars($edit_data['icon']); ?>">
-                <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;padding:12px 16px;background:#f8f9fa;border-radius:8px;border:1px solid #e0e0e0;">
-                    <div style="width:44px;height:44px;border-radius:10px;background:var(--primary-600);display:flex;align-items:center;justify-content:center;">
-                        <i id="iconPreviewEl" class="fa <?php echo htmlspecialchars($edit_data['icon']); ?>" style="font-size:20px;color:#fff;"></i>
-                    </div>
-                    <div>
-                        <div style="font-weight:700;font-size:13px;" id="iconPreviewName"><?php echo htmlspecialchars($edit_data['icon']); ?></div>
-                        <div style="font-size:11px;color:#888;">Klik icon di bawah untuk ganti</div>
-                    </div>
-                </div>
-                <input type="text" id="iconSearchInput" placeholder="Cari icon..." style="width:100%;padding:9px 14px;border:1.5px solid #ddd;border-radius:8px;font-size:13px;margin-bottom:10px;font-family:inherit;outline:none;" oninput="filterIcons(this.value)">
-                <div id="iconPickerGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(48px,1fr));gap:6px;max-height:280px;overflow-y:auto;padding:8px;background:#fff;border:1.5px solid #e0e0e0;border-radius:8px;"></div>
-                <div id="iconNoResult" style="display:none;text-align:center;padding:24px;color:#aaa;font-size:13px;">Tidak ada icon yang cocok.</div>
-            </div>
-            <div class="form-actions">
-                <button type="submit" name="submit" class="btn btn-primary">Simpan Program</button>
-                <a href="dashboard.php?page=program" class="btn btn-outline">Batal</a>
-            </div>
-        </form>
-        </div>
-    </div>
-    <script>
-    var _iconList = ['fa-home','fa-user','fa-users','fa-user-graduate','fa-star','fa-heart','fa-thumbs-up','fa-trophy','fa-award','fa-check','fa-check-circle','fa-cog','fa-cogs','fa-chart-bar','fa-chart-line','fa-envelope','fa-phone','fa-map-marker-alt','fa-calendar','fa-calendar-alt','fa-file','fa-file-pdf','fa-file-word','fa-folder','fa-folder-open','fa-laptop','fa-desktop','fa-image','fa-images','fa-camera','fa-video','fa-music','fa-lock','fa-key','fa-shield-alt','fa-shopping-cart','fa-store','fa-dollar-sign','fa-coins','fa-plane','fa-car','fa-bus','fa-rocket','fa-flask','fa-atom','fa-tree','fa-leaf','fa-sun','fa-moon','fa-cloud','fa-pen','fa-pencil-alt','fa-search','fa-eye','fa-link','fa-download','fa-upload','fa-sync','fa-plus','fa-minus','fa-bars','fa-code','fa-bug','fa-robot','fa-running','fa-hands-helping','fa-handshake','fa-mosque','fa-book','fa-book-open','fa-graduation-cap','fa-school','fa-university','fa-chalkboard-teacher','fa-medal','fa-info-circle','fa-exclamation-triangle','fa-wrench','fa-tools','fa-chart-pie','fa-poll','fa-paper-plane','fa-headset','fa-comments','fa-comment-dots','fa-map','fa-globe','fa-compass','fa-clock','fa-history','fa-file-alt','fa-file-excel','fa-archive','fa-save','fa-database','fa-video','fa-headphones','fa-microphone','fa-fingerprint','fa-id-card','fa-tag','fa-tags','fa-receipt','fa-train','fa-bicycle','fa-ship','fa-stethoscope','fa-heartbeat','fa-hospital','fa-pills','fa-seedling','fa-fire','fa-water','fa-coffee','fa-utensils','fa-highlighter','fa-eraser','fa-ruler','fa-paint-brush','fa-palette','fa-list','fa-share-alt','fa-copy','fa-random','fa-binoculars','fa-arrow-up','fa-arrow-down','fa-arrow-left','fa-arrow-right','fa-expand','fa-compress','fa-plus-circle','fa-times-circle','fa-ellipsis-h','fa-layer-group','fa-sitemap','fa-wifi','fa-signal','fa-rss','fa-terminal','fa-laptop-code','fa-microchip','fa-football-ball','fa-basketball-ball','fa-dumbbell','fa-donate','fa-hand-sparkles','fa-pray','fa-quran','fa-place-of-worship'];
-    var _currentIcon = document.getElementById('selectedIconInput').value || 'fa-star';
-    function buildIconGrid(filter) {
-        var grid = document.getElementById('iconPickerGrid');
-        var noResult = document.getElementById('iconNoResult');
-        var filtered = filter ? _iconList.filter(function(ic){ return ic.indexOf(filter.toLowerCase()) !== -1; }) : _iconList;
-        grid.innerHTML = '';
-        if (!filtered.length) { noResult.style.display='block'; grid.style.display='none'; return; }
-        noResult.style.display='none'; grid.style.display='grid';
-        filtered.forEach(function(ic) {
-            var el = document.createElement('div');
-            el.className = 'icon-item' + (ic === _currentIcon ? ' selected' : '');
-            el.title = ic;
-            el.innerHTML = '<i class="fa '+ic+'"></i><span>'+ic.replace('fa-','')+'</span>';
-            el.onclick = function() {
-                _currentIcon = ic;
-                document.getElementById('selectedIconInput').value = ic;
-                document.getElementById('iconPreviewEl').className = 'fa '+ic;
-                document.getElementById('iconPreviewName').textContent = ic;
-                var items = document.querySelectorAll('.icon-item');
-                for (var j = 0; j < items.length; j++) items[j].classList.remove('selected');
-                el.classList.add('selected');
-            };
-            grid.appendChild(el);
-        });
-    }
-    function filterIcons(val) { buildIconGrid(val.trim()); }
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function(){ buildIconGrid(''); });
-    } else {
-        buildIconGrid('');
-    }
-    </script>
-    <?php else: ?>
-    <div class="panel">
-        <form method="POST" action="" id="progForm">
-        <div class="panel-header" style="justify-content:flex-end">
-            <button type="submit" name="deleted" class="action-delete" onclick="return confirm('Hapus program yang dipilih?')">Hapus Terpilih</button>
-        </div>
-        <div class="table-responsive">
-        <table class="data-table">
-            <thead><tr>
-                <th>No</th><th>Judul Program</th><th>Konten</th><th>Icon</th><th>Status</th><th>Aksi</th>
-                <th><input type="checkbox" onclick="toggleAll(this)"></th>
-            </tr></thead>
-            <tbody>
-            <?php
-            $res = $koneksi_db->sql_query("SELECT * FROM `halaman` ORDER BY id DESC");
-            $i   = 0;
-            if ($res) while ($r = $koneksi_db->sql_fetchrow($res)):
-                $i++;
-                $icon  = isset($r['icon'])  ? $r['icon']  : 'fa-star';
-                $aktif = isset($r['aktif']) ? $r['aktif'] : 'Y';
-            ?>
-                <tr>
-                    <td><?php echo $i; ?></td>
-                    <td>
-                        <b><?php echo htmlspecialchars($r['judul']); ?></b>
-                        <?php if ($aktif === 'N'): ?> <span style="background:#ffd54f;color:#b26a00;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700;">DRAFT</span><?php endif; ?>
-                    </td>
-                    <td><small><?php echo mb_substr(strip_tags($r['konten']), 0, 60); ?>...</small></td>
-                    <td><i class="fa <?php echo htmlspecialchars($icon); ?>" style="font-size:18px;"></i></td>
-                    <td><?php echo $aktif === 'Y' ? '<span class="badge badge-aktif">Aktif</span>' : '<span class="badge badge-nonaktif">Draft</span>'; ?></td>
-                    <td>
-                        <a href="dashboard.php?page=program&action=edit&id=<?php echo $r['id']; ?>" class="action-btn action-edit">Edit</a>
-                        <?php if ($aktif === 'Y'): ?>
-                        <a href="dashboard.php?page=program&action=toggle&st=N&id=<?php echo $r['id']; ?>" class="action-btn action-del">Sembunyikan</a>
-                        <?php else: ?>
-                        <a href="dashboard.php?page=program&action=toggle&st=Y&id=<?php echo $r['id']; ?>" class="action-btn action-toggle">Tampilkan</a>
-                        <?php endif; ?>
-                    </td>
-                    <td><input type="checkbox" name="delete[]" value="<?php echo $r['id']; ?>"></td>
-                </tr>
-            <?php endwhile; ?>
-            <?php if ($i === 0): ?><tr><td colspan="7" class="text-center" style="padding:30px;color:#aaa;">Belum ada data program.</td></tr><?php endif; ?>
-            </tbody>
-        </table>
-        </div>
-        </form>
-    </div>
-    <?php endif; ?>
 
 <?php
 // ══════════════════════════════════════════════════════════════
@@ -2221,9 +2247,129 @@ elseif ($page === 'sambutan' && $db_ready):
     <script src="plugin/ckeditor/ckeditor.js"></script>
     <script>if (typeof CKEDITOR !== 'undefined') { CKEDITOR.replace('sambutan', { height: 300 }); }</script>
 
+<?php elseif ($page === 'program' && $isAdmin): ?>
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <svg viewBox="0 0 24 24"><path d="M4 10h3v7H4zM10.5 10h3v7h-3zM2 19h20v3H2zM17 10h3v7h-3zM12 1L2 6v2h20V6z"/></svg>
+                    Manajemen Program MBKM
+                </div>
+                <?php if ($prog_aksi === ''): ?>
+                <a href="dashboard.php?page=program&aksi=tambah" class="btn btn-primary btn-sm">
+                    <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Tambah Program
+                </a>
+                <?php endif; ?>
+            </div>
+
+            <div class="panel-body">
+                <?php if ($prog_msg)  echo '<div class="msg-ok">'.$prog_msg.'</div>'; ?>
+                <?php if ($prog_error) echo '<div class="msg-err">'.$prog_error.'</div>'; ?>
+                <?php if (isset($_GET['msg']) && $_GET['msg']==='hapus_ok') echo '<div class="msg-ok">Program berhasil dihapus.</div>'; ?>
+
+                <?php if ($prog_aksi === 'tambah' || $prog_aksi === 'edit'): 
+                    $edit_data = array('judul'=>'','deskripsi_singkat'=>'','isi'=>'','gambar'=>'','id'=>'');
+                    if ($prog_aksi === 'edit') {
+                        $eid = (int)$_GET['id'];
+                        $res = $koneksi_db->sql_fetchrow($koneksi_db->sql_query("SELECT * FROM mod_program WHERE id='$eid'"));
+                        if ($res) $edit_data = $res;
+                    }
+                ?>
+                    <form method="POST" action="" enctype="multipart/form-data">
+                        <input type="hidden" name="id" value="<?php echo $edit_data['id']; ?>">
+                        <div class="form-group">
+                            <label>Judul Program <span class="req">*</span></label>
+                            <input type="text" name="judul" class="form-control" value="<?php echo htmlspecialchars($edit_data['judul']); ?>" required placeholder="Contoh: Pertukaran Mahasiswa">
+                        </div>
+                        <div class="form-group">
+                            <label>Deskripsi Singkat (Muncul di list)</label>
+                            <textarea name="deskripsi_singkat" class="form-control" rows="2" placeholder="Penjelasan singkat tentang program..."><?php echo htmlspecialchars($edit_data['deskripsi_singkat']); ?></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Isi Detail Halaman (Gunakan Editor di Bawah) <span class="req">*</span></label>
+                            <textarea name="isi" class="form-control editor-word"><?php echo htmlspecialchars($edit_data['isi']); ?></textarea>
+                        </div>
+                        <div class="form-group" style="background:#f9f9f9; padding:20px; border-radius:12px; border:1px dashed #ccc;">
+                            <label style="display:block;margin-bottom:10px;font-weight:700">Gambar Utama / Thumbnail</label>
+                            <div id="imagePreviewContainer" style="margin-bottom:15px; display:<?= $edit_data['gambar']?'block':'none' ?>;">
+                                <img id="imagePreview" src="<?= $edit_data['gambar']?'images/pages/'.$edit_data['gambar']:'' ?>" style="max-width:300px; border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,0.1); border:3px solid #fff;">
+                                <p style="font-size:11px; color:#666; margin-top:5px;">Preview Gambar Saat Ini</p>
+                            </div>
+                            <input type="file" name="gambar" id="gambarInput" class="form-control" onchange="previewImage(this)">
+                            <p class="form-hint">Rekomendasi: Ukuran 1200x600px (2:1) agar presisi.</p>
+                        </div>
+                        <script>
+                        function previewImage(input) {
+                            var container = document.getElementById('imagePreviewContainer');
+                            var preview = document.getElementById('imagePreview');
+                            if (input.files && input.files[0]) {
+                                var reader = new FileReader();
+                                reader.onload = function(e) {
+                                    preview.src = e.target.result;
+                                    container.style.display = 'block';
+                                }
+                                reader.readAsDataURL(input.files[0]);
+                            }
+                        }
+                        </script>
+                        <div class="form-actions">
+                            <button type="submit" name="submit_program" class="btn btn-primary">Simpan Program MBKM</button>
+                            <a href="dashboard.php?page=program" class="btn btn-outline">Batal</a>
+                        </div>
+                    </form>
+
+                <?php else: ?>
+                    <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th width="50">No</th>
+                                <th width="80">Preview</th>
+                                <th>Info Program</th>
+                                <th>Slug URL</th>
+                                <th width="150">Update</th>
+                                <th width="120">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $n=1;
+                            $res = $koneksi_db->sql_query("SELECT * FROM mod_program ORDER BY id DESC");
+                            if ($koneksi_db->sql_numrows($res) > 0) {
+                                while($row = $koneksi_db->sql_fetchrow($res)) {
+                                    $thumb = !empty($row['gambar']) ? '<img src="images/pages/'.$row['gambar'].'" style="width:60px;height:40px;object-fit:cover;border-radius:6px;box-shadow:0 2px 4px rgba(0,0,0,0.1)">' : '<div style="width:60px;height:40px;background:#eee;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#aaa">No Pic</div>';
+                                    echo '<tr>
+                                        <td>'.$n++.'</td>
+                                        <td>'.$thumb.'</td>
+                                        <td>
+                                            <div style="font-weight:700; color:var(--text-primary);">'.$row['judul'].'</div>
+                                            <div style="font-size:11px; color:var(--text-muted); line-height:1.2;">'.substr(strip_tags($row['deskripsi_singkat']),0,50).'...</div>
+                                        </td>
+                                        <td><code>/'.$row['slug'].'</code></td>
+                                        <td style="font-size:12px;">'.date('d/m/Y H:i', strtotime($row['tgl_update'])).'</td>
+                                        <td>
+                                            <a href="dashboard.php?page=program&aksi=edit&id='.$row['id'].'" class="action-btn action-edit" title="Edit">
+                                                <svg viewBox="0 0 24 24" width="14"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                                            </a>
+                                            <a href="dashboard.php?page=program&aksi=hapus&id='.$row['id'].'" class="action-btn action-del" onclick="return confirm(\'Yakin hapus program ini?\')" title="Hapus">
+                                                <svg viewBox="0 0 24 24" width="14"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                                            </a>
+                                        </td>
+                                    </tr>';
+                                }
+                            } else {
+                                echo '<tr><td colspan="5" class="empty-state"><span>📭</span> Belum ada program MBKM. Mulai dengan tambah program baru!</td></tr>';
+                            }
+                            ?>
+                        </tbody>
+                    </table>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
 <?php else: ?>
     <div class="msg-err">Halaman tidak ditemukan atau database tidak tersambung.</div>
 <?php endif; ?>
+
     </main>
 
     <footer class="dash-footer">

@@ -136,6 +136,15 @@ echo '
     z-index: 2;
 }
 @media (max-width: 991px) { .hero-stats-bar { display: none; } }
+@media (max-width: 768px) {
+    .custom-hero { padding: 120px 0 0; min-height: 480px; }
+    .custom-hero h1 { font-size: 32px; text-align: center; }
+    .custom-hero .hero-sub { font-size: 14px; text-align: center; margin-left: auto; margin-right: auto; }
+    .custom-hero .hero-content { padding-bottom: 80px; text-align: center; width: 100%; max-width: 100%; flex: 0 0 100%; }
+    .hero-actions { justify-content: center; gap: 12px; }
+    .hero-btn-primary, .hero-btn-outline { width: 100%; max-width: 250px; text-align: center; padding: 12px 20px; font-size: 13px; }
+    .wave-bottom svg { height: 50px; }
+}
 
 .hero-stat-pill {
     background: rgba(255,255,255,.10);

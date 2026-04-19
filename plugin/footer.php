@@ -80,6 +80,20 @@
     font-size: 13px;
     color: rgba(221,229,205,0.6);
 }
+
+/* ── FOOTER MOBILE OVERRIDES ── */
+@media (max-width: 768px) {
+    .classic-footer { padding: 40px 20px 30px; }
+    .footer-container { 
+        display: flex; 
+        flex-direction: column; 
+        gap: 40px; 
+        text-align: center; 
+    }
+    .footer-col h4::after { left: 50%; transform: translateX(-50%); }
+    .footer-socials { justify-content: center; }
+    .footer-links a:hover { transform: translateY(-4px); }
+}
 </style>
 
 <footer class="classic-footer">
