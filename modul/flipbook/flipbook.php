@@ -64,7 +64,7 @@ body, section, div, button, input { font-family: 'Plus Jakarta Sans', sans-serif
 ══════════════════════════════════════ */
 .fb-hero {
     background: linear-gradient(135deg, var(--moss-dark) 0%, var(--moss-olive) 100%);
-    padding: 130px 0 64px; text-align: center;
+    padding: 100px 0 60px; text-align: center;
     position: relative; overflow: hidden;
 }
 .fb-hero::before {
@@ -87,7 +87,7 @@ body, section, div, button, input { font-family: 'Plus Jakarta Sans', sans-serif
     margin: 0 0 14px; letter-spacing: -1.2px; line-height: 1.1;
 }
 .fb-hero p {
-    color: rgba(255,255,255,.72); font-size: 14.5px; max-width: 500px;
+    color: rgba(255,255,255,.72); font-size: 14.5px; max-width: 800px;
     margin: 0 auto 28px; line-height: 1.8;
 }
 .fb-hero-divider {
@@ -609,15 +609,18 @@ foreach ($all_books as $bk) {
 
 <!-- ═══════════════════════════════════
      BOOKSHELF
+     Juga ditambahkan Sidebar Manual
 ═══════════════════════════════════ -->
 <section class="fb-shelf-section">
     <div class="container">
-        <div class="fb-search-bar">
-            <input type="text" id="fbSearchInput" placeholder="Cari buku pedoman..." oninput="fbSearch()">
-            <button type="button" onclick="fbSearch()">
-                <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-            </button>
-        </div>
+        <div class="row">
+            <div class="col-md-9">
+                <div class="fb-search-bar">
+                    <input type="text" id="fbSearchInput" placeholder="Cari buku pedoman..." oninput="fbSearch()">
+                    <button type="button" onclick="fbSearch()">
+                        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                    </button>
+                </div>
 
         <?php if (empty($all_books)): ?>
         <div class="fb-empty">
@@ -705,15 +708,20 @@ foreach ($all_books as $bk) {
         <?php   endforeach; }
         ?>
 
-        <?php if ($is_admin): ?>
-        <div style="text-align:center;margin-top:24px;">
-            <a href="admin.php?pilih=flipbook&modul=yes" class="fb-admin-btn" style="display:inline-flex;">
-                <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:var(--moss-dark)"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
-                Kelola Koleksi Buku
-            </a>
-        </div>
-        <?php endif; ?>
-        <?php endif; ?>
+            </div><!-- end col-md-9 -->
+            
+            <div class="col-md-3">
+                <div class="modern-sidebar" style="margin-top:0 !important; text-align:left;">
+                    <?php
+                    ob_start();
+                    include "plugin/berita.php";
+                    modul(1);
+                    blok(1);
+                    echo ob_get_clean();
+                    ?>
+                </div>
+            </div><!-- end col-md-3 -->
+        </div><!-- end row -->
     </div>
 </section>
 

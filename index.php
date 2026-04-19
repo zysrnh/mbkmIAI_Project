@@ -154,30 +154,21 @@ ob_end_clean();
 
 ///// MENU KIRI /////////////////////
 ///// MENU KANAN /////////////////////
+$pilih = isset($_GET['pilih']) ? trim($_GET['pilih']) : '';
+$no_sidebar = array('', 'program', 'flipbook');
 
-if (!isset($_GET['pilih'])) {
-ob_start();
-
-
-$kanan = ob_get_contents();
-ob_end_clean(); 
-} else {
+if (!in_array($pilih, $no_sidebar)) {
     ob_start();
-    // PAKSA SIDEBAR HILANG JIKA HALAMAN PROGRAM
-    $is_program_page = (isset($_GET['pilih']) && trim($_GET['pilih']) == 'program');
-    
-    if (!$is_program_page) {
-        include "plugin/berita.php";
-        echo "<!-- blok kanan -->";
-        modul(1);
-        echo "<!-- blok kanan -->";
-        blok(1);
-    }
-    
+    include "plugin/berita.php";
+    echo "<!-- blok kanan -->";
+    modul(1);
+    echo "<!-- blok kanan -->";
+    blok(1);
     $kanan = ob_get_contents();
     ob_end_clean();
+} else {
+    $kanan = "";
 }
-
 ///// MENU KANAN /////////////////////
 
 

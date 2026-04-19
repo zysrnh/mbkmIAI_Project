@@ -142,6 +142,21 @@ header.custom-header-main {
     }
     .nav-links .dropdown-menu a:hover { background: #f8f8f8; color: #306238 !important; }
 }
+
+/* ── FORCE MODERN SIDEBAR FIX ── */
+.modern-sidebar, .sidebar-section:first-child { margin-top: 30px; } 
+.sidebar-section h4, .sidebar-section h3 { margin: 0; color: #1e4d27; font-weight: 700; }
+.sidebar-section table { width: 100% !important; border-collapse: separate; border-spacing: 2px; }
+
+/* ── GLOBAL OFFSET (Biar konten gak ketutupan Navbar) ── */
+#main-content-area, .element-size-67, .container { margin-top: 130px !important; }
+.modern-hero-area { margin-top: 0 !important; }
+.modern-sidebar { margin-top: 30px !important; }
+.sidebar-section td { text-align: center; padding: 5px; font-size: 12px; border-radius: 4px; border: 1px solid #f0f0f0; }
+.sidebar-section .today, .sidebar-section td[style*="background-color: rgb(255, 102, 0)"] { background: #1e4d27 !important; color: #fff !important; font-weight: 800; border: none; }
+.sidebar-section a[style*="background-color: rgb(59, 130, 246)"], 
+.sidebar-section a[style*="background-color: #3b82f6"] { background: #1e4d27 !important; box-shadow: 0 4px 15px rgba(30,77,39,0.3); }
+.sidebar-section .info-badge, .sidebar-section span[style*="background-color: #1d4ed8"] { background: #306238 !important; }
 </style>
 
 <div class="header-wrapper">
@@ -174,7 +189,7 @@ header.custom-header-main {
                 </div>
             </li>
             <li><a href="#">Tim</a></li>
-            <li><a href="#">Berita</a></li>
+            <li><a href="kategori/1/Berita Kampus.html">Berita</a></li>
             
             <?php if (isset($_SESSION['UserName']) && !empty($_SESSION['UserName'])): ?>
                 <li>

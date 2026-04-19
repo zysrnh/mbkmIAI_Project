@@ -128,8 +128,8 @@ if($_GET['aksi'] == "lihat") {
     $hitungjumlah = $koneksi_db->sql_query("SELECT id FROM artikel WHERE id!='$id' AND publikasi=1 AND topik='$topik'");
     $jumlah = $koneksi_db->sql_numrows($hitungjumlah);
     
-    $tengah .= '<div style="background: linear-gradient(135deg, #1e73be 0%, #1557a0 100%); padding: 16px 24px; margin: 30px 0 20px 0; border-radius: 8px; box-shadow: 0 2px 8px rgba(30,115,190,0.15);">
-        <h4 style="margin: 0; color: #ffffff; font-size: 18px; font-weight: 600; letter-spacing: 0.5px;">
+    $tengah .= '<div style="background: linear-gradient(135deg, #1e4d27 0%, #306238 100%); padding: 16px 24px; margin: 0 0 20px 0; border-radius: 12px; box-shadow: 0 10px 25px rgba(30,77,39,0.15);">
+        <h4 style="margin: 0; color: #ffffff; font-size: 18px; font-weight: 700; letter-spacing: 0.5px;">
             <i class="fa fa-newspaper-o" style="margin-right: 8px;"></i>Artikel Terkait
         </h4>
     </div>';
@@ -145,7 +145,7 @@ if($_GET['aksi'] == "lihat") {
         $gambar2 = $data[3];
         
         $tengah .= '
-        <div class="artikel-card" style="background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.08); transition: all 0.3s ease; border: 1px solid #e8e8e8;">
+        <div class="artikel-card" style="background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: all 0.3s ease; border: 1px solid #f0f0f0;">
             <figure style="margin: 0; width: 100%; height: 180px; overflow: hidden; position: relative;">
                 <img src="images/artikel/' . $data['gambar'] . '" alt="' . $data[1] . '" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;">
             </figure>
@@ -201,10 +201,10 @@ if($_GET['aksi'] == "arsip") {
         $tengah .= '<div class="error">Halaman tidak tersedia.</div>';
         $tengah .= '<meta http-equiv="refresh" content="3; url=index.php">';
     } else {
-        $tengah .= '<div style="background: linear-gradient(135deg, #1e73be 0%, #1557a0 100%); padding: 20px 24px; margin-bottom: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(30,115,190,0.15);">
-            <h4 style="margin: 0; color: #ffffff; font-size: 22px; font-weight: 600; letter-spacing: 0.5px;">
-                <i class="fa fa-folder-open" style="margin-right: 10px;"></i>Kategori: ' . $rubrik . '
-            </h4>
+        $tengah .= '<div style="background: linear-gradient(135deg, #1e4d27 0%, #306238 100%); padding: 30px 40px; margin: 0 0 40px 0; border-radius: 20px; box-shadow: 0 10px 30px rgba(30,77,39,0.15); color: #fff; position: relative; overflow: hidden;">
+            <div style="position: absolute; top:0; right: 0; opacity: 0.1;"><svg width="150" height="150" viewBox="0 0 24 24" fill="#fff"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg></div>
+            <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 2px; opacity: 0.8; margin-bottom: 8px; font-weight: 700;">Arsip Berita</div>
+            <h4 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 800; letter-spacing: -0.5px;">' . $rubrik . '</h4>
         </div>';
 
         $limit = 10;
@@ -219,36 +219,29 @@ if($_GET['aksi'] == "arsip") {
         if ($jumlah > 0) {
             $hasil = $koneksi_db->sql_query("SELECT * FROM artikel WHERE publikasi=1 AND topik=$topik ORDER BY id DESC LIMIT $offset, $limit");
 
-            $tengah .= '<div class="artikel-list-wrapper" style="display: flex; flex-direction: column; gap: 24px;">';
+            $tengah .= '<div class="artikel-list-wrapper" style="display: flex; flex-direction: column; gap: 30px;">';
 
             while ($data = $koneksi_db->sql_fetchrow($hasil)) {
                 $url = str_replace(" ", "-", $data[1]);
-                $urltgl = str_replace("-", "/", $data[5]);
-                $gambar2 = $data['gambar'];
-
                 $tengah .= '
-                <div class="artikel-list-item" style="display: flex; gap: 20px; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.08); transition: all 0.3s ease; border: 1px solid #e8e8e8; padding: 16px;">
-                    <figure style="margin: 0; width: 280px; min-width: 280px; height: 200px; overflow: hidden; border-radius: 6px;">
-                        <img src="images/artikel/' . $data['gambar'] . '" alt="' . $data[1] . '" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;">
+                <div class="artikel-list-item" style="display: flex; gap: 25px; background: #fff; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 25px rgba(0,0,0,0.04); transition: all 0.4s ease; border: 1px solid #f0f0f0; padding: 20px;">
+                    <figure style="margin: 0; width: 300px; min-width: 300px; height: 210px; overflow: hidden; border-radius: 12px;">
+                        <img src="images/artikel/' . $data['gambar'] . '" alt="' . $data[1] . '" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;">
                     </figure>
-                    <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
-                        <div>
-                            <h5 style="font-size: 20px; margin: 0 0 12px 0; line-height: 1.4; font-weight: 600;">
-                                <a href="artikel/' . $data[0] . '/' . $url . '.html" title="' . $data[1] . '" style="color: #333; text-decoration: none;">' . $data[1] . '</a>
-                            </h5>
-                            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px; color: #999; font-size: 13px;">
-                                <span style="display: flex; align-items: center; gap: 5px;">
-                                    <i class="fa fa-calendar"></i> ' . datetimess($data['tgl']) . '
-                                </span>
-                                <span style="display: flex; align-items: center; gap: 5px;">
-                                    <i class="fa fa-eye"></i> ' . $data['hits'] . ' views
-                                </span>
-                            </div>
-                            <p style="margin: 0; color: #666; font-size: 14px; line-height: 1.7;">' . limitTXT(strip_tags($data['konten']), 180) . '</p>
+                    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px; color: #306238; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">
+                            <i class="fa fa-calendar"></i> ' . datetimess($data['tgl']) . '
                         </div>
-                        <a href="artikel/' . $data[0] . '/' . $url . '.html" style="display: inline-flex; align-items: center; gap: 6px; color: #1e73be; font-size: 14px; font-weight: 600; text-decoration: none; margin-top: 12px;">
-                            Baca Selengkapnya <i class="fa fa-arrow-right"></i>
-                        </a>
+                        <h5 style="font-size: 22px; margin: 0 0 15px 0; line-height: 1.3; font-weight: 800;">
+                            <a href="artikel/' . $data[0] . '/' . $url . '.html" title="' . $data[1] . '" style="color: #111; text-decoration: none; transition: color 0.3s;">' . $data[1] . '</a>
+                        </h5>
+                        <p style="margin: 0; color: #666; font-size: 15px; line-height: 1.7; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">' . limitTXT(strip_tags($data['konten']), 160) . '</p>
+                        
+                        <div style="margin-top: 20px;">
+                            <a href="artikel/' . $data[0] . '/' . $url . '.html" style="display: inline-flex; align-items: center; gap: 8px; color: #fff; background: #1e4d27; padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 700; text-decoration: none; transition: transform 0.3s;">
+                                Baca Lengkap <i class="fa fa-arrow-right"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>';
             }
