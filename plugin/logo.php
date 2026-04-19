@@ -4,18 +4,20 @@ global $koneksi_db;
 <style>
 /* ── NAVBAR MAIN ── */
 header.custom-header-main {
-    position: absolute;
+    position: fixed;
     width: 100%;
     top: 0; left: 0;
-    z-index: 1000;
+    z-index: 99999;
+    background: #1e4d27; /* Ijo Tua Solid */
+    box-shadow: 0 4px 30px rgba(0,0,0,0.15);
 }
 .header-wrapper { width: 100%; }
 .custom-navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 5%;
-    background: transparent;
+    padding: 10px 5%;
+    background: #1e4d27;
     transition: all 0.3s;
 }
 
@@ -144,11 +146,11 @@ header.custom-header-main {
 
 <div class="header-wrapper">
     <div class="custom-navbar">
-        <a href="index.php" class="logo-left">
-            <strong>MBKM IAI PI BANDUNG</strong>
-            <span>Institut Agama Islam Persis Bandung</span>
-        </a>
-        
+                <!-- Logo Area -->
+                <a href="index.php" class="navbar-brand" style="display: flex; flex-direction: column; justify-content: center; height: 100%; text-decoration: none;">
+                    <div style="font-weight: 800; font-size: 20px; line-height: 1.2; color: #fff; letter-spacing: -0.5px;">MBKM IAI PI BANDUNG</div>
+                    <div style="font-size: 9px; opacity: 0.7; letter-spacing: 1.5px; color: #fff; text-transform: uppercase; font-weight: 600;">Institut Agama Islam Persis Bandung</div>
+                </a>
         <button class="nav-hamb" onclick="toggleMnu()">
             <i class="fa fa-bars"></i>
         </button>

@@ -4,6 +4,8 @@ global $koneksi_db;
 $hero_title = "MBKM IAI PI BANDUNG";
 $hero_desc = "Informasi Detail & Halaman Konten";
 
+if (isset($_GET['pilih']) && $_GET['pilih'] === 'program') { return; }
+
 if (isset($_GET['pilih']) && $_GET['pilih'] === 'hal' && isset($_GET['id'])) {
     $id_hal = (int)$_GET['id'];
     $hal_res = $koneksi_db->sql_query("SELECT judul FROM halaman WHERE id='$id_hal'");

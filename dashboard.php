@@ -2498,6 +2498,17 @@ function cancelCrop() {
     var ri = document.getElementById('rawCoverInput');
     if (ri) ri.value = '';
 }
+
+// Re-initialize CKEditor with Upload Support
+if (typeof CKEDITOR !== 'undefined') {
+    var ckConfig = {
+        height: 400,
+        filebrowserUploadUrl: 'upload_handler.php',
+        filebrowserUploadMethod: 'form'
+    };
+    if (document.getElementById('sambutan')) CKEDITOR.replace('sambutan', ckConfig);
+    if (document.getElementsByName('isi').length > 0) CKEDITOR.replace(document.getElementsByName('isi')[0], ckConfig);
+}
 </script>
 </body>
 </html>

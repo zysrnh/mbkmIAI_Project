@@ -27,50 +27,54 @@ if (!$data) {
     
     // 1. Hero / Header Halaman
     $tengah .= '
-    <div style="background: linear-gradient(135deg, #1e4d27 0%, #306238 100%); padding: 120px 0 60px; color: white; position: relative; overflow: hidden;">
+    <div style="background: linear-gradient(135deg, #1e4d27 0%, #306238 100%); padding: 240px 0 120px; color: white; position: relative; overflow: hidden;">
         <div style="position: absolute; inset: 0; opacity: 0.1; background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 30px 30px;"></div>
-        <div class="container" style="position: relative; z-index: 2;">
-            <div style="text-transform: uppercase; letter-spacing: 2px; font-size: 13px; font-weight: 700; color: #9EBB97; margin-bottom: 10px;">Program Merdeka Belajar</div>
-            <h1 style="font-size: 42px; font-weight: 900; margin: 0; color: #fff; letter-spacing: -1px;">'.htmlspecialchars($data['judul']).'</h1>
+        <div class="container" style="position: relative; z-index: 2; text-align: center;">
+            <div style="text-transform: uppercase; letter-spacing: 4px; font-size: 11px; font-weight: 700; color: #9EBB97; margin-bottom: 15px;">Program Merdeka Belajar</div>
+            <h1 style="font-size: clamp(2rem, 5vw, 3.8rem); font-weight: 900; margin: 0; color: #fff; letter-spacing: -2px; line-height: 1.1;">'.htmlspecialchars($data['judul']).'</h1>
         </div>
     </div>';
 
     // 2. Konten Utama
     $tengah .= '
-    <div style="background: #fdfdfd; padding: 60px 0;">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-9" style="margin: 0 auto;">
-                    <div style="background: #fff; border-radius: 20px; box-shadow: 0 15px 50px rgba(0,0,0,0.05); padding: 50px; border: 1px solid rgba(0,0,0,0.03);">
-                        ';
+    <div style="background: #f4f7f6; padding: 0 0 100px;">
+        <div class="container" style="margin-top: -80px; position: relative; z-index: 10;">
+            <div style="max-width: 850px; margin: 0 auto; background: #fff; border-radius: 30px; box-shadow: 0 40px 100px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid rgba(0,0,0,0.05);">
+                ';
     
     // Tampilkan Gambar Utama jika ada
     if ($data['gambar']) {
-        $tengah .= '<div style="margin-bottom: 40px; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
-            <img src="images/pages/'.$data['gambar'].'" style="width: 100%; height: auto; display: block;">
+        $tengah .= '<div style="width: 100%; height: 450px; overflow: hidden; border-bottom: 1px solid #f0f0f0;">
+            <img src="images/pages/'.$data['gambar'].'" style="width: 100%; height: 100%; object-fit: cover; display: block;">
         </div>';
     }
 
-    // Tampilkan Isi (Render HTML dari editor)
+    // Tampilkan Isi
     $tengah .= '
-                        <div class="program-body" style="line-height: 1.8; color: #444; font-size: 16px;">
-                            <style>
-                                .program-body h2 { color: #1e4d27; font-weight: 800; margin-top: 40px; margin-bottom: 20px; font-family: "Playfair Display", serif; border-left: 4px solid #306238; padding-left: 20px; }
-                                .program-body h3 { color: #306238; font-weight: 700; margin-top: 30px; }
-                                .program-body p { margin-bottom: 25px; text-align: justify; }
-                                .program-body ul, .program-body ol { margin-bottom: 30px; padding-left: 20px; }
-                                .program-body li { margin-bottom: 12px; }
-                                .program-body b, .program-body strong { color: #111; }
-                            </style>
-                            '.$data['isi'].'
-                        </div>
-                        
-                        <hr style="margin: 50px 0; opacity: 0.1;">
-                        
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div style="font-size: 13px; color: #aaa;">Terakhir diperbarui: '.date("d F Y", strtotime($data['tgl_update'])).'</div>
-                            <a href="index.php" style="color: #306238; font-weight: 700; text-decoration: none; font-size: 14px;">&larr; Kembali ke Beranda</a>
-                        </div>
+                <div style="padding: 60px 70px;">
+                    <div class="program-body" style="line-height: 1.9; color: #333; font-size: 17px; font-family: \'Inter\', sans-serif;">
+                        <style>
+                            .program-body h1, .program-body h2 { color: #1e4d27; font-weight: 800; margin-top: 50px; margin-bottom: 25px; font-family: "Playfair Display", serif; border-left: 6px solid #306238; padding-left: 20px; text-transform: none; line-height: 1.2; }
+                            .program-body h3 { color: #306238; font-weight: 700; margin-top: 35px; text-transform: none; }
+                            .program-body p { margin-bottom: 25px; text-align: justify; }
+                            .program-body ul, .program-body ol { margin-bottom: 30px; padding-left: 25px; }
+                            .program-body li { margin-bottom: 15px; }
+                            .program-body b, .program-body strong { color: #000; font-weight: 700; }
+                            @media (max-width: 768px) {
+                                .program-body { font-size: 16px; }
+                                [style*="padding: 60px 80px"] { padding: 30px 20px !important; }
+                                [style*="height: 500px"] { height: 300px !important; }
+                            }
+                        </style>
+                        '.$data['isi'].'
+                    </div>
+                    
+                    <div style="margin-top: 60px; padding-top: 30px; border-top: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+                        <div style="font-size: 13px; color: #999; font-style: italic;">Pembaruan terakhir: '.date("d F Y", strtotime($data['tgl_update'])).'</div>
+                        <a href="index.php" class="btn-back" style="color: #306238; font-weight: 700; text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                            Kembali ke Beranda
+                        </a>
                     </div>
                 </div>
             </div>

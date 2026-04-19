@@ -162,17 +162,20 @@ ob_start();
 $kanan = ob_get_contents();
 ob_end_clean(); 
 } else {
-ob_start();
-
-include "plugin/berita.php";
-echo "<!-- blok kanan -->";
-modul(1);
-
-
-echo "<!-- blok kanan -->";
-blok(1);
-$kanan = ob_get_contents();
-ob_end_clean();
+    ob_start();
+    // PAKSA SIDEBAR HILANG JIKA HALAMAN PROGRAM
+    $is_program_page = (isset($_GET['pilih']) && trim($_GET['pilih']) == 'program');
+    
+    if (!$is_program_page) {
+        include "plugin/berita.php";
+        echo "<!-- blok kanan -->";
+        modul(1);
+        echo "<!-- blok kanan -->";
+        blok(1);
+    }
+    
+    $kanan = ob_get_contents();
+    ob_end_clean();
 }
 
 ///// MENU KANAN /////////////////////
@@ -289,6 +292,15 @@ $define = array (
 				 'meta_keywords' => $_META['keywords'],
 				 'timer' => $timer->stop()
                 );
+
+// OVERRIDE TOTAL BUAT HALAMAN PROGRAM (BIAR NGAK KACAU)
+if (isset($_GET['pilih']) && $_GET['pilih'] == 'program') {
+    $define['kanan'] = '';
+    $define['kiri'] = '';
+    $define['spasi'] = '';
+    $define['spasi2'] = '';
+    $define['spasi3'] = '';
+}
                 
 $tpl = new template ('thema/cms-template.html');
 
