@@ -1,0 +1,7 @@
+Array
+(
+    [type] => 64
+    [message] => Array and string offset access syntax with curly braces is no longer supported
+    [file] => Z:\mbkm.iaipibandung.ac.id\mbkm.iaipibandung.ac.id\ikutan\fungsi.php
+    [line] => 2196
+)

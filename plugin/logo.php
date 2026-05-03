@@ -409,7 +409,7 @@ header.custom-header-main.nav-top {
                     </div>
                 </li>
 
-                <li><a href="#">Tim</a></li>
+                <li><a href="index.php?pilih=tim&modul=yes">Tim</a></li>
                 <li><a href="kategori/1/Berita-Kampus.html">Berita</a></li>
 
                 <?php if (isset($_SESSION['UserName']) && !empty($_SESSION['UserName'])): ?>

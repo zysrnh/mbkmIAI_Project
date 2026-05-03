@@ -221,7 +221,7 @@ function MM_jumpMenu(targ,selObj,restore){ //v3.0
             $query_add .= "WHERE LEFT(nama, 1) = '$str'";
         }
         
-        $num = $koneksi_db->sql_query("SELECT `id` FROM `mod_data_foto` WHERE kat='$kid' $query_add");
+        $num = $koneksi_db->sql_query("SELECT `id` FROM `mod_data_foto` WHERE `status`='1' AND kat='$kid' $query_add");
         $jumlah = $koneksi_db->sql_numrows($num);
         
         $limit = 12;
@@ -298,7 +298,7 @@ function MM_jumpMenu(targ,selObj,restore){ //v3.0
                 </form>
             </div>';
             
-            $query = $koneksi_db->sql_query("SELECT * FROM `mod_data_foto` WHERE kat='$kid' $query_add $SORT_SQL ORDER BY `id` DESC LIMIT $offset, $limit");
+            $query = $koneksi_db->sql_query("SELECT * FROM `mod_data_foto` WHERE `status`='1' AND kat='$kid' $query_add $SORT_SQL ORDER BY `id` DESC LIMIT $offset, $limit");
             
             $content .= '<div class="foto-grid">';
             
@@ -353,7 +353,7 @@ function MM_jumpMenu(targ,selObj,restore){ //v3.0
             $query_add .= "WHERE LEFT(nama, 1) = '$str'";
         }
         
-        $num = $koneksi_db->sql_query("SELECT `id` FROM `mod_data_foto` $query_add");
+        $num = $koneksi_db->sql_query("SELECT `id` FROM `mod_data_foto` WHERE `status`='1' $query_add");
         $jumlah = $koneksi_db->sql_numrows($num);
         
         $limit = 12;
@@ -407,7 +407,7 @@ function MM_jumpMenu(targ,selObj,restore){ //v3.0
             </form>
         </div>';
         
-        $query = $koneksi_db->sql_query("SELECT * FROM `mod_data_foto` $query_add $SORT_SQL ORDER BY `id` DESC LIMIT $offset, $limit");
+        $query = $koneksi_db->sql_query("SELECT * FROM `mod_data_foto` WHERE `status`='1' $query_add $SORT_SQL ORDER BY `id` DESC LIMIT $offset, $limit");
         
         $content .= '<div class="foto-grid">';
         

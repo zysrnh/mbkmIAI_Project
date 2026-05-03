@@ -155,7 +155,7 @@ ob_end_clean();
 ///// MENU KIRI /////////////////////
 ///// MENU KANAN /////////////////////
 $pilih = isset($_GET['pilih']) ? trim($_GET['pilih']) : '';
-$no_sidebar = array('', 'program', 'flipbook');
+$no_sidebar = array('', 'program', 'flipbook', 'artikel', 'tim');
 
 if (!in_array($pilih, $no_sidebar)) {
     ob_start();
@@ -284,8 +284,8 @@ $define = array (
 				 'timer' => $timer->stop()
                 );
 
-// OVERRIDE TOTAL BUAT HALAMAN PROGRAM (BIAR NGAK KACAU)
-if (isset($_GET['pilih']) && $_GET['pilih'] == 'program') {
+// OVERRIDE TOTAL BUAT HALAMAN PROGRAM & ARTIKEL (BIAR NGAK KACAU)
+if (isset($_GET['pilih']) && ($_GET['pilih'] == 'program' || $_GET['pilih'] == 'artikel' || $_GET['pilih'] == 'tim')) {
     $define['kanan'] = '';
     $define['kiri'] = '';
     $define['spasi'] = '';

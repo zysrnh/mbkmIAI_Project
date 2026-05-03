@@ -4,297 +4,328 @@ if (!defined('cms-KOMPONEN')) {
     exit;
 }
 
-$ikon_2 = '';
-$ikon_3 = '';
-$index_hal = 1;
+global $koneksi_db, $tengah;
 
 $_GET['aksi'] = !isset($_GET['aksi']) ? null : $_GET['aksi'];
-$_GET['id'] = !isset($_GET['id']) ? null : int_filter($_GET['id']);
+$_GET['id']   = !isset($_GET['id'])   ? null : int_filter($_GET['id']);
+$topik_id     = isset($_GET['topik']) ? int_filter($_GET['topik']) : 0;
 
-$tengah = '';
+$tengah .= '
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap");
 
-if($_GET['aksi'] == "") {
-    $tengah .= '<div class="element-size-67"><div class="cs-campunews custom-fig col-md-12"><div class="error">Harus sesuai prosedur.</div>';
-    $tengah .= '<meta http-equiv="refresh" content="3; url=">';
+.pd-wrap, .pd-wrap * { box-sizing: border-box; }
+.pd-wrap { font-family: "Plus Jakarta Sans", sans-serif; background: #F4F6F4; padding-bottom: 80px; }
+
+/* HERO */
+.pd-hero {
+    background: linear-gradient(rgba(15, 45, 28, 0.88), rgba(27, 67, 50, 0.85)), url("images/Assets/KampusAtas.png");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    padding: 70px 0 100px;
+    position: relative; overflow: hidden; text-align: center; color: #fff;
+}
+.pd-hero::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: radial-gradient(rgba(255,255,255,.055) 1px, transparent 1px);
+    background-size: 26px 26px;
+}
+.pd-hero-in { position: relative; z-index: 2; max-width: 860px; margin: 0 auto; padding: 0 20px; }
+.pd-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.18);
+    padding: 5px 18px; border-radius: 6px;
+    font-size: 10px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase;
+    color: rgba(255,255,255,.8); margin-bottom: 18px;
+}
+.pd-eyebrow span { width: 5px; height: 5px; border-radius: 50%; background: #a8d5b5; display: inline-block; }
+.pd-hero h1 {
+    font-size: clamp(1.8rem, 4vw, 2.9rem); font-weight: 900;
+    letter-spacing: -1.2px; line-height: 1.1; color: #fff; margin: 0;
 }
 
-if($_GET['aksi'] == "lihat") {
-    $id = int_filter($_GET['id']);
+/* LAYOUT */
+.pd-body {
+    max-width: 1280px; margin: -70px auto 0; padding: 0 24px;
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 24px; align-items: start; position: relative; z-index: 5;
+}
+@media (max-width: 991px) {
+    .pd-body { grid-template-columns: 1fr; margin-top: -40px; }
+}
 
-    if (file_exists("gambar/6.gif")) {
-        $ikon_2 = "<img src=\"gambar/6.gif\" alt=\"\" border=\"0\" />";
-    }
-    if (file_exists("gambar/7.gif")) {
-        $ikon_3 = "<img src=\"gambar/7.gif\" alt=\"\" border=\"0\" />";
-    }
+/* MAIN CARD */
+.pd-card {
+    background: #fff; border-radius: 6px;
+    box-shadow: 0 6px 32px rgba(27,67,50,.09);
+    overflow: hidden; border: 1px solid #e8ede9;
+}
 
-    $hasil = $koneksi_db->sql_query("SELECT * FROM artikel WHERE id='$id' AND publikasi=1");
-    $data = $koneksi_db->sql_fetchrow($hasil);
+/* LIST BERITA */
+.news-item {
+    display: flex; gap: 20px; padding: 22px 24px;
+    border-bottom: 1px solid #f0f4f1;
+    transition: background .18s; text-decoration: none !important; color: inherit;
+}
+.news-item:last-child { border-bottom: none; }
+.news-item:hover { background: #f9fbf9; }
+.news-img {
+    width: 200px; min-width: 200px; height: 140px;
+    border-radius: 8px; overflow: hidden; background: #eee; flex-shrink: 0;
+}
+.news-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.news-cont { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+.news-meta { font-size: 10.5px; font-weight: 700; color: #2D6A4F; text-transform: uppercase; margin-bottom: 8px; }
+.news-ttl { font-size: 17px; font-weight: 800; color: #1B4332; margin: 0 0 9px; line-height: 1.35; }
+.news-desc {
+    font-size: 13.5px; color: #666; line-height: 1.65; margin-bottom: 12px;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.news-read { font-size: 12px; font-weight: 700; color: #1B4332; }
 
-    $judulnya = $data['judul'];
-    $topik = $data['topik'];
-    $tagx = $data['tags'];
-    $tgll = $data['tgl'];
-    $gambar = $data['gambar'];
-    $hits = $data['hits'];
-    $hitx = $data['hits'] . ' view';
-    $link = $data['link'];
-    $kont = $data['konten'];
-    $urlkonten = str_replace(" ", "-", $judulnya);
-    $urltgl = str_replace("-", "/", $data['tgl']);
-    $meta = $data['meta'];
+@media (max-width: 600px) {
+    .news-item { flex-direction: column; }
+    .news-img { width: 100%; min-width: 100%; height: 170px; }
+}
 
-    $judul_situs = $data['judul'];
-    if(!$meta) {
-        $_META['description'] = limittxt(htmlentities(strip_tags($data['konten'])), 140);
-    } else {
-        $_META['description'] = $meta;
-    }
-    $_META['keywords'] = empty($data['tags']) ? implode(',', explode(' ', htmlentities(strip_tags($data['judul'])))) : $data['tags'];
+/* DETAIL ARTIKEL */
+.art-cover-wrap { width: 100%; display: block; cursor: zoom-in; border-bottom: 1px solid #e8ede9; background: #f8faf9; }
+.art-cover { width: 100%; max-height: 460px; object-fit: cover; display: block; transition: opacity .2s; }
+.art-cover:hover { opacity: .92; }
 
-    $hits = $hits + 1;
-    $updatehits = $koneksi_db->sql_query("UPDATE artikel SET hits='$hits' WHERE id='$id'");
+#art-lightbox {
+    position: fixed; inset: 0; background: rgba(0,0,0,.9); z-index: 99999;
+    display: none; align-items: center; justify-content: center; padding: 40px; cursor: zoom-out;
+}
+#art-lightbox:target { display: flex; }
+#art-lightbox img { max-width: 100%; max-height: 100%; border-radius: 6px; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
 
-    $titlenya = "$data[judul]";
-    $data[5] = $data['tgl'];
-    $ket = "$data[5]";
-    $by = '';
+.art-body { padding: 48px 56px 44px; }
+@media (max-width: 768px) { .art-body { padding: 24px 20px 28px; } }
 
-    if($data['gambar']) {
-        $isinya .= '
-        <div style="text-align: center; margin-bottom: 35px; margin-top: 10px;">
-            <img src="images/artikel/' . $data['gambar'] . '" alt="' . $data['judul'] . '" style="max-width: 85%; max-height: 420px; width: auto; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.05);">
-        </div>';
-    }
+.art-meta {
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    font-size: 11px; font-weight: 700; color: #2D6A4F;
+    text-transform: uppercase; letter-spacing: .5px;
+    margin-bottom: 24px; padding-bottom: 18px; border-bottom: 1px solid #f0f4f1;
+}
 
-    $isinya .= $data['konten'];
-    $isinya .= "<a href=\"cetak.php?id=$data[id]\" title=\"$data[judul]\"><i class='fa fa-print'></i> Versi cetak</a><br/>";
+.art-rich { font-size: 15.5px; line-height: 1.88; color: #333; }
+.art-rich p { margin-bottom: 16px !important; text-align: justify !important; }
+.art-rich h1, .art-rich h2 {
+    font-family: "Plus Jakarta Sans", sans-serif !important;
+    font-size: 19px !important; font-weight: 800 !important; color: #1B4332 !important;
+    margin: 38px 0 14px !important; padding-left: 16px !important;
+    border-left: 4px solid #2D6A4F !important; line-height: 1.3 !important; text-transform: none !important; letter-spacing: -.2px !important;
+}
+.art-rich h3 { font-family: "Plus Jakarta Sans", sans-serif !important; font-size: 15.5px !important; font-weight: 700 !important; color: #2D6A4F !important; margin: 26px 0 10px !important; text-transform: none !important; }
+.art-rich ul, .art-rich ol { padding-left: 20px !important; margin-bottom: 18px !important; }
+.art-rich li { margin-bottom: 8px !important; }
+.art-rich ul li::marker { color: #2D6A4F; }
+.art-rich b, .art-rich strong { color: #1B4332 !important; font-weight: 700 !important; }
+.art-rich img { max-width: 100% !important; border-radius: 6px !important; margin: 12px 0 !important; }
 
-    include 'modul/function.php';
+/* FOOTER / BACK BUTTON */
+.pd-footer {
+    margin-top: 44px; padding-top: 20px; border-top: 1px solid #edf2ea;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;
+}
+.art-back {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: #1B4332; color: #fff !important;
+    padding: 9px 20px; border-radius: 7px;
+    font-size: 13px; font-weight: 700; text-decoration: none !important;
+    transition: background .22s, transform .22s;
+}
+.art-back:hover { background: #2D6A4F; transform: translateX(-2px); }
 
-    $urltagx = str_replace(" ", ",", $judulnya);
+/* SIDEBAR */
+.pd-sidebar { display: flex; flex-direction: column; gap: 18px; }
 
-    if(!$tagx) {
-        $hasil = $koneksi_db->sql_query("SELECT tags FROM `artikel` WHERE id='$id' AND publikasi = 1");
-        $TampungData = array();
-        while ($data = $koneksi_db->sql_fetchrow($hasil)) {
-            $tags = explode(',', strtolower(trim($urltagx)));
-            foreach($tags as $val) {
-                $TampungData[] = $val;
-            }
-        }
-    } else {
-        $hasil = $koneksi_db->sql_query("SELECT tags FROM `artikel` WHERE id='$id' AND publikasi = 1");
-        $TampungData = array();
-        while ($data = $koneksi_db->sql_fetchrow($hasil)) {
-            $tags = explode(',', strtolower(trim($data['tags'])));
-            foreach($tags as $val) {
-                $TampungData[] = $val;
-            }
-        }
-    }
+/* Styling plugin CMS biar sinkron */
+.modern-sidebar { gap: 0 !important; }
+.sidebar-section {
+    border-radius: 6px !important;
+    overflow: hidden !important;
+    border: 1px solid #e8ede9 !important;
+    box-shadow: 0 4px 14px rgba(27,67,50,.07) !important;
+    margin-bottom: 18px !important;
+    background: #fff !important;
+}
+.sidebar-header {
+    background: #1B4332 !important;
+    color: #fff !important;
+    padding: 12px 18px !important;
+    font-family: "Plus Jakarta Sans", sans-serif !important;
+    font-size: 11.5px !important; font-weight: 800 !important; letter-spacing: 1.8px !important;
+    text-transform: uppercase !important;
+}
+</style>';
 
-    $totalTags = count($TampungData);
-    $jumlah_tag = array_count_values($TampungData);
-    ksort($jumlah_tag);
-    
-    if ($totalTags > 0) {
-        $output = array();
-        $tag_mod = array();
-        $tag_mod['fontsize']['max'] = 20;
-        $tag_mod['fontsize']['min'] = 9;
+// ARSIP / LIST
+if ($_GET['aksi'] == "arsip" || $_GET['aksi'] == "") {
+    $hasil      = $koneksi_db->sql_query("SELECT * FROM topik WHERE id=$topik_id");
+    $topik_data = $koneksi_db->sql_fetchrow($hasil);
+    $rubrik     = $topik_data ? $topik_data['topik'] : 'Berita Kampus';
 
-        $min_count = min($jumlah_tag);
-        $spread = max($jumlah_tag) - $min_count;
-        if ($spread <= 0) $spread = 1;
-        
-        $font_spread = $tag_mod['fontsize']['max'] - $tag_mod['fontsize']['min'];
-        if ($font_spread <= 0) $font_spread = 1;
-        
-        $font_step = $font_spread / $spread;
+    $tengah .= '
+    <div class="pd-wrap">
+      <div class="pd-hero">
+        <div class="pd-hero-in">
+          <div class="pd-eyebrow"><span></span>Berita Terkini</div>
+          <h1>'.htmlspecialchars($rubrik).'</h1>
+        </div>
+      </div>
+      <div class="pd-body">
+        <div class="pd-card">';
 
-        foreach($jumlah_tag as $key => $val) {
-            $font_size = ($tag_mod['fontsize']['min'] + (($val - $min_count) * $font_step));
-            $output[] = '<a href="tags/' . urlencode($key) . '.html" title="' . $val . ' artikel"><span>#' . $key . '</span></a>';
-        }
-        $isinya .= implode(', ', $output);
-    }
+    $limit  = 10;
+    $offset = isset($_GET['offset']) ? int_filter($_GET['offset']) : 0;
+    $totals = $koneksi_db->sql_query("SELECT id FROM artikel WHERE publikasi=1 AND topik=$topik_id");
+    $jumlah = $koneksi_db->sql_numrows($totals);
 
-    themenews($id, $titlenya, $ket, $isinya, datetimess($tgll));
-
-    // Artikel Terkait
-    $query = $koneksi_db->sql_query("SELECT * FROM topik WHERE id='$topik'");
-    while ($data1 = $koneksi_db->sql_fetchrow($query)) {
-        $rubrik = $data1[1];
-    }
-    
-    $hitungjumlah = $koneksi_db->sql_query("SELECT id FROM artikel WHERE id!='$id' AND publikasi=1 AND topik='$topik'");
-    $jumlah = $koneksi_db->sql_numrows($hitungjumlah);
-    
-    $tengah .= '<div style="background: linear-gradient(135deg, #1e4d27 0%, #306238 100%); padding: 16px 24px; margin: 0 0 20px 0; border-radius: 12px; box-shadow: 0 10px 25px rgba(30,77,39,0.15);">
-        <h4 style="margin: 0; color: #ffffff; font-size: 18px; font-weight: 700; letter-spacing: 0.5px;">
-            <i class="fa fa-newspaper-o" style="margin-right: 8px;"></i>Artikel Terkait
-        </h4>
-    </div>';
-    
-    $tengah .= '<div class="artikel-terkait-wrapper" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-bottom: 30px;">';
-    
-    $query2 = $koneksi_db->sql_query("SELECT id, judul, tgl, gambar, konten, hits FROM artikel WHERE id!='$id' AND publikasi=1 AND topik=$topik ORDER BY tgl DESC LIMIT 6");
-    
-    while ($data = $koneksi_db->sql_fetchrow($query2)) {
-        $url = str_replace(" ", "-", $data[1]);
-        $id2 = $data[0];
-        $judul2 = $data[1];
-        $gambar2 = $data[3];
-        
-        $tengah .= '
-        <div class="artikel-card" style="background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: all 0.3s ease; border: 1px solid #f0f0f0;">
-            <figure style="margin: 0; width: 100%; height: 180px; overflow: hidden; position: relative;">
-                <img src="images/artikel/' . $data['gambar'] . '" alt="' . $data[1] . '" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;">
-            </figure>
-            <div style="padding: 16px;">
-                <h5 style="font-size: 15px; margin: 0 0 10px 0; line-height: 1.5; font-weight: 600; min-height: 45px;">
-                    <a href="artikel/' . $data[0] . '/' . $url . '.html" title="' . $data[1] . '" style="color: #333; text-decoration: none; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">' . $data[1] . '</a>
-                </h5>
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px; color: #999; font-size: 12px; flex-wrap: wrap;">
-                    <span style="display: flex; align-items: center; gap: 4px;">
-                        <i class="fa fa-calendar"></i> ' . datetimess($data['tgl']) . '
-                    </span>
-                    <span style="display: flex; align-items: center; gap: 4px;">
-                        <i class="fa fa-eye"></i> ' . $data['hits'] . ' views
-                    </span>
+    if ($jumlah > 0) {
+        $q = $koneksi_db->sql_query("SELECT * FROM artikel WHERE publikasi=1 AND topik=$topik_id ORDER BY id DESC LIMIT $offset, $limit");
+        while ($ar = $koneksi_db->sql_fetchrow($q)) {
+            $url_judul = str_replace(" ", "-", $ar['judul']);
+            $img       = !empty($ar['gambar']) ? 'images/artikel/'.$ar['gambar'] : 'images/default-news.jpg';
+            $tengah   .= '
+            <a href="artikel/'.$ar['id'].'/'.$url_judul.'.html" class="news-item">
+                <div class="news-img"><img src="'.$img.'" alt="'.htmlspecialchars($ar['judul']).'"></div>
+                <div class="news-cont">
+                    <div class="news-meta">📅 '.datetimess($ar['tgl']).'</div>
+                    <h2 class="news-ttl">'.$ar['judul'].'</h2>
+                    <div class="news-desc">'.limitTXT(strip_tags($ar['konten']), 160).'</div>
+                    <div class="news-read">Baca Selengkapnya →</div>
                 </div>
-                <p style="margin: 0; color: #666; font-size: 13px; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">' . limitTXT(strip_tags($data['konten']), 100) . '</p>
-            </div>
-        </div>';
+            </a>';
+        }
+
+        if ($jumlah > $limit) {
+            include_once 'modul/function.php';
+            $a   = new paging($limit);
+            $pg  = isset($_GET['pg'])  ? int_filter($_GET['pg'])  : 1;
+            $stg = isset($_GET['stg']) ? int_filter($_GET['stg']) : 1;
+            $tengah .= '<div style="padding:20px 24px; border-top:1px solid #f0f4f1; text-align:center;">';
+            $tengah .= $a->getPaging6($jumlah, $pg, $stg, $topik_id, $rubrik);
+            $tengah .= '</div>';
+        }
+    } else {
+        $tengah .= '<div style="padding:80px 40px; text-align:center; color:#888;">Belum ada berita di kategori ini.</div>';
     }
+
+    $tengah .= '
+        </div><!-- /pd-card -->
+
+        <!-- SIDEBAR -->
+        <div class="pd-sidebar">';
     
-    $tengah .= '</div>';
-    
-    // CSS untuk hover effect
-    $tengah .= '<style>
-        .artikel-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.12) !important;
+    /* Render Plugins CMS */
+    ob_start();
+    include "plugin/berita.php";
+    modul(1);
+    blok(1);
+    $sidebar_content = ob_get_clean();
+
+    if (!empty(trim($sidebar_content))) {
+        $tengah .= $sidebar_content;
+    } else {
+        $tengah .= '<div class="sidebar-section">
+                    <div class="sidebar-header">Berita Lainnya</div>';
+        $q_p = $koneksi_db->sql_query("SELECT judul, id FROM artikel WHERE publikasi=1 ORDER BY id DESC LIMIT 5");
+        while($p = $koneksi_db->sql_fetchrow($q_p)) {
+            $url_judul = str_replace(" ", "-", $p['judul']);
+            $tengah .= '<a href="artikel/'.$p['id'].'/'.$url_judul.'.html" style="display:block;padding:10px 15px;text-decoration:none;color:#333;border-bottom:1px solid #f0f0f0;font-size:13px;line-height:1.4;">'.$p['judul'].'</a>';
         }
-        .artikel-card:hover img {
-            transform: scale(1.05);
-        }
-        @media (max-width: 768px) {
-            .artikel-terkait-wrapper {
-                grid-template-columns: 1fr !important;
-            }
-        }
-    </style>';
+        $tengah .= '</div>';
+    }
+
+    $tengah .= '
+        </div><!-- /pd-sidebar -->
+      </div><!-- /pd-body -->
+    </div><!-- /pd-wrap -->';
 }
 
-if($_GET['aksi'] == "arsip") {
-    $topik = int_filter($_GET['topik']);
+// LIHAT DETAIL
+if ($_GET['aksi'] == "lihat") {
+    $id    = int_filter($_GET['id']);
+    $hasil = $koneksi_db->sql_query("SELECT * FROM artikel WHERE id='$id' AND publikasi=1");
+    $data  = $koneksi_db->sql_fetchrow($hasil);
 
-    $hasil = $koneksi_db->sql_query("SELECT * FROM topik WHERE id=$topik");
-    $data = $koneksi_db->sql_fetchrow($hasil);
-    $rubrik = $data['topik'];
-    $ket = $data['ket'];
-    $urlkontenx = str_replace(" ", ", ", $rubrik);
-    $judul_situs = $data['topik'];
-    $_META['description'] = $ket;
-    $_META['keywords'] = 'Artikel ' . $rubrik . ', ' . $urlkontenx;
+    if (!$data) { Header("Location: index.php"); exit; }
 
-    if (empty($rubrik)) {
-        $tengah .= '<div class="error">Halaman tidak tersedia.</div>';
-        $tengah .= '<meta http-equiv="refresh" content="3; url=index.php">';
-    } else {
-        $tengah .= '<div style="background: linear-gradient(135deg, #1e4d27 0%, #306238 100%); padding: 30px 40px; margin: 0 0 40px 0; border-radius: 20px; box-shadow: 0 10px 30px rgba(30,77,39,0.15); color: #fff; position: relative; overflow: hidden;">
-            <div style="position: absolute; top:0; right: 0; opacity: 0.1;"><svg width="150" height="150" viewBox="0 0 24 24" fill="#fff"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg></div>
-            <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 2px; opacity: 0.8; margin-bottom: 8px; font-weight: 700;">Arsip Berita</div>
-            <h4 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 800; letter-spacing: -0.5px;">' . $rubrik . '</h4>
+    $tengah .= '
+    <div class="pd-wrap">
+      <div class="pd-hero">
+        <div class="pd-hero-in">
+          <div class="pd-eyebrow"><span></span>Detail Berita</div>
+          <h1>'.htmlspecialchars($data['judul']).'</h1>
+        </div>
+      </div>
+      <div class="pd-body">
+        <div class="pd-card">';
+
+    if (!empty($data['gambar'])) {
+        $img_path = 'images/artikel/'.htmlspecialchars($data['gambar']);
+        $tengah  .= '
+        <a href="#art-lightbox" class="art-cover-wrap" title="Klik untuk lihat gambar penuh">
+          <img src="'.$img_path.'" class="art-cover" alt="'.htmlspecialchars($data['judul']).'">
+        </a>
+        <div id="art-lightbox" onclick="location.hash=\'#\'">
+          <img src="'.$img_path.'" alt="Full Preview">
         </div>';
-
-        $limit = 10;
-        $offset = int_filter(@$_GET['offset']);
-        $pg = int_filter(@$_GET['pg']);
-        $stg = int_filter(@$_GET['stg']);
-
-        $totals = $koneksi_db->sql_query("SELECT id FROM artikel WHERE publikasi=1 AND topik=$topik");
-        $jumlah = $koneksi_db->sql_numrows($totals);
-        $a = new paging($limit);
-
-        if ($jumlah > 0) {
-            $hasil = $koneksi_db->sql_query("SELECT * FROM artikel WHERE publikasi=1 AND topik=$topik ORDER BY id DESC LIMIT $offset, $limit");
-
-            $tengah .= '<div class="artikel-list-wrapper" style="display: flex; flex-direction: column; gap: 30px;">';
-
-            while ($data = $koneksi_db->sql_fetchrow($hasil)) {
-                $url = str_replace(" ", "-", $data[1]);
-                $tengah .= '
-                <div class="artikel-list-item" style="display: flex; gap: 25px; background: #fff; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 25px rgba(0,0,0,0.04); transition: all 0.4s ease; border: 1px solid #f0f0f0; padding: 20px;">
-                    <figure style="margin: 0; width: 300px; min-width: 300px; height: 210px; overflow: hidden; border-radius: 12px;">
-                        <img src="images/artikel/' . $data['gambar'] . '" alt="' . $data[1] . '" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;">
-                    </figure>
-                    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
-                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px; color: #306238; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">
-                            <i class="fa fa-calendar"></i> ' . datetimess($data['tgl']) . '
-                        </div>
-                        <h5 style="font-size: 22px; margin: 0 0 15px 0; line-height: 1.3; font-weight: 800;">
-                            <a href="artikel/' . $data[0] . '/' . $url . '.html" title="' . $data[1] . '" style="color: #111; text-decoration: none; transition: color 0.3s;">' . $data[1] . '</a>
-                        </h5>
-                        <p style="margin: 0; color: #666; font-size: 15px; line-height: 1.7; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">' . limitTXT(strip_tags($data['konten']), 160) . '</p>
-                        
-                        <div style="margin-top: 20px;">
-                            <a href="artikel/' . $data[0] . '/' . $url . '.html" style="display: inline-flex; align-items: center; gap: 8px; color: #fff; background: #1e4d27; padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 700; text-decoration: none; transition: transform 0.3s;">
-                                Baca Lengkap <i class="fa fa-arrow-right"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>';
-            }
-
-            $tengah .= '</div>';
-
-            if($jumlah > 10) {
-                $tengah .= '<div style="margin-top: 30px;">';
-                $tengah .= "<center>";
-                
-                if (empty($_GET['offset']) && !isset($_GET['offset'])) {
-                    $offset = 0;
-                }
-                if (empty($_GET['pg']) && !isset($_GET['pg'])) {
-                    $pg = 1;
-                }
-                if (empty($_GET['stg']) && !isset($_GET['stg'])) {
-                    $stg = 1;
-                }
-                
-                $tengah .= $a->getPaging6($jumlah, $pg, $stg, $topik, $rubrik);
-                $tengah .= "</center>";
-                $tengah .= '</div>';
-            }
-            
-            // CSS untuk responsive dan hover
-            $tengah .= '<style>
-                .artikel-list-item:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 4px 20px rgba(0,0,0,0.12) !important;
-                }
-                .artikel-list-item:hover img {
-                    transform: scale(1.05);
-                }
-                @media (max-width: 768px) {
-                    .artikel-list-item {
-                        flex-direction: column !important;
-                    }
-                    .artikel-list-item figure {
-                        width: 100% !important;
-                        min-width: 100% !important;
-                    }
-                }
-            </style>';
-            
-        } else {
-            $tengah .= '<div class="error">Artikel tidak tersedia.</div>';
-            $style_include[] = '<meta http-equiv="refresh" content="3; url=index.php" />';
-        }
     }
+
+    $tengah .= '
+          <div class="art-body">
+            <div class="art-meta">
+              <span>📅 '.datetimess($data['tgl']).'</span>
+              <span style="color:#dde;">|</span>
+              <span>👁 '.$data['hits'].' views</span>
+            </div>
+            <div class="art-rich">'.$data['konten'].'</div>
+            <div class="pd-footer">
+              <span class="pd-update"></span>
+              <a href="javascript:history.back()" class="art-back">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+                </svg>
+                Kembali
+              </a>
+            </div>
+          </div>
+        </div><!-- /pd-card -->
+
+        <!-- SIDEBAR -->
+        <div class="pd-sidebar">';
+    
+    /* Render Plugins CMS */
+    ob_start();
+    include "plugin/berita.php";
+    modul(1);
+    blok(1);
+    $sidebar_content = ob_get_clean();
+
+    if (!empty(trim($sidebar_content))) {
+        $tengah .= $sidebar_content;
+    } else {
+        $tengah .= '<div class="sidebar-section">
+                    <div class="sidebar-header">Berita Lainnya</div>';
+        $q_p = $koneksi_db->sql_query("SELECT judul, id FROM artikel WHERE publikasi=1 ORDER BY id DESC LIMIT 5");
+        while($p = $koneksi_db->sql_fetchrow($q_p)) {
+            $url_judul = str_replace(" ", "-", $p['judul']);
+            $tengah .= '<a href="artikel/'.$p['id'].'/'.$url_judul.'.html" style="display:block;padding:10px 15px;text-decoration:none;color:#333;border-bottom:1px solid #f0f0f0;font-size:13px;line-height:1.4;">'.$p['judul'].'</a>';
+        }
+        $tengah .= '</div>';
+    }
+
+    $tengah .= '
+        </div><!-- /pd-sidebar -->
+      </div><!-- /pd-body -->
+    </div><!-- /pd-wrap -->';
 }
 
 echo $tengah;

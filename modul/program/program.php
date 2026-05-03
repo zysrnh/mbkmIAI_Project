@@ -1,9 +1,6 @@
 <?php
 /**
- * Frontend Module — Program MBKM Detail (v2)
- * - Border radius lebih kecil (10px)
- * - Gambar artikel proporsional aspect-ratio 4:3
- * - Konten lebih lebar (grid 1fr 320px)
+ * Frontend Module — Program MBKM Detail (v3 - Stable)
  */
 
 if (!defined('cms-KONTEN')) {
@@ -73,7 +70,9 @@ $tengah .= '
 }
 @media (max-width: 991px) {
     .pd-body { grid-template-columns: 1fr; margin-top: -40px; }
-}/* MAIN CARD */
+}
+
+/* MAIN CARD */
 .pd-card {
     background: #fff; border-radius: 6px;
     box-shadow: 0 6px 32px rgba(27,67,50,.09);
@@ -132,69 +131,9 @@ $tengah .= '
 
 /* SIDEBAR */
 .pd-sidebar { display: flex; flex-direction: column; gap: 18px; }
-.pd-sb-card {
-    background: #fff; border-radius: 6px;
-    border: 1px solid #e8ede9; box-shadow: 0 4px 14px rgba(27,67,50,.07); overflow: hidden;
-}
-.pd-sb-head {
-    background: #1B4332; padding: 12px 16px;
-    display: flex; align-items: center; gap: 9px;
-}
-.pd-sb-head h4 {
-    margin: 0; font-size: 11.5px; font-weight: 800;
-    color: #fff; text-transform: uppercase; letter-spacing: 1.8px;
-    font-family: "Plus Jakarta Sans", sans-serif;
-}
 
-/* Artikel rows */
-.pd-art-row {
-    display: flex; align-items: flex-start; gap: 12px;
-    padding: 12px 14px; border-bottom: 1px solid #f0f5f2;
-    text-decoration: none !important; transition: background .16s;
-}
-.pd-art-row:last-child { border-bottom: none; }
-.pd-art-row:hover { background: #f5faf7; }
-
-/* Thumbnail — aspect ratio 4:3, tidak crop distorsi */
-.pd-art-thumb {
-    width: 72px; flex-shrink: 0; border-radius: 6px; overflow: hidden;
-    aspect-ratio: 4/3; background: #e8ede9;
-    display: flex; align-items: center; justify-content: center;
-}
-.pd-art-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.pd-art-thumb-ph {
-    width: 100%; height: 100%;
-    background: linear-gradient(135deg, #1B4332, #2D6A4F);
-    display: flex; align-items: center; justify-content: center;
-}
-.pd-art-thumb-ph svg { width: 20px; height: 20px; fill: rgba(255,255,255,.35); }
-
-.pd-art-text { flex: 1; min-width: 0; }
-.pd-art-ttl {
-    font-size: 12.5px; font-weight: 700; color: #212529;
-    line-height: 1.4; margin: 0 0 5px;
-    display: -webkit-box; -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical; overflow: hidden;
-}
-.pd-art-row:hover .pd-art-ttl { color: #1B4332; }
-.pd-art-meta { font-size: 10.5px; color: #9aab9c; display: flex; gap: 8px; flex-wrap: wrap; }
-
-/* Program list */
-.pd-prog-row {
-    display: flex; align-items: center; gap: 10px;
-    padding: 11px 16px; border-bottom: 1px solid #f0f5f2;
-    text-decoration: none !important;
-    font-size: 13px; font-weight: 600; color: #333;
-    transition: background .16s, color .16s;
-    font-family: "Plus Jakarta Sans", sans-serif;
-}
-.pd-prog-row:last-child { border-bottom: none; }
-.pd-prog-row:hover { background: #f5faf7; color: #1B4332; }
-.pd-prog-row.is-active { background: #edf7f1; color: #1B4332; font-weight: 800; }
-.pd-prog-dot { width: 7px; height: 7px; border-radius: 50%; background: #2D6A4F; flex-shrink: 0; }
-.pd-prog-row.is-active .pd-prog-dot { background: #1B4332; }
-
-/* Sidebar section dari plugin CMS — sesuaikan gaya agar match */
+/* Styling plugin CMS biar sinkron */
+.modern-sidebar { gap: 0 !important; }
 .sidebar-section {
     border-radius: 6px !important;
     overflow: hidden !important;
@@ -207,15 +146,13 @@ $tengah .= '
     background: #1B4332 !important;
     color: #fff !important;
     padding: 12px 18px !important;
-    border-radius: 0 !important;
     font-family: "Plus Jakarta Sans", sans-serif !important;
     font-size: 11.5px !important; font-weight: 800 !important; letter-spacing: 1.8px !important;
-    display: flex !important; align-items: center !important; gap: 10px !important;
     text-transform: uppercase !important;
 }
 </style>';
 
-/* HERO */
+/* HERO AREA */
 $tengah .= '
 <div class="pd-wrap">
   <div class="pd-hero">
@@ -226,10 +163,9 @@ $tengah .= '
   </div>
 
   <div class="pd-body">
-
     <!-- MAIN CONTENT -->
     <div class="pd-card">';
-    
+
 if (!empty($data['gambar'])) {
     $img_path = 'images/pages/'.htmlspecialchars($data['gambar']);
     $tengah .= '<a href="#pd-lightbox" class="pd-cover-wrap" title="Klik untuk lihat gambar penuh">
@@ -259,29 +195,25 @@ $tengah .= '
     <!-- SIDEBAR -->
     <div class="pd-sidebar">';
 
-    <!-- SIDEBAR -->
-    <div class="pd-sidebar">
-      <?php
-      /* Render Plugins & Blocks (Kategori Berita, Program, dll) */
-      ob_start();
-      modul(1);
-      blok(1);
-      $sidebar_content = ob_get_clean();
-      
-      if (!empty(trim($sidebar_content))) {
-          echo $sidebar_content;
-      } else {
-          // Fallback jika database kosong, baru tampilkan manual
-          echo '<div class="sidebar-section">
-                  <div class="sidebar-header">Program Lainnya</div>';
-          $q_p = $koneksi_db->sql_query("SELECT judul, slug FROM mod_program LIMIT 10");
-          while($p = $koneksi_db->sql_fetchrow($q_p)) {
-              echo '<a href="index.php?pilih=program&modul=yes&id='.$p['slug'].'" style="display:block;padding:10px 15px;text-decoration:none;color:#333;border-bottom:1px solid #f0f0f0;">'.$p['judul'].'</a>';
-          }
-          echo '</div>';
-      }
-      ?>
-    </div><!-- /sidebar -->
+/* Render Plugins CMS (Kategori Berita, Program Lainnya, dll) */
+ob_start();
+include "plugin/berita.php";
+modul(1);
+blok(1);
+$sidebar_content = ob_get_clean();
+
+if (!empty(trim($sidebar_content))) {
+    $tengah .= $sidebar_content;
+} else {
+    // Fallback jika database kosong
+    $tengah .= '<div class="sidebar-section">
+                <div class="sidebar-header">Program MBKM</div>';
+    $q_p = $koneksi_db->sql_query("SELECT judul, slug FROM mod_program LIMIT 10");
+    while($p = $koneksi_db->sql_fetchrow($q_p)) {
+        $tengah .= '<a href="index.php?pilih=program&modul=yes&id='.$p['slug'].'" style="display:block;padding:10px 15px;text-decoration:none;color:#333;border-bottom:1px solid #f0f0f0;">'.$p['judul'].'</a>';
+    }
+    $tengah .= '</div>';
+}
 
 $tengah .= '
     </div><!-- /sidebar -->
