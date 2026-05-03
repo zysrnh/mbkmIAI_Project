@@ -38,8 +38,11 @@ $tengah .= '
 
 /* HERO */
 .pd-hero {
-    background: linear-gradient(140deg, #0f2d1c 0%, #1B4332 60%, #2D6A4F 100%);
-    padding: 48px 0 80px;
+    background: linear-gradient(rgba(15, 45, 28, 0.88), rgba(27, 67, 50, 0.85)), url("images/Assets/KampusAtas.png");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    padding: 70px 0 100px;
     position: relative; overflow: hidden; text-align: center; color: #fff;
 }
 .pd-hero::before {
@@ -63,23 +66,31 @@ $tengah .= '
 
 /* LAYOUT */
 .pd-body {
-    max-width: 1280px; margin: -44px auto 0; padding: 0 24px;
+    max-width: 1280px; margin: -70px auto 0; padding: 0 24px;
     display: grid;
     grid-template-columns: 1fr 320px;
     gap: 24px; align-items: start; position: relative; z-index: 5;
 }
 @media (max-width: 991px) {
-    .pd-body { grid-template-columns: 1fr; margin-top: -30px; }
-}
-
-/* MAIN CARD */
+    .pd-body { grid-template-columns: 1fr; margin-top: -40px; }
+}/* MAIN CARD */
 .pd-card {
     background: #fff; border-radius: 6px;
     box-shadow: 0 6px 32px rgba(27,67,50,.09);
     overflow: hidden; border: 1px solid #e8ede9;
 }
-.pd-cover { width: 100%; height: 360px; object-fit: cover; display: block; }
-@media (max-width: 768px) { .pd-cover { height: 220px; } }
+.pd-cover-wrap { width: 100%; background: #f8faf9; border-bottom: 1px solid #e8ede9; cursor: zoom-in; display: block; }
+.pd-cover { width: 100%; height: auto; display: block; transition: opacity .2s; }
+.pd-cover:hover { opacity: 0.9; }
+
+/* SIMPLE LIGHTBOX */
+#pd-lightbox {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 99999;
+    display: none; align-items: center; justify-content: center; padding: 40px; cursor: zoom-out;
+}
+#pd-lightbox img { max-width: 100%; max-height: 100%; border-radius: 4px; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
+#pd-lightbox:target { display: flex; }
+
 .pd-body-pad { padding: 48px 56px 44px; }
 @media (max-width: 768px) { .pd-body-pad { padding: 24px 20px 28px; } }
 
@@ -102,7 +113,7 @@ $tengah .= '
 .pd-rich li { margin-bottom: 8px !important; }
 .pd-rich ul li::marker { color: #2D6A4F; }
 .pd-rich b, .pd-rich strong { color: #1B4332 !important; font-weight: 700 !important; }
-.pd-rich img { max-width: 100% !important; border-radius: 8px !important; margin: 12px 0 !important; }
+.pd-rich img { max-width: 100% !important; border-radius: 6px !important; margin: 12px 0 !important; }
 
 /* FOOTER */
 .pd-footer {
@@ -186,15 +197,21 @@ $tengah .= '
 /* Sidebar section dari plugin CMS — sesuaikan gaya agar match */
 .sidebar-section {
     border-radius: 6px !important;
-    overflow: visible !important;
+    overflow: hidden !important;
     border: 1px solid #e8ede9 !important;
     box-shadow: 0 4px 14px rgba(27,67,50,.07) !important;
     margin-bottom: 18px !important;
+    background: #fff !important;
 }
 .sidebar-header {
-    border-radius: 6px 6px 0 0 !important;
+    background: #1B4332 !important;
+    color: #fff !important;
+    padding: 12px 18px !important;
+    border-radius: 0 !important;
     font-family: "Plus Jakarta Sans", sans-serif !important;
     font-size: 11.5px !important; font-weight: 800 !important; letter-spacing: 1.8px !important;
+    display: flex !important; align-items: center !important; gap: 10px !important;
+    text-transform: uppercase !important;
 }
 </style>';
 
@@ -212,9 +229,15 @@ $tengah .= '
 
     <!-- MAIN CONTENT -->
     <div class="pd-card">';
-
+    
 if (!empty($data['gambar'])) {
-    $tengah .= '<img src="images/pages/'.htmlspecialchars($data['gambar']).'" class="pd-cover" alt="'.htmlspecialchars($data['judul']).'">';
+    $img_path = 'images/pages/'.htmlspecialchars($data['gambar']);
+    $tengah .= '<a href="#pd-lightbox" class="pd-cover-wrap" title="Klik untuk lihat gambar penuh">
+                  <img src="'.$img_path.'" class="pd-cover" alt="'.htmlspecialchars($data['judul']).'">
+                </a>
+                <div id="pd-lightbox" onclick="location.hash=\'#\'">
+                  <img src="'.$img_path.'" alt="Full Preview">
+                </div>';
 }
 
 $tengah .= '
@@ -236,69 +259,29 @@ $tengah .= '
     <!-- SIDEBAR -->
     <div class="pd-sidebar">';
 
-/* Artikel Terkini */
-$tengah .= '
-      <div class="pd-sb-card">
-        <div class="pd-sb-head">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="rgba(255,255,255,.7)">
-            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z"/>
-          </svg>
-          <h4>Artikel Terkini</h4>
-        </div>';
-
-$q_art = $koneksi_db->sql_query("SELECT * FROM `artikel` WHERE publikasi=1 ORDER BY `id` DESC LIMIT 4");
-while ($ar = $koneksi_db->sql_fetchrow($q_art)) {
-    $url_art = trim(preg_replace('/-+/','-',preg_replace('/[^A-Za-z0-9\-]/','',str_replace(' ','-',$ar[1]))),'-');
-    if (empty($url_art)) $url_art = 'artikel-'.$ar[0];
-    $na  = catch_that_image($ar[2]);
-    $tgl = datetimess($ar[5]);
-
-    $tengah .= '<a class="pd-art-row" href="artikel/'.$ar[0].'/'.$url_art.'.html">';
-    $tengah .= '<div class="pd-art-thumb">';
-    if ($na) {
-        $tengah .= '<img src="'.htmlspecialchars($na).'" alt="'.htmlspecialchars($ar[1]).'">';
-    } elseif (!empty($ar['gambar'])) {
-        $tengah .= '<img src="images/artikel/'.htmlspecialchars($ar['gambar']).'" alt="'.htmlspecialchars($ar[1]).'">';
-    } else {
-        $tengah .= '<div class="pd-art-thumb-ph"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z"/></svg></div>';
-    }
-    $tengah .= '</div>';
-    $tengah .= '<div class="pd-art-text">
-        <div class="pd-art-ttl">'.htmlspecialchars($ar[1]).'</div>
-        <div class="pd-art-meta">
-          <span>📅 '.$tgl.'</span>
-          <span>👁 '.$ar[9].'</span>
-        </div>
-      </div></a>';
-}
-$tengah .= '</div>'; /* /artikel */
-
-/* Program Lainnya */
-$tengah .= '
-      <div class="pd-sb-card">
-        <div class="pd-sb-head">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="rgba(255,255,255,.7)">
-            <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zm0 12.08L5.21 11 12 7.08 18.79 11 12 15.08zM1 17l11 6 11-6v-2L12 21 1 15v2z"/>
-          </svg>
-          <h4>Program Lainnya</h4>
-        </div>';
-
-$q_prog = $koneksi_db->sql_query("SELECT id, judul, slug FROM mod_program ORDER BY id ASC LIMIT 10");
-while ($pr = $koneksi_db->sql_fetchrow($q_prog)) {
-    $cls = ($pr['slug'] === $slug || $pr['id'] == $slug) ? 'pd-prog-row is-active' : 'pd-prog-row';
-    $tengah .= '<a href="index.php?pilih=program&modul=yes&id='.htmlspecialchars($pr['slug']).'" class="'.$cls.'">
-        <span class="pd-prog-dot"></span>
-        '.htmlspecialchars($pr['judul']).'
-    </a>';
-}
-$tengah .= '</div>'; /* /program */
-
-/* Plugin bawaan CMS — render langsung tanpa card wrapper agar tombol tetap bisa diklik */
-ob_start();
-include "plugin/berita.php";
-modul(1);
-blok(1);
-$tengah .= ob_get_clean();
+    <!-- SIDEBAR -->
+    <div class="pd-sidebar">
+      <?php
+      /* Render Plugins & Blocks (Kategori Berita, Program, dll) */
+      ob_start();
+      modul(1);
+      blok(1);
+      $sidebar_content = ob_get_clean();
+      
+      if (!empty(trim($sidebar_content))) {
+          echo $sidebar_content;
+      } else {
+          // Fallback jika database kosong, baru tampilkan manual
+          echo '<div class="sidebar-section">
+                  <div class="sidebar-header">Program Lainnya</div>';
+          $q_p = $koneksi_db->sql_query("SELECT judul, slug FROM mod_program LIMIT 10");
+          while($p = $koneksi_db->sql_fetchrow($q_p)) {
+              echo '<a href="index.php?pilih=program&modul=yes&id='.$p['slug'].'" style="display:block;padding:10px 15px;text-decoration:none;color:#333;border-bottom:1px solid #f0f0f0;">'.$p['judul'].'</a>';
+          }
+          echo '</div>';
+      }
+      ?>
+    </div><!-- /sidebar -->
 
 $tengah .= '
     </div><!-- /sidebar -->

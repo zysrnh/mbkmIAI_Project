@@ -322,7 +322,11 @@ if ($page === 'program' && $db_ready && $isAdmin) {
         $slug    = create_slug($judul);
         
         $foto = '';
-        if (isset($_FILES['gambar']) && $_FILES['gambar']['error'] === 0) {
+        if (!empty($_POST['gambar_base64'])) {
+            $foto = $slug . '_' . time() . '.jpg';
+            $b64  = preg_replace('#^data:image/\w+;base64,#', '', $_POST['gambar_base64']);
+            file_put_contents('images/pages/' . $foto, base64_decode($b64));
+        } elseif (isset($_FILES['gambar']) && $_FILES['gambar']['error'] === 0) {
             $ext = pathinfo($_FILES['gambar']['name'], PATHINFO_EXTENSION);
             $foto = $slug . '_' . time() . '.' . $ext;
             if (!is_dir('images/pages')) mkdir('images/pages', 0777, true);
@@ -343,7 +347,12 @@ if ($page === 'program' && $db_ready && $isAdmin) {
         $slug    = create_slug($judul);
         
         $foto_sql = "";
-        if (isset($_FILES['gambar']) && $_FILES['gambar']['error'] === 0) {
+        if (!empty($_POST['gambar_base64'])) {
+            $foto = $slug . '_' . time() . '.jpg';
+            $b64  = preg_replace('#^data:image/\w+;base64,#', '', $_POST['gambar_base64']);
+            file_put_contents('images/pages/' . $foto, base64_decode($b64));
+            $foto_sql = ", gambar='$foto'";
+        } elseif (isset($_FILES['gambar']) && $_FILES['gambar']['error'] === 0) {
             $ext = pathinfo($_FILES['gambar']['name'], PATHINFO_EXTENSION);
             $foto = $slug . '_' . time() . '.' . $ext;
             move_uploaded_file($_FILES['gambar']['tmp_name'], 'images/pages/' . $foto);
@@ -747,10 +756,8 @@ $pageTitle = isset($pageTitles[$page]) ? $pageTitles[$page] : array('Dashboard',
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <?php if ($page === 'flipbook' && $fb_aksi === 'tambah'): ?>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-    <?php endif; ?>
     <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -2267,8 +2274,10 @@ elseif ($page === 'sambutan' && $db_ready):
                         if ($res) $edit_data = $res;
                     }
                 ?>
-                    <form method="POST" action="" enctype="multipart/form-data">
+                    <form method="POST" action="" enctype="multipart/form-data" id="programForm">
                         <input type="hidden" name="id" value="<?php echo $edit_data['id']; ?>">
+                        <input type="hidden" name="gambar_base64" id="gambar_base64">
+                        
                         <div class="form-group">
                             <label>Judul Program <span class="req">*</span></label>
                             <input type="text" name="judul" class="form-control" value="<?php echo htmlspecialchars($edit_data['judul']); ?>" required placeholder="Contoh: Pertukaran Mahasiswa">
@@ -2283,32 +2292,43 @@ elseif ($page === 'sambutan' && $db_ready):
                         </div>
                         <div class="form-group" style="background:#f9f9f9; padding:20px; border-radius:12px; border:1px dashed #ccc;">
                             <label style="display:block;margin-bottom:10px;font-weight:700">Gambar Utama / Thumbnail</label>
-                            <div id="imagePreviewContainer" style="margin-bottom:15px; display:<?= $edit_data['gambar']?'block':'none' ?>;">
-                                <img id="imagePreview" src="<?= $edit_data['gambar']?'images/pages/'.$edit_data['gambar']:'' ?>" style="max-width:300px; border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,0.1); border:3px solid #fff;">
-                                <p style="font-size:11px; color:#666; margin-top:5px;">Preview Gambar Saat Ini</p>
+                            
+                            <div id="cropperContainer" style="display:none; margin-bottom:15px; max-width:600px;">
+                                <p style="font-size:11px; color:#2e7d32; margin-bottom:5px; font-weight:700;">* Silakan geser kotak untuk memotong gambar (Crop)</p>
+                                <div style="background:#000; border-radius:8px; overflow:hidden;">
+                                    <img id="cropTarget" style="max-width:100%;">
+                                </div>
+                                <div style="margin-top:10px; display:flex; gap:10px;">
+                                    <button type="button" class="btn btn-primary btn-sm" onclick="applyCrop()">Terapkan Potongan</button>
+                                    <button type="button" class="btn btn-outline btn-sm" style="color:#c62828; border-color:#ffcdd2;" onclick="cancelCrop()">Batal</button>
+                                </div>
                             </div>
-                            <input type="file" name="gambar" id="gambarInput" class="form-control" onchange="previewImage(this)">
+
+                            <div id="imagePreviewContainer" style="margin-bottom:15px; display:<?= $edit_data['gambar']?'block':'none' ?>;">
+                                <div style="position:relative; display:inline-block;">
+                                    <img id="imagePreview" src="<?= $edit_data['gambar']?'images/pages/'.$edit_data['gambar']:'' ?>" style="max-width:300px; border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,0.1); border:3px solid #fff;">
+                                    <?php if($edit_data['gambar']): ?>
+                                    <button type="button" onclick="editExistingImage('images/pages/<?= $edit_data['gambar'] ?>')" class="btn btn-primary btn-sm" style="position:absolute; bottom:10px; right:10px; box-shadow:0 4px 12px rgba(0,0,0,0.3);">
+                                        <svg viewBox="0 0 24 24" style="width:14px;height:14px;"><path d="M3 5v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H5c-1.11 0-2 .9-2 2zm12 4c0 1.66-1.34 3-3 3s-3-1.34-3-3 1.34-3 3-3 3 1.34 3 3zm-9 8c0-2 4-3.1 6-3.1s6 1.1 6 3.1v1H6v-1z"/></svg> Crop Ulang
+                                    </button>
+                                    <?php endif; ?>
+                                </div>
+                                <p id="previewLabel" style="font-size:11px; color:#666; margin-top:5px;">Preview Gambar Saat Ini</p>
+                            </div>
+                            
+                            <label style="display:block;margin:15px 0 5px;font-size:13px;font-weight:600;">Ganti Gambar Baru:</label>
+                            <input type="file" name="gambar" id="gambarInput" class="form-control" accept="image/*">
                             <p class="form-hint">Rekomendasi: Ukuran 1200x600px (2:1) agar presisi.</p>
                         </div>
-                        <script>
-                        function previewImage(input) {
-                            var container = document.getElementById('imagePreviewContainer');
-                            var preview = document.getElementById('imagePreview');
-                            if (input.files && input.files[0]) {
-                                var reader = new FileReader();
-                                reader.onload = function(e) {
-                                    preview.src = e.target.result;
-                                    container.style.display = 'block';
-                                }
-                                reader.readAsDataURL(input.files[0]);
-                            }
-                        }
-                        </script>
-                        <div class="form-actions">
-                            <button type="submit" name="submit_program" class="btn btn-primary">Simpan Program MBKM</button>
-                            <a href="dashboard.php?page=program" class="btn btn-outline">Batal</a>
-                        </div>
-                    </form>
+
+                        <p class="form-hint">Rekomendasi: Ukuran 1200x600px (2:1) agar presisi.</p>
+                    </div>
+
+                    <div class="form-actions" style="margin-top:30px;">
+                        <button type="submit" name="submit_program" class="btn btn-primary">Simpan Program MBKM</button>
+                        <a href="dashboard.php?page=program" class="btn btn-outline">Batal</a>
+                    </div>
+                </form>
 
                 <?php else: ?>
                     <div class="table-responsive">
@@ -2485,14 +2505,7 @@ function applyCrop() {
     prev.style.display = 'block';
     cancelCrop();
 }
-function cancelCrop() {
-    document.getElementById('cropModal').classList.remove('open');
-    if (_cropper) { _cropper.destroy(); _cropper = null; }
-    var ri = document.getElementById('rawCoverInput');
-    if (ri) ri.value = '';
-}
-
-// Re-initialize CKEditor with Upload Support
+// RE-INITIALIZE CKEditor with Upload Support
 if (typeof CKEDITOR !== 'undefined') {
     var ckConfig = {
         height: 400,
@@ -2500,7 +2513,98 @@ if (typeof CKEDITOR !== 'undefined') {
         filebrowserUploadMethod: 'form'
     };
     if (document.getElementById('sambutan')) CKEDITOR.replace('sambutan', ckConfig);
-    if (document.getElementsByName('isi').length > 0) CKEDITOR.replace(document.getElementsByName('isi')[0], ckConfig);
+    var isiEditors = document.getElementsByName('isi');
+    if (isiEditors.length > 0) CKEDITOR.replace(isiEditors[0], ckConfig);
+}
+
+// ══════════════════════════════════════════════════════════════
+// GLOBAL CROPPER LOGIC (MBKM PROGRAM)
+// ══════════════════════════════════════════════════════════════
+var _cropper;
+var _cropTarget = document.getElementById('cropTarget');
+var _cropperContainer = document.getElementById('cropperContainer');
+var _previewContainer = document.getElementById('imagePreviewContainer');
+var _base64Input = document.getElementById('gambar_base64');
+var _programForm = document.getElementById('programForm');
+
+function startCropper(source) {
+    if (!_cropTarget || !_cropperContainer) return;
+    
+    _previewContainer.style.display = 'none';
+    _cropTarget.src = source;
+    _cropperContainer.style.display = 'block';
+    
+    if (_cropper) _cropper.destroy();
+    _cropper = new Cropper(_cropTarget, {
+        aspectRatio: 2 / 1,
+        viewMode: 1,
+        dragMode: 'move',
+        autoCropArea: 0.8,
+        checkOrientation: true,
+        ready: function() { updateCropData(); }
+    });
+    
+    _cropTarget.addEventListener('cropend', updateCropData);
+    _cropTarget.addEventListener('zoom', updateCropData);
+}
+
+function editExistingImage(url) {
+    _cropTarget.crossOrigin = 'anonymous';
+    startCropper(url + '?t=' + new Date().getTime());
+}
+
+function applyCrop() {
+    if (!_cropper) return;
+    updateCropData();
+    
+    var preview = document.getElementById('imagePreview');
+    if (preview) preview.src = _base64Input.value;
+    
+    _cropperContainer.style.display = 'none';
+    _previewContainer.style.display = 'block';
+    
+    var label = document.getElementById('previewLabel');
+    if (label) label.innerHTML = '<b style="color:#2e7d32">Potongan telah diterapkan (Belum tersimpan)</b>';
+    
+    if (_cropper) {
+        _cropper.destroy();
+        _cropper = null;
+    }
+}
+
+function cancelCrop() {
+    if (_cropperContainer) _cropperContainer.style.display = 'none';
+    if (_previewContainer) _previewContainer.style.display = 'block';
+    if (_base64Input) _base64Input.value = '';
+    if (_cropper) {
+        _cropper.destroy();
+        _cropper = null;
+    }
+}
+
+function updateCropData() {
+    if (!_cropper) return;
+    var canvas = _cropper.getCroppedCanvas({ width: 1200, height: 600 });
+    if (_base64Input) _base64Input.value = canvas.toDataURL('image/jpeg', 0.9);
+}
+
+// Event Listeners
+var gInput = document.getElementById('gambarInput');
+if (gInput) {
+    gInput.addEventListener('change', function(e) {
+        var files = e.target.files;
+        if (files && files.length > 0) {
+            var reader = new FileReader();
+            reader.onload = function(event) { startCropper(event.target.result); };
+            reader.readAsDataURL(files[0]);
+        }
+    });
+}
+
+if (_programForm) {
+    _programForm.addEventListener('submit', function() {
+        if (_cropper) updateCropData();
+    });
 }
 </script>
 </body>
