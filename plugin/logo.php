@@ -8,8 +8,8 @@ header.custom-header-main {
     width: 100%;
     top: 0; left: 0;
     z-index: 99999;
-    background: #1e4d27; /* Ijo Tua Solid */
-    box-shadow: 0 4px 30px rgba(0,0,0,0.15);
+    background: #FFFFFF; /* Putih */
+    box-shadow: 0 2px 20px rgba(0,0,0,0.1);
 }
 .header-wrapper { width: 100%; }
 .custom-navbar {
@@ -17,7 +17,7 @@ header.custom-header-main {
     justify-content: space-between;
     align-items: center;
     padding: 10px 5%;
-    background: #1e4d27;
+    background: #FFFFFF;
     transition: all 0.3s;
 }
 
@@ -51,13 +51,13 @@ header.custom-header-main {
 }
 .nav-links li { position: relative; }
 .nav-links a {
-    color: #fff;
+    color: #1B4332;
     text-decoration: none !important;
     font-size: 14px;
     font-weight: 600;
     transition: all 0.3s;
 }
-.nav-links a:hover { color: #ffcc00; }
+.nav-links a:hover { color: #2D6A4F; }
 
 /* ── TOGGLE MOBILE ── */
 .nav-hamb {
@@ -72,24 +72,23 @@ header.custom-header-main {
 
 /* ── RESPONSIVE MOBILE ── */
 @media (max-width: 991px) {
-    .custom-navbar { padding: 12px 20px; background: rgba(0,0,0,0.5); backdrop-filter: blur(15px); }
+    .custom-navbar { padding: 12px 20px; background: #FFFFFF; }
     .nav-hamb { display: block; }
-    
     .nav-links {
         position: absolute;
         top: 100%; left: 0;
         width: 100%;
-        background: #306238;
+        background: #FFFFFF;
         flex-direction: column;
         gap: 0;
         max-height: 0;
         overflow: hidden;
         transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
         align-items: flex-start;
     }
     .nav-links.active { max-height: 800px; padding-bottom: 20px; }
-    .nav-links li { width: 100%; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .nav-links li { width: 100%; border-bottom: 1px solid rgba(0,0,0,0.05); }
     .nav-links a {
         display: block;
         padding: 16px 25px;
@@ -140,12 +139,12 @@ header.custom-header-main {
         display: block;
         font-weight: 500;
     }
-    .nav-links .dropdown-menu a:hover { background: #f8f8f8; color: #306238 !important; }
+    .nav-links .dropdown-menu a:hover { background: #f8f8f8; color: #2D6A4F !important; }
 }
 
 /* ── FORCE MODERN SIDEBAR FIX ── */
 .modern-sidebar, .sidebar-section:first-child { margin-top: 30px; } 
-.sidebar-section h4, .sidebar-section h3 { margin: 0; color: #1e4d27; font-weight: 700; }
+.sidebar-section h4, .sidebar-section h3 { margin: 0; color: #1B4332; font-weight: 700; }
 .sidebar-section table { width: 100% !important; border-collapse: separate; border-spacing: 2px; }
 
 /* ── GLOBAL OFFSET (Biar konten gak ketutupan Navbar) ── */
@@ -153,25 +152,28 @@ header.custom-header-main {
 .modern-hero-area { margin-top: 0 !important; }
 .modern-sidebar { margin-top: 30px !important; }
 .sidebar-section td { text-align: center; padding: 5px; font-size: 12px; border-radius: 4px; border: 1px solid #f0f0f0; }
-.sidebar-section .today, .sidebar-section td[style*="background-color: rgb(255, 102, 0)"] { background: #1e4d27 !important; color: #fff !important; font-weight: 800; border: none; }
+.sidebar-section .today, .sidebar-section td[style*="background-color: rgb(255, 102, 0)"] { background: #1B4332 !important; color: #fff !important; font-weight: 800; border: none; }
 .sidebar-section a[style*="background-color: rgb(59, 130, 246)"], 
-.sidebar-section a[style*="background-color: #3b82f6"] { background: #1e4d27 !important; box-shadow: 0 4px 15px rgba(30,77,39,0.3); }
-.sidebar-section .info-badge, .sidebar-section span[style*="background-color: #1d4ed8"] { background: #306238 !important; }
+.sidebar-section a[style*="background-color: #3b82f6"] { background: #1B4332 !important; box-shadow: 0 4px 15px rgba(30,77,39,0.3); }
+.sidebar-section .info-badge, .sidebar-section span[style*="background-color: #1d4ed8"] { background: #2D6A4F !important; }
 </style>
 
 <div class="header-wrapper">
     <div class="custom-navbar">
                 <!-- Logo Area -->
-                <a href="index.php" class="navbar-brand" style="display: flex; flex-direction: column; justify-content: center; height: 100%; text-decoration: none;">
-                    <div style="font-weight: 800; font-size: 20px; line-height: 1.2; color: #fff; letter-spacing: -0.5px;">MBKM IAI PI BANDUNG</div>
-                    <div style="font-size: 9px; opacity: 0.7; letter-spacing: 1.5px; color: #fff; text-transform: uppercase; font-weight: 600;">Institut Agama Islam Persis Bandung</div>
+                <a href="index.php" class="navbar-brand" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
+                    <img src="images/Assets/LogoIAI.png" alt="Logo IAI" style="height: 45px; width: auto;">
+                    <div style="display: flex; flex-direction: column;">
+                        <div style="font-weight: 800; font-size: 18px; line-height: 1.1; color: #1B4332; letter-spacing: -0.5px;">MBKM IAI PI BANDUNG</div>
+                        <div style="font-size: 8px; opacity: 0.8; letter-spacing: 1.2px; color: #2D6A4F; text-transform: uppercase; font-weight: 600;">Institut Agama Islam Persis Bandung</div>
+                    </div>
                 </a>
         <button class="nav-hamb" onclick="toggleMnu()">
             <i class="fa fa-bars"></i>
         </button>
 
         <ul class="nav-links" id="mainMnu">
-            <li><a href="index.php" style="color: #ffcc00;">Beranda</a></li>
+            <li><a href="index.php" style="color: #1B4332;">Beranda</a></li>
             <li>
                 <a href="javascript:void(0)" onclick="toggleDrop(this)">Program <i class="fa fa-angle-down"></i></a>
                 <div class="dropdown-menu">
@@ -193,18 +195,18 @@ header.custom-header-main {
             
             <?php if (isset($_SESSION['UserName']) && !empty($_SESSION['UserName'])): ?>
                 <li>
-                    <a href="dashboard.php" style="background:#ffcc00;color:#333;padding:10px 25px;border-radius:30px;font-size:12px;font-weight:800;text-align:center;">
+                    <a href="dashboard.php" style="background:#2D6A4F;color:#FFFFFF;padding:10px 25px;border-radius:30px;font-size:12px;font-weight:800;text-align:center;">
                         DASHBOARD
                     </a>
                 </li>
             <?php else: ?>
                 <li class="has-drop">
-                    <a href="javascript:void(0)" onclick="toggleDrop(this)" style="background:#ffcc00;color:#333;padding:10px 25px;border-radius:30px;font-size:12px;font-weight:800;text-align:center;">
+                    <a href="javascript:void(0)" onclick="toggleDrop(this)" style="background:#2D6A4F;color:#FFFFFF;padding:10px 25px;border-radius:30px;font-size:12px;font-weight:800;text-align:center;">
                         LOGIN / DAFTAR <i class="fa fa-angle-down"></i>
                     </a>
                     <div class="dropdown-menu">
                         <a href="login.php"><i class="fa fa-sign-in"></i> Masuk (Login)</a>
-                        <a href="register.php" style="color:#2e7d32"><b><i class="fa fa-user-plus"></i> Daftar Akun</b></a>
+                        <a href="register.php" style="color:#2D6A4F"><b><i class="fa fa-user-plus"></i> Daftar Akun</b></a>
                     </div>
                 </li>
             <?php endif; ?>

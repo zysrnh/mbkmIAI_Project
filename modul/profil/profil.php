@@ -50,7 +50,7 @@ if (!$data) {
     </div>';
 
     $tengah .= '
-    <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee;">
+    <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #F8F9FA;">
         <a href="index.php" style="color: #306238; font-weight: 700; text-decoration: none; font-size: 14px; display: inline-flex; align-items: center; gap: 8px;">
             <i class="fa fa-arrow-left"></i> Kembali ke Beranda
         </a>

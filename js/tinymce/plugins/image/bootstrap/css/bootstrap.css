@@ -208,7 +208,7 @@ body {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 14px;
   line-height: 20px;
-  color: #333333;
+  color: #212529;
   background-color: #ffffff;
 }
 a {
@@ -671,7 +671,7 @@ h4 small {
 .page-header {
   padding-bottom: 9px;
   margin: 20px 0 30px;
-  border-bottom: 1px solid #eeeeee;
+  border-bottom: 1px solid #F8F9FA;
 }
 ul,
 ol {
@@ -747,7 +747,7 @@ dd {
 hr {
   margin: 20px 0;
   border: 0;
-  border-top: 1px solid #eeeeee;
+  border-top: 1px solid #F8F9FA;
   border-bottom: 1px solid #ffffff;
 }
 abbr[title],
@@ -762,7 +762,7 @@ abbr.initialism {
 blockquote {
   padding: 0 0 0 15px;
   margin: 0 0 20px;
-  border-left: 5px solid #eeeeee;
+  border-left: 5px solid #F8F9FA;
 }
 blockquote p {
   margin-bottom: 0;
@@ -782,7 +782,7 @@ blockquote.pull-right {
   float: right;
   padding-right: 15px;
   padding-left: 0;
-  border-right: 5px solid #eeeeee;
+  border-right: 5px solid #F8F9FA;
   border-left: 0;
 }
 blockquote.pull-right p,
@@ -812,7 +812,7 @@ pre {
   padding: 0 3px 2px;
   font-family: Monaco, Menlo, Consolas, "Courier New", monospace;
   font-size: 12px;
-  color: #333333;
+  color: #212529;
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   border-radius: 3px;
@@ -927,7 +927,7 @@ a.badge:focus {
 }
 .label-inverse,
 .badge-inverse {
-  background-color: #333333;
+  background-color: #212529;
 }
 .label-inverse[href],
 .badge-inverse[href] {
@@ -1193,7 +1193,7 @@ legend {
   margin-bottom: 20px;
   font-size: 21px;
   line-height: 40px;
-  color: #333333;
+  color: #212529;
   border: 0;
   border-bottom: 1px solid #e5e5e5;
 }
@@ -1546,7 +1546,7 @@ input[readonly],
 select[readonly],
 textarea[readonly] {
   cursor: not-allowed;
-  background-color: #eeeeee;
+  background-color: #F8F9FA;
 }
 input[type="radio"][disabled],
 input[type="checkbox"][disabled],
@@ -1792,7 +1792,7 @@ select:focus:invalid:focus {
   line-height: 20px;
   text-align: center;
   text-shadow: 0 1px 0 #ffffff;
-  background-color: #eeeeee;
+  background-color: #F8F9FA;
   border: 1px solid #ccc;
 }
 .input-append .add-on,
@@ -2041,7 +2041,7 @@ legend + .control-group {
   text-align: center;
   vertical-align: middle;
   cursor: pointer;
-  color: #333333;
+  color: #212529;
   text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
   background-color: #f5f5f5;
   background-image: -moz-linear-gradient(top, #ffffff, #e6e6e6);
@@ -2074,7 +2074,7 @@ legend + .control-group {
 .btn.active,
 .btn.disabled,
 .btn[disabled] {
-  color: #333333;
+  color: #212529;
   background-color: #e6e6e6;
   *background-color: #d9d9d9;
 }
@@ -2087,7 +2087,7 @@ legend + .control-group {
 }
 .btn:hover,
 .btn:focus {
-  color: #333333;
+  color: #212529;
   text-decoration: none;
   background-position: 0 -15px;
   -webkit-transition: background-position 0.1s linear;
@@ -2418,7 +2418,7 @@ input[type="submit"].btn.btn-mini {
 }
 .btn-link[disabled]:hover,
 .btn-link[disabled]:focus {
-  color: #333333;
+  color: #212529;
   text-decoration: none;
 }
 [class^="icon-"],
@@ -3104,7 +3104,7 @@ input[type="submit"].btn.btn-mini {
 .nav > li > a:hover,
 .nav > li > a:focus {
   text-decoration: none;
-  background-color: #eeeeee;
+  background-color: #F8F9FA;
 }
 .nav > li > a > img {
   max-width: none;
@@ -3203,7 +3203,7 @@ input[type="submit"].btn.btn-mini {
 }
 .nav-tabs > li > a:hover,
 .nav-tabs > li > a:focus {
-  border-color: #eeeeee #eeeeee #dddddd;
+  border-color: #F8F9FA #F8F9FA #dddddd;
 }
 .nav-tabs > .active > a,
 .nav-tabs > .active > a:hover,
@@ -3401,7 +3401,7 @@ input[type="submit"].btn.btn-mini {
 }
 .tabs-left > .nav-tabs > li > a:hover,
 .tabs-left > .nav-tabs > li > a:focus {
-  border-color: #eeeeee #dddddd #eeeeee #eeeeee;
+  border-color: #F8F9FA #dddddd #F8F9FA #F8F9FA;
 }
 .tabs-left > .nav-tabs .active > a,
 .tabs-left > .nav-tabs .active > a:hover,
@@ -3422,7 +3422,7 @@ input[type="submit"].btn.btn-mini {
 }
 .tabs-right > .nav-tabs > li > a:hover,
 .tabs-right > .nav-tabs > li > a:focus {
-  border-color: #eeeeee #eeeeee #eeeeee #dddddd;
+  border-color: #F8F9FA #F8F9FA #F8F9FA #dddddd;
 }
 .tabs-right > .nav-tabs .active > a,
 .tabs-right > .nav-tabs .active > a:hover,
@@ -3506,7 +3506,7 @@ input[type="submit"].btn.btn-mini {
 }
 .navbar-link:hover,
 .navbar-link:focus {
-  color: #333333;
+  color: #212529;
 }
 .navbar .divider-vertical {
   height: 40px;
@@ -3662,7 +3662,7 @@ input[type="submit"].btn.btn-mini {
 .navbar .nav > li > a:focus,
 .navbar .nav > li > a:hover {
   background-color: transparent;
-  color: #333333;
+  color: #212529;
   text-decoration: none;
 }
 .navbar .nav > .active > a,
@@ -3766,8 +3766,8 @@ input[type="submit"].btn.btn-mini {
 }
 .navbar .nav li.dropdown > a:hover .caret,
 .navbar .nav li.dropdown > a:focus .caret {
-  border-top-color: #333333;
-  border-bottom-color: #333333;
+  border-top-color: #212529;
+  border-bottom-color: #212529;
 }
 .navbar .nav li.dropdown.open > .dropdown-toggle,
 .navbar .nav li.dropdown.active > .dropdown-toggle,
@@ -3905,7 +3905,7 @@ input[type="submit"].btn.btn-mini {
 .navbar-inverse .navbar-search .search-query:focus,
 .navbar-inverse .navbar-search .search-query.focused {
   padding: 5px 15px;
-  color: #333333;
+  color: #212529;
   text-shadow: 0 1px 0 #ffffff;
   background-color: #ffffff;
   border: 0;
@@ -4461,7 +4461,7 @@ a.thumbnail:focus {
   font-weight: 200;
   line-height: 30px;
   color: inherit;
-  background-color: #eeeeee;
+  background-color: #F8F9FA;
   -webkit-border-radius: 6px;
   -moz-border-radius: 6px;
   border-radius: 6px;
@@ -4759,7 +4759,7 @@ a.thumbnail:focus {
 }
 .modal-header {
   padding: 9px 15px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #F8F9FA;
 }
 .modal-header .close {
   margin-top: 2px;
@@ -4880,7 +4880,7 @@ a.thumbnail:focus {
   clear: both;
   font-weight: normal;
   line-height: 20px;
-  color: #333333;
+  color: #212529;
   white-space: nowrap;
 }
 .dropdown-menu > li > a:hover,
@@ -5145,7 +5145,7 @@ a.thumbnail:focus {
   right: 0;
   bottom: 0;
   padding: 15px;
-  background: #333333;
+  background: #212529;
   background: rgba(0, 0, 0, 0.75);
 }
 .carousel-caption h4,

@@ -8,7 +8,7 @@ tailwind.config = {
     theme: {
         extend: {
             colors: {
-                moss: { dark: '#306238', mid: '#618D4F', light: '#9EBB97', bg: '#DDE5CD', olive: '#545837' }
+                moss: { dark: '#1B4332', mid: '#2D6A4F', light: '#2D6A4F', bg: '#DDE5CD', olive: '#1B4332' }
             }
         }
     }
@@ -18,18 +18,16 @@ tailwind.config = {
 <style>
 /* ============================================================
    LANDING PAGE — MBKM IAI PI BANDUNG
-   Palette: --moss-dark #306238 | --moss-mid #618D4F |
-            --moss-light #9EBB97 | --moss-bg #DDE5CD | --moss-olive #545837
    ============================================================ */
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
-    --moss-dark  : #306238;
-    --moss-mid   : #618D4F;
-    --moss-light : #9EBB97;
-    --moss-bg    : #DDE5CD;
-    --moss-olive : #545837;
-    --text-dark  : #1e2d20;
+    --moss-dark  : #1B4332;
+    --moss-mid   : #2D6A4F;
+    --moss-light : #2D6A4F;
+    --moss-bg    : #F8F9FA;
+    --moss-olive : #1B4332;
+    --text-dark  : #212529;
     --text-muted : #5a6b5c;
     --white      : #ffffff;
     --shadow-sm  : 0 2px 12px rgba(48,98,56,.10);
@@ -42,20 +40,27 @@ tailwind.config = {
     --ease-spring: cubic-bezier(.34,1.56,.64,1);
 }
 
+.container {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 20px;
+    width: 100%;
+}
+
 * { box-sizing: border-box; }
 body, section, div { font-family: 'Plus Jakarta Sans', sans-serif; }
 body { background: #fff; }
 
 a.scroll-top, .scroll-top {
-    background: #618D4F !important; border-color: #618D4F !important;
+    background: #2D6A4F !important; border-color: #2D6A4F !important;
     color: #fff !important; box-shadow: 0 4px 16px rgba(97,141,79,.35) !important;
 }
-a.scroll-top:hover, .scroll-top:hover { background: #306238 !important; border-color: #306238 !important; }
+a.scroll-top:hover, .scroll-top:hover { background: #1B4332 !important; border-color: #1B4332 !important; }
 
 .blog-wrapper { background: transparent !important; padding: 0 !important; margin: 0 !important; }
 .blog-left, .blog-right { display: none !important; }
-.section-eyebrow { color: #618D4F !important; }
-.dokum-dot.active { background: #306238 !important; }
+.section-eyebrow { color: #2D6A4F !important; }
+.dokum-dot.active { background: #1B4332 !important; }
 
 /* ── Labels & Titles ── */
 .lp-label {
@@ -77,94 +82,72 @@ a.scroll-top:hover, .scroll-top:hover { background: #306238 !important; border-c
     .lp-label { font-size: 9px !important; text-align: center; letter-spacing: 2.5px; }
     .lp-divider { margin: 0 auto 28px !important; }
     .lp-section { padding: 40px 0; }
-    
-    /* Stats fix */
+
     .stat-num { font-size: 34px !important; }
     .stat-label { font-size: 9px !important; }
     .stat-item { padding: 15px 10px; border: none !important; }
     .stats-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 10px; }
-    
-    /* Documentations */
+
     .dokum-slide img, .dokum-slide-ph { height: 320px !important; }
-    
-    /* CTA Fix */
+
     .cta-section h2 { font-size: 20px !important; text-align: center; line-height: 1.4; }
     .cta-badge { text-align: center; margin-top: 20px; }
     .cta-badge-name { font-size: 18px !important; }
 }
 
 /* ══════════════════════════════════════════
-   SECTION 1: PROGRAM CARDS
-══════════════════════════════════════════ */
-.prog-section { background: var(--white); padding: 0 0 30px; }
-.prog-section-head { text-align: center; padding: 72px 0 50px; }
-
-.prog-card {
-    background: var(--moss-dark); border-radius: var(--radius-lg);
-    padding: 30px 24px 56px; position: relative; cursor: pointer;
-    transition: transform .35s var(--ease-out), box-shadow .35s var(--ease-out),
-                background .35s; overflow: hidden; min-height: 210px;
-    height: 100%; border-top: 4px solid var(--moss-mid);
-}
-.prog-card::before {
-    content: ''; position: absolute; bottom: -40px; right: -40px;
-    width: 140px; height: 140px; background: rgba(255,255,255,.04); border-radius: 50%;
-    transition: transform .5s var(--ease-out);
-}
-.prog-card:hover { transform: translateY(-10px); box-shadow: var(--shadow-lg); background: var(--moss-mid); }
-.prog-card:hover::before { transform: scale(1.4); }
-.prog-card--alt  { background: var(--moss-olive); }
-.prog-card--alt2 { background: var(--moss-mid); }
-.prog-card--alt3 { background: #3d5a2e; }
-
-.prog-card .pc-icon {
-    width: 50px; height: 50px; background: rgba(255,255,255,.14);
-    border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 18px;
-    transition: background .3s, transform .3s var(--ease-spring);
-}
-.prog-card:hover .pc-icon { background: rgba(255,255,255,.25); transform: scale(1.1) rotate(-4deg); }
-.prog-card .pc-icon svg { width: 24px; height: 24px; fill: #fff; }
-.prog-card h3 {
-    color: var(--white); font-size: 14px; font-weight: 800;
-    text-transform: uppercase; letter-spacing: .8px; margin: 0 0 10px; line-height: 1.4;
-}
-.prog-card p { color: rgba(255,255,255,.78); font-size: 12.5px; line-height: 1.85; margin: 0; }
-.prog-card .pc-btn {
-    position: absolute; bottom: 16px; right: 16px; width: 38px; height: 38px;
-    border-radius: 50%; background: rgba(255,255,255,.16);
-    display: flex; align-items: center; justify-content: center;
-    text-decoration: none; transition: background .25s, transform .25s var(--ease-spring); z-index: 2;
-}
-.prog-card .pc-btn svg { width: 16px; height: 16px; fill: #fff; }
-.prog-card .pc-btn:hover { background: rgba(255,255,255,.32); transform: scale(1.15); text-decoration: none; }
-
-/* ══════════════════════════════════════════
    SECTION 2: SAMBUTAN
 ══════════════════════════════════════════ */
-.sambutan-section { background: var(--moss-bg); padding: 80px 0; border-top: 1px solid rgba(97,141,79,.15); }
+.sambutan-section { background: var(--moss-bg); padding: 64px 0; border-top: 1px solid rgba(97,141,79,.15); }
+
+/* VIDEO — lebih besar & proporsional */
 .sambutan-media {
     border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-lg);
-    position: relative; background: var(--moss-dark); min-height: 360px;
+    position: relative; background: var(--moss-dark);
+    min-height: 340px; height: 100%;
     display: flex; align-items: center; justify-content: center;
 }
 .sambutan-media-placeholder {
     display: flex; flex-direction: column;
-    align-items: center; justify-content: center; min-height: 360px; padding: 40px;
+    align-items: center; justify-content: center; min-height: 340px; padding: 40px;
 }
 .sambutan-media-placeholder p { color: rgba(255,255,255,.5); margin: 12px 0 0; font-size: 13px; text-align: center; }
+
 .play-icon-wrap {
-    width: 68px; height: 68px; border-radius: 50%; background: rgba(255,255,255,.92);
+    width: 72px; height: 72px; border-radius: 50%; background: rgba(255,255,255,.92);
     display: flex; align-items: center; justify-content: center;
     position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
     text-decoration: none; transition: transform .3s var(--ease-spring), box-shadow .3s;
     box-shadow: 0 8px 28px rgba(0,0,0,.28); backdrop-filter: blur(4px);
 }
 .play-icon-wrap:hover { transform: translate(-50%,-50%) scale(1.14); box-shadow: 0 14px 42px rgba(0,0,0,.38); }
-.play-icon-wrap svg { width: 28px; height: 28px; fill: var(--moss-dark); margin-left: 4px; }
-.sambutan-text { padding-left: 48px; }
-@media (max-width: 767px) { .sambutan-text { padding-left: 0; margin-top: 30px; } }
-.sambutan-text .lp-title { font-size: 28px; }
-.sambutan-text p { color: var(--text-muted); line-height: 1.95; font-size: 14.5px; }
+.play-icon-wrap svg { width: 30px; height: 30px; fill: var(--moss-dark); margin-left: 4px; }
+
+/* Row alignment — tighter gap */
+.sambutan-row {
+    display: flex;
+    align-items: stretch;
+    gap: 40px;
+}
+.sambutan-col-video {
+    flex: 0 0 45%;
+    min-height: 380px;
+}
+.sambutan-col-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0;
+}
+
+@media (max-width: 767px) {
+    .sambutan-row { flex-direction: column; gap: 24px; }
+    .sambutan-col-video { min-height: 240px; }
+}
+
+.sambutan-col-text .lp-title { font-size: 26px; }
+.sambutan-col-text p { color: var(--text-muted); line-height: 1.85; font-size: 14px; }
 
 .btn-primary-lp {
     display: inline-flex; align-items: center; gap: 8px;
@@ -172,7 +155,7 @@ a.scroll-top:hover, .scroll-top:hover { background: #306238 !important; border-c
     padding: 12px 28px; border-radius: 30px; font-weight: 700; font-size: 14px;
     text-decoration: none; letter-spacing: .1px;
     transition: background .28s, box-shadow .28s, transform .28s var(--ease-spring);
-    margin-top: 24px; border: 2px solid var(--moss-dark);
+    margin-top: 20px; border: 2px solid var(--moss-dark);
 }
 .btn-primary-lp:hover { background: var(--moss-mid); border-color: var(--moss-mid); color: var(--white); text-decoration: none; box-shadow: var(--shadow-md); transform: translateY(-2px); }
 .btn-outline-lp {
@@ -184,16 +167,11 @@ a.scroll-top:hover, .scroll-top:hover { background: #306238 !important; border-c
 .btn-outline-lp:hover { background: var(--moss-dark); color: var(--white); text-decoration: none; transform: translateY(-2px); }
 
 /* ══════════════════════════════════════════
-   SECTION 3: STATISTIK
+   SECTION 3: STATISTIK — lebih proporsional
 ══════════════════════════════════════════ */
 .stats-section {
     background: linear-gradient(135deg, var(--moss-dark) 0%, var(--moss-olive) 100%);
-    padding: 64px 0; position: relative; overflow: hidden;
-}
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    width: 100%;
+    padding: 80px 0; position: relative; overflow: hidden;
 }
 .stats-section::before {
     content: ''; position: absolute; top: -60px; right: -60px;
@@ -203,20 +181,36 @@ a.scroll-top:hover, .scroll-top:hover { background: #306238 !important; border-c
     content: ''; position: absolute; bottom: -80px; left: -40px;
     width: 320px; height: 320px; border-radius: 50%; background: rgba(255,255,255,.035);
 }
-.stat-item { text-align: center; padding: 30px 20px; position: relative; z-index: 1; }
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    width: 100%;
+}
+.stat-item { text-align: center; padding: 40px 24px; position: relative; z-index: 1; }
 .stat-item + .stat-item { border-left: 1px solid rgba(255,255,255,.12); }
-@media (max-width: 575px) { .stat-item + .stat-item { border-left: none; border-top: 1px solid rgba(255,255,255,.12); } }
-.stat-num { font-size: 52px; font-weight: 900; color: var(--moss-bg); display: block; line-height: 1; letter-spacing: -2px; }
-.stat-label { color: rgba(255,255,255,.72); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin-top: 8px; display: block; }
-.stat-line { width: 28px; height: 2px; background: var(--moss-light); margin: 10px auto 0; border-radius: 1px; opacity: .6; }
+
 .stat-icon-wrap {
-    width: 44px; height: 44px; border-radius: 50%;
+    width: 56px; height: 56px; border-radius: 50%;
     background: rgba(255,255,255,.1); border: 1.5px solid rgba(255,255,255,.16);
-    display: flex; align-items: center; justify-content: center; margin: 0 auto 14px;
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 18px;
     transition: background .3s, transform .3s var(--ease-spring);
 }
 .stat-item:hover .stat-icon-wrap { background: rgba(255,255,255,.2); transform: scale(1.1); }
-.stat-icon-wrap svg { width: 20px; height: 20px; fill: var(--moss-bg); }
+.stat-icon-wrap svg { width: 26px; height: 26px; fill: var(--moss-bg); }
+
+.stat-num { font-size: 60px; font-weight: 900; color: #fff; display: block; line-height: 1; letter-spacing: -2px; }
+.stat-label { color: rgba(255,255,255,.72); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin-top: 10px; display: block; }
+.stat-line { width: 32px; height: 2px; background: rgba(255,255,255,.3); margin: 12px auto 0; border-radius: 1px; }
+
+@media (max-width: 768px) {
+    .stats-grid {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 0 !important;
+    }
+    .stat-item { border: 0.5px solid rgba(255,255,255,0.08) !important; padding: 28px 16px !important; }
+    .stat-num { font-size: 40px !important; }
+}
 
 /* ══════════════════════════════════════════
    SECTION 4: DOKUMENTASI
@@ -224,13 +218,13 @@ a.scroll-top:hover, .scroll-top:hover { background: #306238 !important; border-c
 .dokum-section { padding: 80px 0; background: var(--white); }
 .dokum-slider-wrap {
     position: relative; overflow: hidden; border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg); max-width: 900px; margin: 0 auto;
+    box-shadow: var(--shadow-lg); max-width: 960px; margin: 0 auto;
 }
 .dokum-slides { display: flex; transition: transform .55s var(--ease-out); will-change: transform; }
 .dokum-slide { min-width: 100%; position: relative; overflow: hidden; }
-.dokum-slide img { width: 100%; height: 480px; object-fit: cover; display: block; }
+.dokum-slide img { width: 100%; height: 520px; object-fit: cover; display: block; }
 .dokum-slide-ph {
-    width: 100%; height: 480px;
+    width: 100%; height: 520px;
     background: linear-gradient(135deg, var(--moss-dark), var(--moss-mid));
     display: flex; align-items: center; justify-content: center; flex-direction: column;
 }
@@ -239,65 +233,53 @@ a.scroll-top:hover, .scroll-top:hover { background: #306238 !important; border-c
 .dokum-slide-cap {
     position: absolute; bottom: 0; left: 0; right: 0;
     background: linear-gradient(to top, rgba(20,40,24,.9), transparent);
-    padding: 52px 28px 22px; color: var(--white);
+    padding: 60px 32px 28px; color: var(--white);
 }
-.dokum-slide-cap h4 { margin: 0 0 4px; font-size: 17px; font-weight: 800; }
-.dokum-slide-cap p { margin: 0; font-size: 12.5px; opacity: .75; }
+.dokum-slide-cap h4 { margin: 0 0 4px; font-size: 18px; font-weight: 800; }
+.dokum-slide-cap p { margin: 0; font-size: 13px; opacity: .75; }
 .dokum-nav {
     position: absolute; top: 50%; transform: translateY(-50%);
     background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.28);
-    color: var(--white); width: 42px; height: 42px; border-radius: 50%; font-size: 18px; cursor: pointer;
+    color: var(--white); width: 48px; height: 48px; border-radius: 50%; font-size: 20px; cursor: pointer;
     transition: background .2s, transform .2s var(--ease-spring); backdrop-filter: blur(6px);
     display: flex; align-items: center; justify-content: center;
 }
 .dokum-nav:hover { background: rgba(255,255,255,.36); transform: translateY(-50%) scale(1.1); }
-.dokum-nav.prev { left: 14px; }
-.dokum-nav.next { right: 14px; }
-.dokum-dots { text-align: center; margin-top: 18px; }
+.dokum-nav.prev { left: 16px; }
+.dokum-nav.next { right: 16px; }
+.dokum-dots { text-align: center; margin-top: 20px; }
 .dokum-dot {
     display: inline-block; width: 8px; height: 8px; border-radius: 50%;
     background: var(--moss-light); margin: 0 4px; cursor: pointer;
     transition: all .3s var(--ease-spring); opacity: .45;
 }
-.dokum-dot.active { background: var(--moss-dark); opacity: 1; width: 22px; border-radius: 4px; }
+.dokum-dot.active { background: var(--moss-dark); opacity: 1; width: 24px; border-radius: 4px; }
 
 /* ══════════════════════════════════════════
    SECTION 5: TESTIMONI
 ══════════════════════════════════════════ */
-/* ── TESTIMONI SLIDER STYLE ── */
 .testi-carousel-outer { position: relative; overflow: hidden; padding: 10px 0; }
 .testi-card {
-    background: var(--white); border-radius: var(--radius-md); padding: 20px;
-    border: 1px solid rgba(0,0,0,0.05); margin: 10px 5px;
+    background: var(--white); border-radius: var(--radius-md); padding: 24px;
+    border: 1px solid rgba(0,0,0,0.06); margin: 10px 6px;
     box-shadow: var(--shadow-sm); min-height: 220px;
     display: flex; flex-direction: column; justify-content: space-between;
 }
-.testi-card .testi-quote { 
-    font-size: 13px; color: var(--text-muted); line-height: 1.6; 
-    margin: 0 0 15px; position: relative; padding-top: 15px;
+.testi-card .testi-quote {
+    font-size: 13.5px; color: var(--text-muted); line-height: 1.65;
+    margin: 0 0 16px; position: relative; padding-top: 18px;
 }
 .testi-card .testi-quote::before {
-    content: '\201C'; font-size: 32px; color: var(--moss-light);
+    content: '\201C'; font-size: 36px; color: var(--moss-light);
     position: absolute; top: -10px; left: -5px; opacity: 0.5;
 }
-.testi-card .testi-person { display: flex; align-items: center; gap: 10px; border-top: 1px solid #f0f3f0; padding-top: 12px; }
+.testi-card .testi-person { display: flex; align-items: center; gap: 12px; border-top: 1px solid #f0f3f0; padding-top: 14px; }
 .testi-avatar {
-    width: 36px; height: 36px; border-radius: 50%; overflow: hidden; flex-shrink: 0;
-    border: 1px solid var(--moss-light); background: #eee;
+    width: 42px; height: 42px; border-radius: 50%; overflow: hidden; flex-shrink: 0;
+    border: 2px solid var(--moss-light); background: #F8F9FA;
 }
-.testi-name { font-weight: 800; font-size: 13px; color: var(--moss-dark); }
-.testi-role { font-size: 10px; color: var(--moss-light); font-weight: 600; }
-
-@media (max-width: 768px) {
-    .stats-grid { 
-        display: grid !important; 
-        grid-template-columns: 1fr 1fr !important; 
-        gap: 0 !important; 
-        margin: 0 !important;
-    }
-    .stats-grid > div { width: 100% !important; padding: 0 !important; float: none !important; }
-    .stat-item { border: 0.5px solid rgba(255,255,255,0.08) !important; padding: 20px 10px !important; }
-}
+.testi-name { font-weight: 800; font-size: 13.5px; color: var(--moss-dark); }
+.testi-role { font-size: 11px; color: var(--moss-light); font-weight: 600; }
 
 /* ══════════════════════════════════════════
    SECTION 6: BOOKSHELF
@@ -313,8 +295,7 @@ a.scroll-top:hover, .scroll-top:hover { background: #306238 !important; border-c
 .bookshelf-search:focus-within { border-color: var(--moss-mid); box-shadow: 0 0 0 4px rgba(97,141,79,.12); }
 .bookshelf-search input {
     flex: 1; border: none; background: transparent;
-    padding: 11px 18px; font-size: 13.5px; color: #333; outline: none;
-    font-family: inherit;
+    padding: 11px 18px; font-size: 13.5px; color: #333; outline: none; font-family: inherit;
 }
 .bookshelf-search input::placeholder { color: #aab8a8; }
 .bookshelf-search button {
@@ -338,7 +319,6 @@ a.scroll-top:hover, .scroll-top:hover { background: #306238 !important; border-c
     height: 18px; background: linear-gradient(to bottom, #5c3b1a, #3a2210);
     border-radius: 0 0 6px 6px; box-shadow: 0 6px 14px rgba(0,0,0,.32);
 }
-/* Wood grain effect */
 .bookshelf-row::after {
     content: ''; position: absolute; inset: 0; border-radius: 6px 6px 0 0;
     background: repeating-linear-gradient(
@@ -375,7 +355,7 @@ a.scroll-top:hover, .scroll-top:hover { background: #306238 !important; border-c
 .book-no-cover {
     display: flex; align-items: center; justify-content: center;
     width: 100%; height: 100%;
-    background: linear-gradient(145deg, var(--moss-dark) 0%, var(--moss-mid) 55%, #3d5a2e 100%);
+    background: linear-gradient(145deg, var(--moss-dark) 0%, var(--moss-mid) 55%, #2D6A4F 100%);
     color: var(--white); font-size: 11px; text-align: center; padding: 14px 10px;
     font-weight: 700; line-height: 1.4; text-shadow: 0 1px 4px rgba(0,0,0,.35);
 }
@@ -400,79 +380,117 @@ a.scroll-top:hover, .scroll-top:hover { background: #306238 !important; border-c
 .bookshelf-more { text-align: center; margin-top: 32px; }
 
 /* ══════════════════════════════════════════
-   SECTION 7: CTA
+   SECTION 7: CTA — lebih proporsional
 ══════════════════════════════════════════ */
-.cta-section { background: var(--moss-dark); padding: 60px 0; position: relative; overflow: hidden; }
+.cta-section {
+    background: var(--moss-dark); padding: 90px 0; position: relative; overflow: hidden;
+}
 .cta-section::before {
     content: ''; position: absolute; top: -80px; right: -80px;
-    width: 360px; height: 360px; border-radius: 50%; background: rgba(255,255,255,.04);
+    width: 400px; height: 400px; border-radius: 50%; background: rgba(255,255,255,.05);
 }
 .cta-section::after {
     content: ''; position: absolute; bottom: -100px; left: 40%;
-    width: 280px; height: 280px; border-radius: 50%; background: rgba(255,255,255,.03);
+    width: 320px; height: 320px; border-radius: 50%; background: rgba(255,255,255,.04);
 }
-.cta-inner { position: relative; z-index: 1; }
-.cta-section h2 { color: var(--white); font-size: 28px; font-weight: 900; line-height: 1.35; margin: 0; }
-.cta-section h2 span { color: var(--moss-bg); }
-.cta-badge-name { color: var(--white); font-size: 24px; font-weight: 900; letter-spacing: -1px; display: block; }
-.cta-badge-sub { color: var(--moss-light); font-size: 11.5px; display: block; margin-top: 4px; text-transform: uppercase; letter-spacing: 2px; }
-.cta-badge { text-align: right; }
+.cta-inner {
+    position: relative; z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 40px;
+}
+.cta-inner-text { flex: 1; }
+.cta-inner-badge {
+    flex: 0 0 auto;
+    text-align: right;
+    padding-left: 40px;
+    border-left: 1px solid rgba(255,255,255,.15);
+}
+.cta-section h2 {
+    color: var(--white); font-size: 36px; font-weight: 900;
+    line-height: 1.25; margin: 0 0 8px;
+}
+.cta-section h2 span { color: #a8d5b5; }
+.cta-sub {
+    color: rgba(255,255,255,.6);
+    font-size: 15px;
+    margin: 0 0 28px;
+    line-height: 1.6;
+}
+.cta-badge-name {
+    color: var(--white); font-size: 28px; font-weight: 900;
+    letter-spacing: -1px; display: block; line-height: 1.2;
+}
+.cta-badge-sub {
+    color: rgba(255,255,255,.5); font-size: 11px; display: block;
+    margin-top: 6px; text-transform: uppercase; letter-spacing: 2.5px;
+}
+@media (max-width: 767px) {
+    .cta-inner { flex-direction: column; gap: 24px; text-align: center; }
+    .cta-section h2 { font-size: 24px !important; }
+    .cta-inner-badge { border-left: none; border-top: 1px solid rgba(255,255,255,.15); padding-left: 0; padding-top: 24px; text-align: center; }
+    .cta-badge-name { font-size: 20px !important; }
+}
 
 /* ══════════════════════════════════════════
-   SECTION 8: BERITA
+   SECTION 8: BERITA — kartu lebih besar
 ══════════════════════════════════════════ */
 .news-section { padding: 80px 0; background: var(--moss-bg); }
+.news-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+}
+@media (max-width: 900px) { .news-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 600px) { .news-grid { grid-template-columns: 1fr; } }
+
 .news-card {
     background: var(--white); border-radius: var(--radius-lg); overflow: hidden;
-    box-shadow: var(--shadow-sm); transition: transform .35s var(--ease-out), box-shadow .35s; height: 100%; display: flex; flex-direction: column;
+    box-shadow: var(--shadow-sm); transition: transform .35s var(--ease-out), box-shadow .35s;
+    display: flex; flex-direction: column;
 }
 .news-card:hover { transform: translateY(-10px); box-shadow: var(--shadow-lg); }
-.nc-img { width: 100%; height: 210px; object-fit: cover; display: block; }
+/* Thumbnail lebih tinggi */
+.nc-img { width: 100%; height: 260px; object-fit: cover; display: block; }
 .nc-img-ph {
-    width: 100%; height: 210px;
+    width: 100%; height: 260px;
     background: linear-gradient(135deg, var(--moss-dark), var(--moss-mid));
     display: flex; align-items: center; justify-content: center;
 }
-.nc-img-ph svg { width: 50px; height: 50px; fill: rgba(255,255,255,.22); }
-.nc-body { padding: 20px 22px; flex: 1; display: flex; flex-direction: column; }
+.nc-img-ph svg { width: 56px; height: 56px; fill: rgba(255,255,255,.22); }
+.nc-body { padding: 24px 26px; flex: 1; display: flex; flex-direction: column; }
 .nc-cat {
-    display: inline-block; background: var(--moss-bg); color: var(--moss-dark);
-    font-size: 10px; font-weight: 800; padding: 4px 12px; border-radius: 20px;
-    margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;
+    display: inline-block; background: #e8f0e8; color: var(--moss-dark);
+    font-size: 10px; font-weight: 800; padding: 5px 14px; border-radius: 20px;
+    margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;
 }
-.nc-body h3 { font-size: 15px; font-weight: 800; color: var(--text-dark); margin: 0 0 10px; line-height: 1.5; flex: 1; }
+.nc-body h3 {
+    font-size: 16px; font-weight: 800; color: var(--text-dark);
+    margin: 0 0 12px; line-height: 1.5; flex: 1;
+}
 .nc-body h3 a { color: inherit; text-decoration: none; }
 .nc-body h3 a:hover { color: var(--moss-dark); }
 .nc-meta {
-    font-size: 11px; color: #9aab9c; margin-top: auto; padding-top: 10px;
+    font-size: 12px; color: #9aab9c; margin-top: auto; padding-top: 12px;
     border-top: 1px solid #edf2ea; display: flex; gap: 6px; align-items: center;
 }
 
 /* ══════════════════════════════════════════════════════════════
    UNIFIED FLIPBOOK MODAL
-   Fitur: drag-to-pan (overflow scroll), wheel zoom, 3D flip,
-          mobile swipe, momentum scroll, smooth animations
 ══════════════════════════════════════════════════════════════ */
-
-/* ── Overlay ── */
 .ufb-overlay {
     display: none; position: fixed; inset: 0; z-index: 99999;
     background: rgba(4,12,6,.92); backdrop-filter: blur(10px);
     align-items: center; justify-content: center;
 }
 .ufb-overlay.active { display: flex; }
-
-/* ── Modal container ── */
 .ufb-modal {
     width: 100vw; height: 100vh;
     display: flex; flex-direction: column;
     background: #14201a;
     animation: ufbIn .32s var(--ease-out);
 }
-@keyframes ufbIn {
-    from { opacity: 0; transform: scale(.96); }
-    to   { opacity: 1; transform: scale(1); }
-}
+@keyframes ufbIn { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: scale(1); } }
 @media (min-width: 768px) {
     .ufb-modal {
         width: 94vw; height: 94vh; max-width: 1440px;
@@ -480,242 +498,62 @@ a.scroll-top:hover, .scroll-top:hover { background: #306238 !important; border-c
         box-shadow: 0 30px 90px rgba(0,0,0,.75), 0 0 0 1px rgba(255,255,255,.06);
     }
 }
-
-/* ── Header ── */
 .ufb-header {
     height: 54px; background: var(--moss-dark);
     display: flex; align-items: center; justify-content: space-between;
     padding: 0 20px; flex-shrink: 0; gap: 12px;
 }
-.ufb-header h4 {
-    margin: 0; font-size: 14px; font-weight: 700; color: #fff;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-}
+.ufb-header h4 { margin: 0; font-size: 14px; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; font-family: 'Plus Jakarta Sans', sans-serif; }
 .ufb-header-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
-.ufb-hbtn {
-    width: 32px; height: 32px; border-radius: 7px;
-    border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.1); cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    color: #fff; transition: background .18s, transform .18s var(--ease-spring);
-}
+.ufb-hbtn { width: 32px; height: 32px; border-radius: 7px; border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.1); cursor: pointer; display: flex; align-items: center; justify-content: center; color: #fff; transition: background .18s, transform .18s var(--ease-spring); }
 .ufb-hbtn:hover { background: rgba(255,255,255,.26); transform: scale(1.08); }
-.ufb-close {
-    background: rgba(255,100,100,.15); border: 1px solid rgba(255,100,100,.25);
-    color: rgba(255,255,255,.8); font-size: 18px; line-height: 1; cursor: pointer;
-    width: 32px; height: 32px; border-radius: 7px;
-    display: flex; align-items: center; justify-content: center;
-    transition: background .18s, color .18s;
-}
+.ufb-close { background: rgba(255,100,100,.15); border: 1px solid rgba(255,100,100,.25); color: rgba(255,255,255,.8); font-size: 18px; line-height: 1; cursor: pointer; width: 32px; height: 32px; border-radius: 7px; display: flex; align-items: center; justify-content: center; transition: background .18s, color .18s; }
 .ufb-close:hover { background: rgba(255,80,80,.4); color: #fff; }
-
-/* ── Canvas wrap (SCROLLABLE — inilah kuncinya) ── */
-.ufb-canvas-wrap {
-    flex: 1;
-    overflow: auto;          /* <— scroll dua arah untuk drag-to-pan */
-    position: relative;
-    background: #08120a;
-    cursor: grab;
-    display: flex;
-    align-items: flex-start;
-    justify-content: flex-start;
-
-    /* Sembunyikan scrollbar tapi tetap scrollable */
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    -webkit-overflow-scrolling: touch;
-}
+.ufb-canvas-wrap { flex: 1; overflow: auto; position: relative; background: #08120a; cursor: grab; display: flex; align-items: flex-start; justify-content: flex-start; scrollbar-width: none; -ms-overflow-style: none; -webkit-overflow-scrolling: touch; }
 .ufb-canvas-wrap::-webkit-scrollbar { display: none; }
 .ufb-canvas-wrap.is-dragging { cursor: grabbing; }
-
-/* Outer container di dalam scroll — centering */
-.ufb-scene-outer {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 100%;
-    min-height: 100%;
-    flex-shrink: 0;
-    padding: 24px 80px;
-    box-sizing: border-box;
-}
-@media (max-width: 767px) {
-    .ufb-scene-outer { padding: 0; align-items: flex-start; justify-content: flex-start; }
-}
-
-/* ── Scene (perspective container) ── */
-.ufb-scene {
-    position: relative;
-    display: inline-flex;
-    align-items: stretch;
-    flex-shrink: 0;
-    perspective: 2800px;
-    perspective-origin: 50% 50%;
-}
-
-/* ── Canvas halaman ── */
-#ufbCanvasL {
-    display: block;
-    box-shadow: -6px 0 24px rgba(0,0,0,.6);
-    border-radius: 3px 0 0 3px;
-}
-#ufbCanvasR {
-    display: none;
-    box-shadow:  6px 0 24px rgba(0,0,0,.6);
-    border-radius: 0 3px 3px 0;
-}
-
-/* ── Spine ── */
-.ufb-spine {
-    display: none;
-    width: 7px;
-    flex-shrink: 0;
-    background: linear-gradient(180deg, #5a8a62 0%, #1f4428 50%, #5a8a62 100%);
-    box-shadow: 3px 0 10px rgba(0,0,0,.55), -3px 0 10px rgba(0,0,0,.55);
-}
-
-/* ── Nav arrows (desktop) ── */
-.ufb-nav-arrow {
-    position: absolute; top: 50%; transform: translateY(-50%);
-    width: 44px; height: 44px; border-radius: 50%;
-    background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18);
-    color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center;
-    transition: background .2s, transform .2s var(--ease-spring); z-index: 10;
-    pointer-events: all;
-}
+.ufb-scene-outer { display: flex; align-items: center; justify-content: center; min-width: 100%; min-height: 100%; flex-shrink: 0; padding: 24px 80px; box-sizing: border-box; }
+@media (max-width: 767px) { .ufb-scene-outer { padding: 0; align-items: flex-start; justify-content: flex-start; } }
+.ufb-scene { position: relative; display: inline-flex; align-items: stretch; flex-shrink: 0; perspective: 2800px; perspective-origin: 50% 50%; }
+#ufbCanvasL { display: block; box-shadow: -6px 0 24px rgba(0,0,0,.6); border-radius: 3px 0 0 3px; }
+#ufbCanvasR { display: none; box-shadow: 6px 0 24px rgba(0,0,0,.6); border-radius: 0 3px 3px 0; }
+.ufb-spine { display: none; width: 7px; flex-shrink: 0; background: linear-gradient(180deg, #5a8a62 0%, #1f4428 50%, #5a8a62 100%); box-shadow: 3px 0 10px rgba(0,0,0,.55), -3px 0 10px rgba(0,0,0,.55); }
+.ufb-nav-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .2s, transform .2s var(--ease-spring); z-index: 10; pointer-events: all; }
 .ufb-nav-arrow:hover { background: rgba(255,255,255,.25); transform: translateY(-50%) scale(1.1); }
 .ufb-nav-arrow.prev { left: 16px; }
 .ufb-nav-arrow.next { right: 16px; }
 @media (max-width: 600px) { .ufb-nav-arrow { display: none; } }
-
-/* ── Loading overlay ── */
-.ufb-loading {
-    position: absolute; inset: 0;
-    display: flex; align-items: center; justify-content: center;
-    flex-direction: column; gap: 14px;
-    background: #08120a; z-index: 5; color: var(--moss-light); font-size: 13px; font-weight: 600;
-}
-.ufb-loading-spinner {
-    width: 36px; height: 36px; border-radius: 50%;
-    border: 3px solid rgba(97,141,79,.3); border-top-color: var(--moss-mid);
-    animation: ufbSpin .75s linear infinite;
-}
+.ufb-loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 14px; background: #08120a; z-index: 5; color: var(--moss-light); font-size: 13px; font-weight: 600; }
+.ufb-loading-spinner { width: 36px; height: 36px; border-radius: 50%; border: 3px solid rgba(97,141,79,.3); border-top-color: var(--moss-mid); animation: ufbSpin .75s linear infinite; }
 @keyframes ufbSpin { to { transform: rotate(360deg); } }
-
-/* ── Swipe hint (mobile) ── */
-.ufb-swipe-hint {
-    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-    background: rgba(48,98,56,.75); color: #fff; font-size: 11px;
-    padding: 6px 16px; border-radius: 20px; pointer-events: none;
-    opacity: 0; transition: opacity .6s; white-space: nowrap;
-}
+.ufb-swipe-hint { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(48,98,56,.75); color: #fff; font-size: 11px; padding: 6px 16px; border-radius: 20px; pointer-events: none; opacity: 0; transition: opacity .6s; white-space: nowrap; }
 .ufb-swipe-hint.show { opacity: 1; }
-
-/* ── 3D Flipper ── */
-.ufb-flipper {
-    position: absolute;
-    transform-style: preserve-3d;
-    display: none;
-    z-index: 20;
-    pointer-events: none;
-    will-change: transform;
-}
-.ufb-flip-front, .ufb-flip-back {
-    position: absolute; inset: 0; overflow: hidden;
-    backface-visibility: hidden; -webkit-backface-visibility: hidden;
-}
+.ufb-flipper { position: absolute; transform-style: preserve-3d; display: none; z-index: 20; pointer-events: none; will-change: transform; }
+.ufb-flip-front, .ufb-flip-back { position: absolute; inset: 0; overflow: hidden; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
 .ufb-flip-back { transform: rotateY(180deg); }
 .ufb-flip-front canvas, .ufb-flip-back canvas { display: block; width: 100%; height: 100%; }
-
-/* Gradient bayangan flip maju */
-.ufb-flipper.is-next .ufb-flip-front::after {
-    content: ''; position: absolute; inset: 0; pointer-events: none;
-    background: linear-gradient(to left, rgba(0,0,0,.5) 0%, transparent 65%);
-}
-.ufb-flipper.is-next .ufb-flip-back::after {
-    content: ''; position: absolute; inset: 0; pointer-events: none;
-    background: linear-gradient(to right, rgba(0,0,0,.3) 0%, transparent 55%);
-}
-/* Gradient bayangan flip mundur */
-.ufb-flipper.is-prev .ufb-flip-front::after {
-    content: ''; position: absolute; inset: 0; pointer-events: none;
-    background: linear-gradient(to right, rgba(0,0,0,.5) 0%, transparent 65%);
-}
-.ufb-flipper.is-prev .ufb-flip-back::after {
-    content: ''; position: absolute; inset: 0; pointer-events: none;
-    background: linear-gradient(to left, rgba(0,0,0,.3) 0%, transparent 55%);
-}
-
-/* ── Toolbar bawah ── */
-.ufb-toolbar {
-    display: flex; align-items: center; justify-content: center;
-    gap: 8px; padding: 10px 20px;
-    background: #0e1a10; flex-shrink: 0;
-    border-top: 1px solid rgba(255,255,255,.06);
-    flex-wrap: wrap;
-}
-.ufb-tbtn {
-    height: 34px; border-radius: 8px;
-    background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.1);
-    color: #ccc; cursor: pointer; padding: 0 14px;
-    font-size: 12.5px; font-weight: 700; font-family: inherit;
-    display: flex; align-items: center; gap: 6px;
-    transition: background .18s, color .18s, transform .18s var(--ease-spring);
-}
+.ufb-flipper.is-next .ufb-flip-front::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(to left, rgba(0,0,0,.5) 0%, transparent 65%); }
+.ufb-flipper.is-next .ufb-flip-back::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(to right, rgba(0,0,0,.3) 0%, transparent 55%); }
+.ufb-flipper.is-prev .ufb-flip-front::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(to right, rgba(0,0,0,.5) 0%, transparent 65%); }
+.ufb-flipper.is-prev .ufb-flip-back::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(to left, rgba(0,0,0,.3) 0%, transparent 55%); }
+.ufb-toolbar { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 20px; background: #0e1a10; flex-shrink: 0; border-top: 1px solid rgba(255,255,255,.06); flex-wrap: wrap; }
+.ufb-tbtn { height: 34px; border-radius: 8px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.1); color: #ccc; cursor: pointer; padding: 0 14px; font-size: 12.5px; font-weight: 700; font-family: inherit; display: flex; align-items: center; gap: 6px; transition: background .18s, color .18s, transform .18s var(--ease-spring); }
 .ufb-tbtn:hover { background: rgba(255,255,255,.18); color: #fff; }
 .ufb-tbtn:disabled { opacity: .3; cursor: default; }
 .ufb-tbtn.icon-only { width: 34px; padding: 0; justify-content: center; border-radius: 50%; }
-.ufb-page-badge {
-    background: rgba(97,141,79,.2); color: var(--moss-light);
-    border: 1px solid rgba(97,141,79,.3);
-    padding: 0 16px; height: 34px;
-    border-radius: 20px; font-size: 12px; font-weight: 700;
-    display: flex; align-items: center; min-width: 110px; justify-content: center;
-    letter-spacing: .3px;
-}
+.ufb-page-badge { background: rgba(97,141,79,.2); color: var(--moss-light); border: 1px solid rgba(97,141,79,.3); padding: 0 16px; height: 34px; border-radius: 20px; font-size: 12px; font-weight: 700; display: flex; align-items: center; min-width: 110px; justify-content: center; letter-spacing: .3px; }
 .ufb-vdiv { width: 1px; height: 22px; background: rgba(255,255,255,.1); margin: 0 2px; }
-
-/* Mobile toolbar adjustments */
-@media (max-width: 767px) {
-    .ufb-toolbar {
-        gap: 4px; padding: 7px 8px;
-        display: grid;
-        grid-template-columns: 1fr auto 1fr;
-    }
-    .ufb-page-badge { font-size: 11px; min-width: 0; }
-    .ufb-tb-desktop { display: none !important; }
-    .ufb-tb-zoom-mobile {
-        grid-column: 1 / -1;
-        display: flex !important; gap: 6px;
-    }
-    .ufb-tb-zoom-mobile .ufb-tbtn { flex: 1; justify-content: center; }
-}
-
-/* ── Thumbnail strip ── */
-.ufb-thumbs {
-    display: flex; gap: 8px; overflow-x: auto; padding: 10px 16px;
-    background: #0a140c; border-top: 1px solid rgba(255,255,255,.05); flex-shrink: 0;
-    scrollbar-width: thin; scrollbar-color: #3a5a3e transparent;
-}
+@media (max-width: 767px) { .ufb-toolbar { gap: 4px; padding: 7px 8px; display: grid; grid-template-columns: 1fr auto 1fr; } .ufb-page-badge { font-size: 11px; min-width: 0; } .ufb-tb-desktop { display: none !important; } .ufb-tb-zoom-mobile { grid-column: 1 / -1; display: flex !important; gap: 6px; } .ufb-tb-zoom-mobile .ufb-tbtn { flex: 1; justify-content: center; } }
+.ufb-thumbs { display: flex; gap: 8px; overflow-x: auto; padding: 10px 16px; background: #0a140c; border-top: 1px solid rgba(255,255,255,.05); flex-shrink: 0; scrollbar-width: thin; scrollbar-color: #3a5a3e transparent; }
 .ufb-thumbs::-webkit-scrollbar { height: 3px; }
 .ufb-thumbs::-webkit-scrollbar-track { background: transparent; }
 .ufb-thumbs::-webkit-scrollbar-thumb { background: #3a5a3e; border-radius: 2px; }
 @media (max-width: 767px) { .ufb-thumbs { display: none; } }
-
-.ufb-thumb {
-    flex-shrink: 0; width: 48px; height: 68px; border-radius: 4px;
-    background: #1e2e22; cursor: pointer; overflow: hidden;
-    border: 2px solid transparent; transition: border-color .2s, transform .2s var(--ease-spring);
-    position: relative;
-}
+.ufb-thumb { flex-shrink: 0; width: 48px; height: 68px; border-radius: 4px; background: #1e2e22; cursor: pointer; overflow: hidden; border: 2px solid transparent; transition: border-color .2s, transform .2s var(--ease-spring); position: relative; }
 .ufb-thumb:hover { transform: scale(1.08); border-color: rgba(97,141,79,.5); }
 .ufb-thumb.active { border-color: var(--moss-mid); }
 .ufb-thumb canvas { width: 100%; height: 100%; display: block; object-fit: contain; }
-.ufb-thumb-n {
-    position: absolute; bottom: 0; left: 0; right: 0;
-    background: rgba(0,0,0,.68); color: #aaa;
-    font-size: 8.5px; text-align: center; padding: 2px 0;
-}
+.ufb-thumb-n { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,.68); color: #aaa; font-size: 8.5px; text-align: center; padding: 2px 0; }
 </style>
 
 <?php
@@ -723,16 +561,11 @@ $q_prog = $koneksi_db->sql_query("SELECT * FROM mod_program ORDER BY id DESC LIM
 $programs = [];
 while ($p = $koneksi_db->sql_fetchrow($q_prog)) $programs[] = $p;
 $prog_count = count($programs);
-
-$prog_styles = [
-    ['bg'=>'var(--moss-dark)',  'border'=>'var(--moss-light)', 'icon'=>'M12 3L1 9l11 6 9-4.91V17h2V9L12 3zm0 12.08L5.21 11 12 7.08 18.79 11 12 15.08zM1 17l11 6 11-6v-2L12 21 1 15v2z'],
-    ['bg'=>'var(--moss-olive)', 'border'=>'var(--moss-light)', 'icon'=>'M20 6h-2.18c.07-.44.18-.86.18-1a3 3 0 0 0-6 0c0 .14.11.56.18 1H10c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-1a1 1 0 0 1 2 0c0 .22-.19.86-.25 1h-1.5c-.06-.14-.25-.78-.25-1zm-3 3h14v12H10V8z'],
-    ['bg'=>'var(--moss-mid)',   'border'=>'var(--moss-bg)',   'icon'=>'M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z'],
-];
 ?>
+
 <style>
 /* ══════════════════════════════════════════
-   PROG UNGGULAN — Portrait Card + Carousel
+   PROG UNGGULAN — FULL WIDTH FLUSH BLOCKS
 ══════════════════════════════════════════ */
 .prog-unggulan-section {
     background: #fff;
@@ -743,378 +576,281 @@ $prog_styles = [
     padding: 56px 0 40px;
 }
 
-/* ── Carousel wrapper ── */
-.prog-carousel-outer {
+/* FULL WIDTH wrapper — no container, no padding */
+.prog-carousel-fullwrap {
     position: relative;
+    width: 100%;
     overflow: hidden;
-    padding: 0 4px;
-    margin: 0 auto;
-}
-.prog-carousel-track {
-    /* Display diatur otomatis oleh Owl Engine */
-    transition: transform 0.58s cubic-bezier(.16,1,.3,1);
-    will-change: transform;
 }
 
-/* ── Kartu utama ── */
+/* Owl will handle the inner track */
+.prog-carousel-track {
+    /* Owl carousel handles display */
+}
+
+/* ── Kartu Portrait FULL HEIGHT ── */
 .prog-unggulan-card {
-    flex: 0 0 25%;
-    min-width: 0;
-    height: 480px; /* Lebih kompak dan rapi */
-    border-radius: 0; 
+    height: 500px;
     overflow: hidden;
     position: relative;
     cursor: pointer;
     text-decoration: none !important;
-    display: flex;
+    display: flex !important;
     flex-direction: column;
-    justify-content: flex-start;
-    padding: 40px 30px;
+    justify-content: flex-end;
+    padding: 0 0 40px 36px;
     transition: opacity 0.3s;
     outline: none;
+    border: none;
 }
-.prog-unggulan-card:hover {
-    transform: translateY(-10px) scale(1.025);
-    box-shadow: 0 22px 52px rgba(0,0,0,.26);
-    text-decoration: none;
-}
+.prog-unggulan-card:hover { text-decoration: none; }
+.prog-unggulan-card:hover .puc-thumb-bg img { opacity: 0.45; transform: scale(1.04); }
 
-/* Warna latar per kartu (cycling 4 warna) */
-.puc-c0 { background: #306238; }
-.puc-c1 { background: #545837; }
-.puc-c2 { background: #618D4F; }
-.puc-c3 { background: #3d5a2e; }
+/* Color backgrounds */
+.puc-c0 { background: rgba(27,67,50,0.90); }
+.puc-c1 { background: rgba(20,52,38,0.90); }
+.puc-c2 { background: rgba(45,106,79,0.90); }
+.puc-c3 { background: rgba(30,74,55,0.90); }
 
-/* ── Thumbnail background dengan opacity ── */
+/* ── Thumbnail background with overlay ── */
 .puc-thumb-bg {
     position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    z-index: 1;
-    pointer-events: none;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 1; pointer-events: none;
 }
 .puc-thumb-bg img {
     width: 100%; height: 100%;
     object-fit: cover;
-    opacity: 0.20;
-    filter: saturate(0.3) contrast(1.15) brightness(1.1);
-    transition: opacity 0.42s;
-}
-.prog-unggulan-card:hover .puc-thumb-bg img {
-    opacity: 0.32;
+    opacity: 0.38;
+    filter: saturate(0.55) contrast(1.1) brightness(1.05);
+    transition: opacity 0.5s, transform 0.6s cubic-bezier(.16,1,.3,1);
 }
 
-/* ── Gradient overlay ── */
+/* Gradient overlay from bottom */
 .puc-overlay {
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    pointer-events: none;
+    position: absolute; inset: 0; z-index: 2; pointer-events: none;
     background: linear-gradient(
-        165deg,
-        rgba(0,0,0,0.06) 0%,
-        rgba(0,0,0,0.20) 55%,
-        rgba(0,0,0,0.38) 100%
+        to top,
+        rgba(0,0,0,0.75) 0%,
+        rgba(0,0,0,0.35) 45%,
+        rgba(0,0,0,0.05) 100%
     );
 }
 
-/* ── Teks konten ── */
+/* Number stripe top-left */
+.puc-num-stripe {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 4px;
+    background: rgba(255,255,255,0.18);
+    z-index: 4;
+}
+
+/* ── Content ── */
 .puc-content {
-    position: relative;
-    z-index: 3;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
+    position: relative; z-index: 3;
+    padding-right: 24px;
 }
 .puc-num {
-    display: block;
-    font-size: 9.5px;
-    font-weight: 800;
-    color: rgba(255,255,255,0.52);
-    text-transform: uppercase;
-    letter-spacing: 3.5px;
-    margin-bottom: 11px;
+    display: inline-block;
+    font-size: 9px; font-weight: 800;
+    color: rgba(255,255,255,0.55);
+    text-transform: uppercase; letter-spacing: 4px;
+    margin-bottom: 10px;
+    background: rgba(255,255,255,0.12);
+    padding: 4px 10px; border-radius: 20px;
 }
 .puc-title {
-    font-size: 15.5px;
-    font-weight: 900;
-    color: #fff;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-    line-height: 1.32;
-    margin: 0;
-    text-shadow: 0 2px 10px rgba(0,0,0,.4);
+    font-size: 17px; font-weight: 900; color: #fff;
+    text-transform: uppercase; letter-spacing: 0.3px;
+    line-height: 1.3; margin: 0 0 8px;
+    text-shadow: 0 2px 12px rgba(0,0,0,.5);
 }
 .puc-desc {
-    font-size: 11px;
-    color: rgba(255,255,255,0.68);
-    line-height: 1.6;
-    margin: 9px 0 0;
+    font-size: 12px; color: rgba(255,255,255,0.70);
+    line-height: 1.65; margin: 0 0 16px;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
-
-/* ── "Lihat →" badge bawah ── */
 .puc-badge {
-    position: relative;
-    z-index: 3;
-    align-self: flex-start;
-    margin-top: auto;
-    padding-top: 14px;
-    font-size: 10.5px;
-    font-weight: 800;
-    color: rgba(255,255,255,0.60);
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    transition: color 0.25s;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 800; color: #fff;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.28);
+    padding: 7px 16px; border-radius: 24px;
+    transition: background 0.25s, transform 0.25s;
+    backdrop-filter: blur(4px);
 }
 .prog-unggulan-card:hover .puc-badge {
-    color: #fff;
+    background: rgba(255,255,255,0.30);
+    transform: translateX(4px);
 }
 
-/* ── Ikon besar dekoratif kanan bawah ── */
+/* ── Decorative icon ── */
 .puc-icon-big {
-    position: absolute;
-    bottom: -12px;
-    right: -8px;
-    z-index: 2;
-    width: 115px;
-    height: 115px;
-    opacity: 0.13;
-    pointer-events: none;
+    position: absolute; bottom: -10px; right: -6px; z-index: 2;
+    width: 110px; height: 110px; opacity: 0.1; pointer-events: none;
     transition: opacity 0.38s, transform 0.38s cubic-bezier(.34,1.56,.64,1);
 }
-.puc-icon-big svg {
-    width: 100%;
-    height: 100%;
-    fill: #fff;
-}
-.prog-unggulan-card:hover .puc-icon-big {
-    opacity: 0.24;
-    transform: scale(1.1) rotate(-6deg);
-}
+.puc-icon-big svg { width: 100%; height: 100%; fill: #fff; }
+.prog-unggulan-card:hover .puc-icon-big { opacity: 0.22; transform: scale(1.1) rotate(-6deg); }
 
 /* ── Arrow buttons ── */
 .prog-carousel-arrow {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    z-index: 10;
-    background: #306238;
-    border: 2px solid rgba(255,255,255,0.18);
-    color: #fff;
-    cursor: pointer;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 5px 18px rgba(48,98,56,.40);
-    transition: background 0.2s, transform 0.22s cubic-bezier(.34,1.56,.64,1), opacity 0.25s;
-    padding: 0;
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 48px; height: 48px; border-radius: 50%; z-index: 10;
+    background: rgba(27,67,50,0.85); border: 2px solid rgba(255,255,255,0.22);
+    color: #fff; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 20px rgba(0,0,0,.35);
+    transition: background 0.2s, transform 0.22s cubic-bezier(.34,1.56,.64,1);
+    padding: 0; backdrop-filter: blur(6px);
 }
-.prog-carousel-arrow:hover {
-    background: #618D4F;
-    transform: translateY(-50%) scale(1.1);
-}
-.prog-carousel-arrow.pca-prev { left: -10px; }
-.prog-carousel-arrow.pca-next { right: -10px; }
-.prog-carousel-arrow svg {
-    width: 22px;
-    height: 22px;
-    fill: #fff;
-    display: block;
-}
+.prog-carousel-arrow:hover { background: #2D6A4F; transform: translateY(-50%) scale(1.1); }
+.prog-carousel-arrow.pca-prev { left: 16px; }
+.prog-carousel-arrow.pca-next { right: 16px; }
+.prog-carousel-arrow svg { width: 24px; height: 24px; fill: #fff; display: block; }
 
 /* ── Dots ── */
 .prog-carousel-dots {
-    display: flex;
-    justify-content: center;
-    gap: 7px;
-    margin-top: 26px;
+    display: flex; justify-content: center; gap: 7px; margin-top: 24px;
 }
 .pcd-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #9EBB97;
-    opacity: 0.38;
-    cursor: pointer;
-    transition: all 0.38s cubic-bezier(.34,1.56,.64,1);
-    border: none;
-    padding: 0;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #2D6A4F; opacity: 0.38; cursor: pointer;
+    transition: all 0.38s cubic-bezier(.34,1.56,.64,1); border: none; padding: 0;
 }
-.pcd-dot.active {
-    background: #306238;
-    opacity: 1;
-    width: 26px;
-    border-radius: 4px;
-}
+.pcd-dot.active { background: #1B4332; opacity: 1; width: 26px; border-radius: 4px; }
 
-/* ── Responsive ── */
-/* ── Responsive ── */
+/* Responsive heights */
 @media (max-width: 992px) {
-    .prog-unggulan-card {
-        flex: 0 0 50%;
-        height: 440px;
-    }
+    .prog-unggulan-card { height: 440px; }
 }
 @media (max-width: 575px) {
-    .prog-unggulan-card {
-        flex: 0 0 100%;
-        height: 380px;
-    }
-    .puc-icon-big { width: 85px; height: 85px; }
-    .prog-carousel-arrow { width: 36px; height: 36px; }
-    .prog-carousel-arrow.pca-prev { left: -4px; }
-    .prog-carousel-arrow.pca-next { right: -4px; }
+    .prog-unggulan-card { height: 360px; padding: 0 0 30px 24px; }
+    .puc-icon-big { width: 80px; height: 80px; }
+    .prog-carousel-arrow { width: 38px; height: 38px; }
+    .prog-carousel-arrow.pca-prev { left: 8px; }
+    .prog-carousel-arrow.pca-next { right: 8px; }
 }
 </style>
 
 <!-- ═══════════════════════════════════
-     SECTION 1: PROGRAM MBKM
+     SECTION 1: PROGRAM MBKM — FULL WIDTH
 ═══════════════════════════════════ -->
 <section class="prog-unggulan-section">
 
     <div class="prog-unggulan-head">
         <span class="lp-label" style="letter-spacing:4px;">Program Unggulan</span>
-        <h2 class="lp-title lp-title--lg">
-            PROGRAM MBKM IAI PI BANDUNG
-        </h2>
+        <h2 class="lp-title lp-title--lg">PROGRAM MBKM IAI PI BANDUNG</h2>
         <div class="lp-divider" style="margin:0 auto;"></div>
     </div>
 
-    <div class="container-fluid" style="padding:0;">
-        <?php if ($prog_count > 0): ?>
+    <?php if ($prog_count > 0): ?>
+    <div class="prog-carousel-fullwrap">
 
-        <div style="position:relative; overflow:hidden;">
+        <!-- Arrow Prev -->
+        <button class="prog-carousel-arrow pca-prev" id="progArrowPrev"
+                onclick="progCarouselNav(-1)" aria-label="Sebelumnya">
+            <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+        </button>
 
-            <!-- Arrow Prev -->
-            <button class="prog-carousel-arrow pca-prev" id="progArrowPrev"
-                    onclick="progCarouselNav(-1)" aria-label="Sebelumnya">
-                <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
-            </button>
+        <!-- Owl Carousel Track — FULL WIDTH, no margin -->
+        <div class="owl-carousel owl-theme prog-carousel-track" id="progTrack">
+        <?php
+        $puc_icons = [
+            'M12 3L1 9l11 6 9-4.91V17h2V9L12 3zm0 12.08L5.21 11 12 7.08 18.79 11 12 15.08zM1 17l11 6 11-6v-2L12 21 1 15v2z',
+            'M20 6h-2.18c.07-.44.18-.86.18-1a3 3 0 0 0-6 0c0 .14.11.56.18 1H10c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-1a1 1 0 0 1 2 0c0 .22-.19.86-.25 1h-1.5c-.06-.14-.25-.78-.25-1zm-3 3h14v12H10V8z',
+            'M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z',
+            'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z',
+            'M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z',
+            'M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z',
+            'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z',
+            'M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z',
+        ];
+        $puc_colors = ['puc-c0','puc-c1','puc-c2','puc-c3'];
 
-            <!-- Carousel Outer -->
-            <div class="prog-carousel-outer" id="progCarouselOuter">
-                <div class="prog-carousel-track owl-carousel owl-theme" id="progTrack">
+        foreach ($programs as $i => $data):
+            $snippet  = !empty($data['deskripsi_singkat'])
+                        ? $data['deskripsi_singkat']
+                        : substr(strip_tags($data['isi']), 0, 90).'...';
+            $img_src  = !empty($data['gambar'])
+                        ? 'images/pages/'.htmlspecialchars($data['gambar'])
+                        : '';
+            $col_cls  = $puc_colors[$i % 4];
+            $icon_d   = $puc_icons[$i % count($puc_icons)];
+            $num_pad  = str_pad($i + 1, 2, '0', STR_PAD_LEFT);
+        ?>
+        <a href="index.php?pilih=program&modul=yes&id=<?= htmlspecialchars($data['slug']) ?>"
+           class="prog-unggulan-card <?= $col_cls ?>">
 
-                <?php
-                /* ── Icon paths (SVG d="...") ── */
-                $puc_icons = [
-                    /* Graduation cap */
-                    'M12 3L1 9l11 6 9-4.91V17h2V9L12 3zm0 12.08L5.21 11 12 7.08 18.79 11 12 15.08zM1 17l11 6 11-6v-2L12 21 1 15v2z',
-                    /* Clipboard */
-                    'M20 6h-2.18c.07-.44.18-.86.18-1a3 3 0 0 0-6 0c0 .14.11.56.18 1H10c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-1a1 1 0 0 1 2 0c0 .22-.19.86-.25 1h-1.5c-.06-.14-.25-.78-.25-1zm-3 3h14v12H10V8z',
-                    /* Group */
-                    'M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z',
-                    /* Person */
-                    'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z',
-                    /* Calendar */
-                    'M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z',
-                    /* Article */
-                    'M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z',
-                    /* Play */
-                    'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z',
-                    /* Star */
-                    'M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z',
-                ];
-                $puc_colors = ['puc-c0','puc-c1','puc-c2','puc-c3'];
+            <div class="puc-num-stripe"></div>
 
-                foreach ($programs as $i => $data):
-                    $snippet  = !empty($data['deskripsi_singkat'])
-                                ? $data['deskripsi_singkat']
-                                : substr(strip_tags($data['isi']), 0, 90).'...';
-                    $img_src  = !empty($data['gambar'])
-                                ? 'images/pages/'.htmlspecialchars($data['gambar'])
-                                : '';
-                    $col_cls  = $puc_colors[$i % 4];
-                    $icon_d   = $puc_icons[$i % count($puc_icons)];
-                    $num_pad  = str_pad($i + 1, 2, '0', STR_PAD_LEFT);
-                ?>
-                <a href="index.php?pilih=program&modul=yes&id=<?= htmlspecialchars($data['slug']) ?>"
-                   class="prog-unggulan-card <?= $col_cls ?>">
+            <?php if ($img_src): ?>
+            <div class="puc-thumb-bg">
+                <img src="<?= $img_src ?>" alt="<?= htmlspecialchars($data['judul']) ?>"
+                     onerror="this.parentNode.style.display='none'">
+            </div>
+            <?php endif; ?>
 
-                    <!-- Thumbnail background opacity -->
-                    <?php if ($img_src): ?>
-                    <div class="puc-thumb-bg">
-                        <img src="<?= $img_src ?>"
-                             alt="<?= htmlspecialchars($data['judul']) ?>"
-                             onerror="this.parentNode.style.display='none'">
-                    </div>
-                    <?php endif; ?>
+            <div class="puc-overlay"></div>
 
-                    <!-- Overlay gelap -->
-                    <div class="puc-overlay"></div>
+            <div class="puc-content">
+                <span class="puc-num"><?= $num_pad ?></span>
+                <h3 class="puc-title"><?= htmlspecialchars($data['judul']) ?></h3>
+                <p class="puc-desc"><?= htmlspecialchars($snippet) ?></p>
+                <span class="puc-badge">Lihat Program &#8594;</span>
+            </div>
 
-                    <!-- Teks konten -->
-                    <div class="puc-content">
-                        <span class="puc-num">Program <?= $num_pad ?></span>
-                        <h3 class="puc-title"><?= htmlspecialchars($data['judul']) ?></h3>
-                        <p class="puc-desc"><?= htmlspecialchars($snippet) ?></p>
-                        <span class="puc-badge">Lihat Program &#8594;</span>
-                    </div>
+            <div class="puc-icon-big">
+                <svg viewBox="0 0 24 24"><path d="<?= $icon_d ?>"/></svg>
+            </div>
 
-                    <!-- Ikon besar dekoratif -->
-                    <div class="puc-icon-big">
-                        <svg viewBox="0 0 24 24"><path d="<?= $icon_d ?>"/></svg>
-                    </div>
+        </a>
+        <?php endforeach; ?>
+        </div><!-- /owl carousel -->
 
-                </a>
-                <?php endforeach; ?>
+        <!-- Arrow Next -->
+        <button class="prog-carousel-arrow pca-next" id="progArrowNext"
+                onclick="progCarouselNav(1)" aria-label="Selanjutnya">
+            <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+        </button>
+    </div><!-- /fullwrap -->
 
-                </div><!-- /prog-carousel-track -->
-            </div><!-- /prog-carousel-outer -->
+    <!-- Dots -->
+    <div class="prog-carousel-dots" id="progDots"></div>
 
-            <!-- Arrow Next -->
-            <button class="prog-carousel-arrow pca-next" id="progArrowNext"
-                    onclick="progCarouselNav(1)" aria-label="Selanjutnya">
-                <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
-            </button>
-        </div><!-- /position:relative -->
-
-        <!-- Dots (hanya muncul kalau > 4) -->
-        <div class="prog-carousel-dots" id="progDots" style="display:none;"></div>
-
-        <?php else: ?>
-        <p style="text-align:center;color:#9EBB97;padding:50px 0;">
-            Belum ada program yang tersedia.
-        </p>
-        <?php endif; ?>
-    </div><!-- /container -->
+    <?php else: ?>
+    <p style="text-align:center;color:#2D6A4F;padding:50px 0;">Belum ada program yang tersedia.</p>
+    <?php endif; ?>
 
 </section>
 
 <script>
-/* ══════════════════════════════════════════
-   PROG UNGGULAN CAROUSEL (OWL ENGINE)
-   - Seamless Infinite Loop enabled
-   - Autoplay active
-   - Customized for flush blocks
-══════════════════════════════════════════ */
 window.addEventListener('DOMContentLoaded', function() {
-    if (jQuery('.prog-carousel-track').length) {
-        var owlProg = jQuery('.prog-carousel-track').owlCarousel({
+    if (jQuery('#progTrack').length) {
+        var owlProg = jQuery('#progTrack').owlCarousel({
             loop: true,
-            margin: 0,
+            margin: 0,          /* flush, no gap */
             nav: false,
-            dots: true,
+            dots: false,
             autoplay: true,
-            autoplayTimeout: 4000,
+            autoplayTimeout: 4500,
             autoplayHoverPause: true,
-            smartSpeed: 800,
+            smartSpeed: 900,
+            stagePadding: 0,
             responsive: {
-                0: { items: 1 },
-                600: { items: 2 },
-                1000: { items: 4 }
+                0:    { items: 1 },
+                576:  { items: 2 },
+                992:  { items: 3 },
+                1280: { items: 4 }
             }
         });
 
-        /* Link panah ke Owl */
-        window.progCarouselNav = function (dir) {
+        window.progCarouselNav = function(dir) {
             if (dir > 0) owlProg.trigger('next.owl.carousel');
             else owlProg.trigger('prev.owl.carousel');
         };
@@ -1123,15 +859,17 @@ window.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <!-- ═══════════════════════════════════
-     SECTION 2: SAMBUTAN
+     SECTION 2: SAMBUTAN — video lebih besar, gap proporsional
 ═══════════════════════════════════ -->
 <section class="sambutan-section">
     <div class="container">
-        <div class="row" style="align-items:center;">
-            <div class="col-sm-5" style="margin-bottom:30px;">
-                <div class="sambutan-media">
+        <div class="sambutan-row">
+
+            <!-- Video col — 45% width, tinggi penuh -->
+            <div class="sambutan-col-video">
+                <div class="sambutan-media" style="height:100%; min-height:380px;">
                     <div class="sambutan-media-placeholder">
-                        <svg viewBox="0 0 24 24" style="width:48px;height:48px;fill:rgba(255,255,255,.2);">
+                        <svg viewBox="0 0 24 24" style="width:56px;height:56px;fill:rgba(255,255,255,.2);">
                             <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
                         </svg>
                         <p>Video Profil MBKM IAI PI Bandung</p>
@@ -1140,7 +878,8 @@ window.addEventListener('DOMContentLoaded', function() {
                     $vid = $koneksi_db->sql_fetchrow($koneksi_db->sql_query("SELECT * FROM mod_data_video ORDER BY id DESC LIMIT 1"));
                     if ($vid && !empty($vid['video'])): ?>
                     <div style="position:absolute;top:0;left:0;right:0;bottom:0;">
-                        <img src="http://img.youtube.com/vi/<?= $vid['video'] ?>/hqdefault.jpg" style="width:100%;height:100%;object-fit:cover;">
+                        <img src="http://img.youtube.com/vi/<?= $vid['video'] ?>/hqdefault.jpg"
+                             style="width:100%;height:100%;object-fit:cover;display:block;">
                         <a href="https://www.youtube.com/watch?v=<?= $vid['video'] ?>" target="_blank" class="play-icon-wrap">
                             <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                         </a>
@@ -1148,25 +887,25 @@ window.addEventListener('DOMContentLoaded', function() {
                     <?php endif; ?>
                 </div>
             </div>
-            <div class="col-sm-7 sambutan-text">
+
+            <!-- Text col -->
+            <div class="sambutan-col-text">
                 <span class="lp-label">Tentang</span>
                 <?php
                 $profil_data = $koneksi_db->sql_fetchrow($koneksi_db->sql_query("SELECT * FROM mod_data_profil WHERE id='1'"));
                 if ($profil_data && !empty($profil_data['nama'])): ?>
-                <h2 class="lp-title"><?= htmlspecialchars($profil_data['nama']) ?></h2>
+                <h2 class="lp-title" style="font-size:28px;"><?= htmlspecialchars($profil_data['nama']) ?></h2>
                 <div class="lp-divider"></div>
-                <div class="sambutan-text-container">
-                    <p><?= limitTXT(strip_tags($profil_data['sambutan']), 580) ?></p>
-                    <div style="margin-top:20px;">
-                        <a href="index.php?pilih=profil&modul=yes" class="btn-primary-lp">
-                            Selengkapnya <i class="fa fa-arrow-right" style="margin-left:8px; font-size:12px;"></i>
-                        </a>
-                    </div>
+                <p style="color:var(--text-muted);line-height:1.85;font-size:14.5px;"><?= limitTXT(strip_tags($profil_data['sambutan']), 580) ?></p>
+                <div style="margin-top:16px;">
+                    <a href="index.php?pilih=profil&modul=yes" class="btn-primary-lp">
+                        Selengkapnya <i class="fa fa-arrow-right" style="margin-left:8px;font-size:12px;"></i>
+                    </a>
                 </div>
                 <?php else: ?>
-                <h2 class="lp-title">Tentang MBKM<br>IAI PI Bandung</h2>
+                <h2 class="lp-title" style="font-size:28px;">Tentang MBKM<br>IAI PI Bandung</h2>
                 <div class="lp-divider"></div>
-                <p>Program MBKM (Merdeka Belajar Kampus Merdeka) di IAI PI Bandung hadir sebagai wujud komitmen kami dalam memberikan pengalaman belajar yang bermakna dan berdampak nyata bagi mahasiswa.</p>
+                <p style="color:var(--text-muted);line-height:1.85;font-size:14.5px;">Program MBKM (Merdeka Belajar Kampus Merdeka) di IAI PI Bandung hadir sebagai wujud komitmen kami dalam memberikan pengalaman belajar yang bermakna dan berdampak nyata bagi mahasiswa.</p>
                 <?php endif; ?>
             </div>
         </div>
@@ -1174,7 +913,7 @@ window.addEventListener('DOMContentLoaded', function() {
 </section>
 
 <!-- ═══════════════════════════════════
-     SECTION 3: STATISTIK
+     SECTION 3: STATISTIK — lebih proporsional
 ═══════════════════════════════════ -->
 <section class="stats-section">
     <div class="container">
@@ -1185,10 +924,10 @@ window.addEventListener('DOMContentLoaded', function() {
             while ($s = $koneksi_db->sql_fetchrow($q_stat)) $stats[] = $s;
             if (empty($stats)):
                 $stats = [
-                    ['jum'=>'500+','nama'=>'Mahasiswa Aktif'],
-                    ['jum'=>'150+','nama'=>'Mitra Industri'],
-                    ['jum'=>'8',   'nama'=>'Program MBKM'],
-                    ['jum'=>'95%', 'nama'=>'Tingkat Kepuasan'],
+                    ['jum'=>'7',   'nama'=>'Program Studi'],
+                    ['jum'=>'1500','nama'=>'Mahasiswa'],
+                    ['jum'=>'15000','nama'=>'Alumni'],
+                    ['jum'=>'76',  'nama'=>'Dosen Ahli'],
                 ];
             endif;
             $stat_icons = [
@@ -1275,16 +1014,15 @@ window.addEventListener('DOMContentLoaded', function() {
 </section>
 
 <!-- ═══════════════════════════════════
-     SECTION 5: TESTIMONI (SMALL CAROUSEL)
+     SECTION 5: TESTIMONI
 ═══════════════════════════════════ -->
-<section class="testi-section" style="padding:50px 0; background:var(--white);">
+<section class="testi-section" style="padding:56px 0; background:var(--white);">
     <div class="container">
-        <div class="testi-head" style="text-align:center; margin-bottom:30px;">
+        <div class="testi-head" style="text-align:center; margin-bottom:32px;">
             <span class="lp-label">Testimoni</span>
             <h2 class="lp-title">PENGALAMAN MEREKA</h2>
             <div class="lp-divider" style="margin:0 auto;"></div>
         </div>
-
         <div class="testi-carousel-outer">
             <div class="owl-carousel owl-theme testi-track">
                 <?php
@@ -1293,9 +1031,9 @@ window.addEventListener('DOMContentLoaded', function() {
                 while ($t = $koneksi_db->sql_fetchrow($q_testi)) $testis[] = $t;
                 if (empty($testis)):
                     $testis = [
-                        ['nama'=>'Ahmad Fauzi','email'=>'Magang','ket'=>'Sangat luar biasa, saya mendapat ilmu praktis.','foto'=>''],
-                        ['nama'=>'Siti Nurhaliza','email'=>'Pertukaran','ket'=>'Membuka wawasan lintas kampus.','foto'=>''],
-                        ['nama'=>'Rizky Pratama','email'=>'Mengajar','ket'=>'Mengubah perspektif saya soal pendidikan.','foto'=>''],
+                        ['nama'=>'Ahmad Fauzi','email'=>'Magang','ket'=>'Sangat luar biasa, saya mendapat ilmu praktis yang tidak bisa saya dapatkan di dalam kelas.','foto'=>''],
+                        ['nama'=>'Siti Nurhaliza','email'=>'Pertukaran','ket'=>'Membuka wawasan lintas kampus dan menambah jaringan pertemanan yang sangat berharga.','foto'=>''],
+                        ['nama'=>'Rizky Pratama','email'=>'Kampus Mengajar','ket'=>'Pengalaman mengajar ini mengubah perspektif saya tentang dunia pendidikan Indonesia.','foto'=>''],
                     ];
                 endif;
                 foreach ($testis as $t): ?>
@@ -1321,7 +1059,7 @@ window.addEventListener('DOMContentLoaded', function() {
 window.addEventListener('DOMContentLoaded', function() {
     if (jQuery('.testi-track').length) {
         jQuery('.testi-track').owlCarousel({
-            loop: true, margin: 15, nav: false, dots: true, autoplay: true, autoplayTimeout: 5000,
+            loop: true, margin: 18, nav: false, dots: true, autoplay: true, autoplayTimeout: 5000,
             responsive: { 0: { items: 1 }, 600: { items: 2 }, 1000: { items: 3 } }
         });
     }
@@ -1333,8 +1071,6 @@ window.addEventListener('DOMContentLoaded', function() {
 ═══════════════════════════════════ -->
 <div class="ufb-overlay" id="ufbOverlay">
 <div class="ufb-modal">
-
-    <!-- Header -->
     <div class="ufb-header">
         <h4 id="ufbTitle">Dokumen</h4>
         <div class="ufb-header-actions">
@@ -1353,46 +1089,32 @@ window.addEventListener('DOMContentLoaded', function() {
             <button class="ufb-close" onclick="ufbClose()">&#x2715;</button>
         </div>
     </div>
-
-    <!-- Canvas wrap — SCROLLABLE untuk drag-to-pan -->
     <div class="ufb-canvas-wrap" id="ufbWrap">
-
-        <!-- Nav arrows (floating di atas scroll container) -->
         <button class="ufb-nav-arrow prev" id="ufbNavPrev" onclick="ufbNav(-1)">
             <svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
         </button>
         <button class="ufb-nav-arrow next" id="ufbNavNext" onclick="ufbNav(1)">
             <svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
         </button>
-
-        <!-- Loading state -->
         <div class="ufb-loading" id="ufbLoading">
             <div class="ufb-loading-spinner"></div>
             <span>Memuat dokumen...</span>
         </div>
-
-        <!-- Scene outer (centering wrapper) -->
         <div class="ufb-scene-outer" id="ufbSceneOuter" style="display:none;">
             <div class="ufb-scene" id="ufbScene">
                 <canvas id="ufbCanvasL"></canvas>
                 <div id="ufbSpine" class="ufb-spine"></div>
                 <canvas id="ufbCanvasR"></canvas>
-                <!-- 3D Flipper -->
                 <div class="ufb-flipper" id="ufbFlipper">
                     <div class="ufb-flip-front"><canvas id="ufbFlipFront"></canvas></div>
                     <div class="ufb-flip-back" ><canvas id="ufbFlipBack"></canvas></div>
                 </div>
             </div>
         </div>
-
-        <!-- Swipe hint (mobile) -->
         <div class="ufb-swipe-hint" id="ufbSwipeHint">&#8592; geser untuk pindah halaman &#8594;</div>
     </div>
-
-    <!-- Toolbar bawah -->
     <div class="ufb-toolbar">
         <button class="ufb-tbtn" id="ufbBtnPrev" onclick="ufbNav(-1)">&#9664; Prev</button>
-
         <div class="ufb-tb-desktop" style="display:flex;gap:8px;align-items:center;">
             <div class="ufb-vdiv"></div>
             <button class="ufb-tbtn" onclick="ufbZoom(.15)">&#43;</button>
@@ -1400,9 +1122,7 @@ window.addEventListener('DOMContentLoaded', function() {
             <button class="ufb-tbtn" onclick="ufbZoomReset()" title="Reset zoom">&#8635;</button>
             <div class="ufb-vdiv"></div>
         </div>
-
         <span class="ufb-page-badge" id="ufbPageBadge">Cover</span>
-
         <div class="ufb-tb-desktop" style="display:flex;gap:8px;align-items:center;">
             <div class="ufb-vdiv"></div>
             <input type="number" id="ufbPageInput" min="1" value="1"
@@ -1410,19 +1130,13 @@ window.addEventListener('DOMContentLoaded', function() {
                 onkeydown="if(event.key==='Enter')ufbGo(this.value)">
             <button class="ufb-tbtn" onclick="ufbGo(document.getElementById('ufbPageInput').value)">Go</button>
         </div>
-
         <button class="ufb-tbtn" id="ufbBtnNext" onclick="ufbNav(1)">Next &#9654;</button>
-
-        <!-- Mobile zoom row -->
         <div class="ufb-tb-zoom-mobile" style="display:none;grid-column:1/-1;gap:6px;">
             <button class="ufb-tbtn" onclick="ufbZoom(.15)" style="flex:1;">&#43; Zoom</button>
             <button class="ufb-tbtn" onclick="ufbZoom(-.15)" style="flex:1;">&#8722; Zoom</button>
         </div>
     </div>
-
-    <!-- Thumbnail strip -->
     <div class="ufb-thumbs" id="ufbThumbs"></div>
-
 </div>
 </div>
 
@@ -1468,7 +1182,7 @@ window.addEventListener('DOMContentLoaded', function() {
             endforeach;
         else:
             $dummy_books = ['Pedoman Magang','Pedoman Pertukaran','Panduan KKNT','Pedoman Riset','Studi Independen','Kampus Mengajar'];
-            $book_colors = ['#306238','#618D4F','#545837','#3d5a2e','#9EBB97','#2a5430'];
+            $book_colors = ['#1B4332','#2D6A4F','#1B4332','#2D6A4F','#2D6A4F','#2a5430'];
             echo '<div class="bookshelf-row">';
             foreach ($dummy_books as $bi => $bn):
                 echo '<div class="book-card" onclick="alert(\'Upload buku via Admin Flipbook terlebih dahulu.\')">
@@ -1490,16 +1204,22 @@ window.addEventListener('DOMContentLoaded', function() {
 </section>
 
 <!-- ═══════════════════════════════════
-     SECTION 7: CTA
+     SECTION 7: CTA — proporsional & lebih tinggi
 ═══════════════════════════════════ -->
 <section class="cta-section">
     <div class="container">
-        <div class="row cta-inner" style="align-items:center;">
-            <div class="col-sm-8" style="margin-bottom:20px;">
-                <h2 class="lp-title" style="color:#fff;margin-bottom:0;">Mari Bergabung Dengan Program MBKM<br><span style="color:var(--moss-bg);">Universitas IAI PI Bandung</span></h2>
+        <div class="cta-inner">
+            <div class="cta-inner-text">
+                <h2 class="lp-title" style="color:#fff;font-size:36px;margin-bottom:12px;">
+                    Mari Bergabung Dengan<br><span style="color:#a8d5b5;">Program MBKM</span><br>Universitas IAI PI Bandung
+                </h2>
+                <p class="cta-sub">Wujudkan pengalaman belajar terbaik bersama kami. Program MBKM yang inovatif, berdampak, dan membuka peluang masa depan.</p>
+                <a href="index.php?pilih=daftar&modul=yes" class="btn-primary-lp" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.35);margin-top:0;">
+                    Daftar Sekarang &#8594;
+                </a>
             </div>
-            <div class="col-sm-4 cta-badge">
-                <span class="cta-badge-name">MBKM BERDAMPAK</span>
+            <div class="cta-inner-badge">
+                <span class="cta-badge-name">MBKM<br>BERDAMPAK</span>
                 <span class="cta-badge-sub">Universitas IAI PI Bandung</span>
             </div>
         </div>
@@ -1507,14 +1227,15 @@ window.addEventListener('DOMContentLoaded', function() {
 </section>
 
 <!-- ═══════════════════════════════════
-     SECTION 8: BERITA
+     SECTION 8: BERITA — gambar lebih besar
 ═══════════════════════════════════ -->
 <section class="news-section">
     <div class="container">
         <span class="lp-label">Kabar Terkini</span>
         <h2 class="lp-title lp-title--lg">BERITA &amp; KEGIATAN</h2>
         <div class="lp-divider" style="margin-bottom:40px;"></div>
-        <div class="row">
+
+        <div class="news-grid">
             <?php
             $q_news = $koneksi_db->sql_query("SELECT * FROM `artikel` WHERE publikasi=1 AND topik=1 ORDER BY `id` DESC LIMIT 3");
             $news_items = [];
@@ -1527,14 +1248,12 @@ window.addEventListener('DOMContentLoaded', function() {
                     ['judul'=>'Sosialisasi MBKM untuk Mahasiswa Baru','hits'=>75],
                 ];
                 foreach ($dummies as $ni): ?>
-                <div class="col-sm-4" style="margin-bottom:30px;">
-                    <div class="news-card">
-                        <div class="nc-img-ph"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zM6 10h2v2H6zm0 4h8v2H6zm4-4h8v2h-8z"/></svg></div>
-                        <div class="nc-body">
-                            <span class="nc-cat">MBKM</span>
-                            <h3><a href="#"><?= htmlspecialchars($ni['judul']) ?></a></h3>
-                            <div class="nc-meta"><?= $ni['hits'] ?> kali dibaca &nbsp;|&nbsp; <?= date('d M Y') ?></div>
-                        </div>
+                <div class="news-card">
+                    <div class="nc-img-ph"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zM6 10h2v2H6zm0 4h8v2H6zm4-4h8v2h-8z"/></svg></div>
+                    <div class="nc-body">
+                        <span class="nc-cat">MBKM</span>
+                        <h3><a href="#"><?= htmlspecialchars($ni['judul']) ?></a></h3>
+                        <div class="nc-meta"><?= $ni['hits'] ?> kali dibaca &nbsp;|&nbsp; <?= date('d M Y') ?></div>
                     </div>
                 </div>
                 <?php endforeach;
@@ -1545,24 +1264,23 @@ window.addEventListener('DOMContentLoaded', function() {
                     if (empty($url)) $url = 'artikel-'.$data[0];
                     $image_src = !empty($data['gambar']) ? 'images/artikel/'.$data['gambar'] : '';
                 ?>
-                <div class="col-sm-4" style="margin-bottom:30px;">
-                    <div class="news-card">
-                        <?php if ($image_src): ?>
-                        <img src="<?= $image_src ?>" class="nc-img" alt="<?= htmlspecialchars($data[1]) ?>">
-                        <?php else: ?>
-                        <div class="nc-img-ph"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zM6 10h2v2H6zm0 4h8v2H6zm4-4h8v2h-8z"/></svg></div>
-                        <?php endif; ?>
-                        <div class="nc-body">
-                            <span class="nc-cat">MBKM</span>
-                            <h3><a href="artikel/<?= $data[0] ?>/<?= $url ?>.html"><?= htmlspecialchars($data[1]) ?></a></h3>
-                            <div class="nc-meta"><?= $data['hits'] ?> kali dibaca &nbsp;|&nbsp; <?= datetimess($data[5]) ?></div>
-                        </div>
+                <div class="news-card">
+                    <?php if ($image_src): ?>
+                    <img src="<?= $image_src ?>" class="nc-img" alt="<?= htmlspecialchars($data[1]) ?>">
+                    <?php else: ?>
+                    <div class="nc-img-ph"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zM6 10h2v2H6zm0 4h8v2H6zm4-4h8v2h-8z"/></svg></div>
+                    <?php endif; ?>
+                    <div class="nc-body">
+                        <span class="nc-cat">MBKM</span>
+                        <h3><a href="artikel/<?= $data[0] ?>/<?= $url ?>.html"><?= htmlspecialchars($data[1]) ?></a></h3>
+                        <div class="nc-meta"><?= $data['hits'] ?> kali dibaca &nbsp;|&nbsp; <?= datetimess($data[5]) ?></div>
                     </div>
                 </div>
                 <?php endforeach;
             endif; ?>
         </div>
-        <div style="text-align:center; margin-top:16px;">
+
+        <div style="text-align:center; margin-top:32px;">
             <a href="kategori/1/Berita-Kampus.html" class="btn-outline-lp">Lihat Semua Berita &raquo;</a>
         </div>
     </div>
@@ -1573,293 +1291,161 @@ window.addEventListener('DOMContentLoaded', function() {
 ═══════════════════════════════════════════════════════════ -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
-/* ── PDF.js worker ── */
 if (typeof pdfjsLib !== 'undefined') {
     pdfjsLib.GlobalWorkerOptions.workerSrc =
         'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 }
 
-/* ══════════════════════════════════════════════════════════════
-   UNIFIED FLIPBOOK ENGINE
-   State: _pdf, _page (always odd on desktop spread), _total,
-          _busy (block concurrent renders), _scale (auto),
-          _zoom (user), _thumbsBuilt
-══════════════════════════════════════════════════════════════ */
 var _pdf = null, _page = 1, _total = 0;
 var _busy = false, _scale = 1.3, _zoom = 1.0;
 var _thumbsBuilt = false;
-var FLIP_MS = 620; /* milliseconds for 3D flip animation */
+var FLIP_MS = 620;
 
-/* DOM cache */
 var _cache = {};
 function _el(id) { return _cache[id] || (_cache[id] = document.getElementById(id)); }
-
 function _isMobile() { return window.innerWidth <= 767; }
 
-/* ── Auto-scale ── */
 function _calcScale() {
     var wrap = _el('ufbWrap');
-    var w    = wrap.clientWidth  - (_isMobile() ? 0 : 120);
-    var h    = wrap.clientHeight - 40;
+    var w = wrap.clientWidth - (_isMobile() ? 0 : 120);
+    var h = wrap.clientHeight - 40;
     if (!_pdf) return Promise.resolve(_isMobile() ? 1.0 : 1.3);
     return _pdf.getPage(1).then(function(pg) {
-        var vp  = pg.getViewport({ scale: 1 });
+        var vp = pg.getViewport({ scale: 1 });
         var mob = _isMobile();
         var maxW = mob ? w : Math.floor((w - 7) / 2);
         return Math.max(.3, Math.min(3.5, Math.min(maxW / vp.width, h / vp.height)));
     });
 }
 
-/* ── Render page to canvas ── */
 function _rnd(num, cvs) {
     if (!_pdf || num < 1 || num > _total) {
         cvs.width = 0; cvs.height = 0; cvs.style.display = 'none';
         return Promise.resolve(null);
     }
     var dpr = Math.min(window.devicePixelRatio || 1, 2);
-    var s   = _scale * _zoom;
+    var s = _scale * _zoom;
     return _pdf.getPage(num).then(function(pg) {
         var vp = pg.getViewport({ scale: s * dpr });
-        cvs.width  = vp.width; cvs.height = vp.height;
-        cvs.style.width  = Math.round(vp.width  / dpr) + 'px';
+        cvs.width = vp.width; cvs.height = vp.height;
+        cvs.style.width = Math.round(vp.width / dpr) + 'px';
         cvs.style.height = Math.round(vp.height / dpr) + 'px';
         cvs.style.display = 'block';
-        return pg.render({ canvasContext: cvs.getContext('2d'), viewport: vp }).promise
-            .then(function() { return cvs; });
+        return pg.render({ canvasContext: cvs.getContext('2d'), viewport: vp }).promise.then(function() { return cvs; });
     });
 }
 
-/* ── Copy canvas ── */
 function _copy(src, dst) {
     if (!src || !src.width) return;
     dst.width = src.width; dst.height = src.height;
-    dst.style.width  = src.style.width;
-    dst.style.height = src.style.height;
+    dst.style.width = src.style.width; dst.style.height = src.style.height;
     dst.style.display = 'block';
     dst.getContext('2d').drawImage(src, 0, 0);
 }
 
-/* ── Page snap for desktop spread ── */
 function _snap(p) {
     if (_isMobile()) return Math.max(1, Math.min(_total, p));
     var s = (p % 2 === 0) ? p - 1 : p;
     return Math.max(1, Math.min(_total, s));
 }
 
-/* ── Update UI ── */
 function _ui(p) {
-    var mob  = _isMobile();
+    var mob = _isMobile();
     var hasR = !mob && p + 1 <= _total;
-
-    _el('ufbSpine').style.display  = hasR ? 'block' : 'none';
+    _el('ufbSpine').style.display = hasR ? 'block' : 'none';
     var cR = _el('ufbCanvasR');
     if (!hasR) { cR.style.display = 'none'; cR.width = 0; }
-
-    var label = (p === 1 && _total <= 1)
-        ? 'Cover'
-        : 'Hal ' + p + (hasR ? '\u2013' + (p + 1) : '') + ' / ' + _total;
+    var label = (p === 1 && _total <= 1) ? 'Cover' : 'Hal ' + p + (hasR ? '\u2013' + (p + 1) : '') + ' / ' + _total;
     _el('ufbPageBadge').textContent = label;
-
     var inp = _el('ufbPageInput');
     if (inp) inp.value = p;
-
     _el('ufbBtnPrev').disabled = (p <= 1);
     _el('ufbBtnNext').disabled = mob ? (p >= _total) : (p + 1 >= _total);
-
-    /* Mobile zoom row */
     var mzr = document.querySelector('.ufb-tb-zoom-mobile');
     if (mzr) mzr.style.display = mob ? 'flex' : 'none';
-
-    /* Thumbnail highlight */
     _updateThumb(p);
 }
 
-/* ── Center scene in scroll wrap ── */
 function _centerScene() {
-    var wrap  = _el('ufbWrap');
-    var scene = _el('ufbSceneOuter');
+    var wrap = _el('ufbWrap'); var scene = _el('ufbSceneOuter');
     if (!scene || !wrap) return;
-    /* scrollLeft/Top to center the content */
-    var cw = scene.scrollWidth  || wrap.scrollWidth;
+    var cw = scene.scrollWidth || wrap.scrollWidth;
     var ch = scene.scrollHeight || wrap.scrollHeight;
-    wrap.scrollLeft = Math.max(0, (cw - wrap.clientWidth)  / 2);
-    wrap.scrollTop  = Math.max(0, (ch - wrap.clientHeight) / 2);
+    wrap.scrollLeft = Math.max(0, (cw - wrap.clientWidth) / 2);
+    wrap.scrollTop = Math.max(0, (ch - wrap.clientHeight) / 2);
 }
 
-/* ── DIRECT RENDER (no animation) ── */
 function _direct(p, cb) {
-    var mob = _isMobile();
-    var cL  = _el('ufbCanvasL');
-    var cR  = _el('ufbCanvasR');
-
+    var mob = _isMobile(); var cL = _el('ufbCanvasL'); var cR = _el('ufbCanvasR');
     var tasks = [_rnd(p, cL)];
     if (!mob && p + 1 <= _total) tasks.push(_rnd(p + 1, cR));
     else { cR.style.display = 'none'; cR.width = 0; }
-
     Promise.all(tasks).then(function() {
-        _ui(p);
-        _busy = false;
-        _centerScene();
-        if (cb) cb();
+        _ui(p); _busy = false; _centerScene(); if (cb) cb();
     }).catch(function() { _busy = false; });
 }
 
-/* ── 3D FLIP RENDER (desktop only) ── */
 function _flip(p, dir) {
     if (_isMobile()) { _direct(p); return; }
-
-    var cL  = _el('ufbCanvasL');
-    var cR  = _el('ufbCanvasR');
-    var fpr = _el('ufbFlipper');
-    var ffr = _el('ufbFlipFront');
-    var fbk = _el('ufbFlipBack');
-
+    var cL = _el('ufbCanvasL'); var cR = _el('ufbCanvasR');
+    var fpr = _el('ufbFlipper'); var ffr = _el('ufbFlipFront'); var fbk = _el('ufbFlipBack');
     fpr.className = 'ufb-flipper';
-
     if (dir === 'next') {
         if (!cR.offsetWidth) { _busy = false; _direct(p); return; }
         _copy(cR, ffr);
-
-        /* Position flipper over cR */
-        fpr.style.cssText = [
-            'display:block',
-            'width:'  + cR.offsetWidth  + 'px',
-            'height:' + cR.offsetHeight + 'px',
-            'left:'   + cR.offsetLeft   + 'px',
-            'top:'    + cR.offsetTop    + 'px',
-            'transform-origin:0% 50%',
-            'transform:rotateY(0deg)',
-            'transition:none',
-            'z-index:20',
-            'pointer-events:none'
-        ].join(';');
-        fpr.classList.add('is-next');
-        cR.style.visibility = 'hidden';
-
+        fpr.style.cssText = ['display:block','width:'+cR.offsetWidth+'px','height:'+cR.offsetHeight+'px','left:'+cR.offsetLeft+'px','top:'+cR.offsetTop+'px','transform-origin:0% 50%','transform:rotateY(0deg)','transition:none','z-index:20','pointer-events:none'].join(';');
+        fpr.classList.add('is-next'); cR.style.visibility = 'hidden';
         Promise.all([_rnd(p, fbk), _rnd(p + 1, cR)]).then(function() {
             fbk.style.width = ffr.style.width; fbk.style.height = ffr.style.height;
-            requestAnimationFrame(function() {
-                requestAnimationFrame(function() {
-                    fpr.style.transition = 'transform ' + FLIP_MS + 'ms cubic-bezier(.77,0,.18,1)';
-                    fpr.style.transform  = 'rotateY(-180deg)';
-                });
-            });
-            setTimeout(function() {
-                fpr.style.transition = 'none'; fpr.style.display = 'none';
-                fpr.className = 'ufb-flipper';
-                cR.style.visibility = 'visible';
-                _direct(p);
-            }, FLIP_MS + 60);
+            requestAnimationFrame(function() { requestAnimationFrame(function() { fpr.style.transition = 'transform '+FLIP_MS+'ms cubic-bezier(.77,0,.18,1)'; fpr.style.transform = 'rotateY(-180deg)'; }); });
+            setTimeout(function() { fpr.style.transition = 'none'; fpr.style.display = 'none'; fpr.className = 'ufb-flipper'; cR.style.visibility = 'visible'; _direct(p); }, FLIP_MS + 60);
         }).catch(function() { fpr.style.display='none'; cR.style.visibility='visible'; _busy=false; });
-
     } else {
         if (!cL.offsetWidth) { _busy = false; _direct(p); return; }
         _copy(cL, ffr);
-
-        fpr.style.cssText = [
-            'display:block',
-            'width:'  + cL.offsetWidth  + 'px',
-            'height:' + cL.offsetHeight + 'px',
-            'left:'   + cL.offsetLeft   + 'px',
-            'top:'    + cL.offsetTop    + 'px',
-            'transform-origin:100% 50%',
-            'transform:rotateY(0deg)',
-            'transition:none',
-            'z-index:20',
-            'pointer-events:none'
-        ].join(';');
-        fpr.classList.add('is-prev');
-        cL.style.visibility = 'hidden';
-
+        fpr.style.cssText = ['display:block','width:'+cL.offsetWidth+'px','height:'+cL.offsetHeight+'px','left:'+cL.offsetLeft+'px','top:'+cL.offsetTop+'px','transform-origin:100% 50%','transform:rotateY(0deg)','transition:none','z-index:20','pointer-events:none'].join(';');
+        fpr.classList.add('is-prev'); cL.style.visibility = 'hidden';
         Promise.all([_rnd(p + 1, fbk), _rnd(p, cL)]).then(function() {
             fbk.style.width = ffr.style.width; fbk.style.height = ffr.style.height;
-            requestAnimationFrame(function() {
-                requestAnimationFrame(function() {
-                    fpr.style.transition = 'transform ' + FLIP_MS + 'ms cubic-bezier(.77,0,.18,1)';
-                    fpr.style.transform  = 'rotateY(180deg)';
-                });
-            });
-            setTimeout(function() {
-                fpr.style.transition = 'none'; fpr.style.display = 'none';
-                fpr.className = 'ufb-flipper';
-                cL.style.visibility = 'visible';
-                _direct(p);
-            }, FLIP_MS + 60);
+            requestAnimationFrame(function() { requestAnimationFrame(function() { fpr.style.transition = 'transform '+FLIP_MS+'ms cubic-bezier(.77,0,.18,1)'; fpr.style.transform = 'rotateY(180deg)'; }); });
+            setTimeout(function() { fpr.style.transition = 'none'; fpr.style.display = 'none'; fpr.className = 'ufb-flipper'; cL.style.visibility = 'visible'; _direct(p); }, FLIP_MS + 60);
         }).catch(function() { fpr.style.display='none'; cL.style.visibility='visible'; _busy=false; });
     }
 }
 
-/* ── NAVIGATION ── */
 function ufbNav(dir) {
     if (!_pdf || _busy) return;
-    var mob  = _isMobile();
-    var step = mob ? 1 : 2;
+    var mob = _isMobile(); var step = mob ? 1 : 2;
     var newP = _snap(_page + dir * step);
-    if (newP === _page) {
-        newP = Math.max(1, Math.min(_total, _page + dir));
-        if (newP === _page) return;
-    }
+    if (newP === _page) { newP = Math.max(1, Math.min(_total, _page + dir)); if (newP === _page) return; }
     _busy = true; _page = newP;
-    if (mob) _direct(_page);
-    else     _flip(_page, dir > 0 ? 'next' : 'prev');
+    if (mob) _direct(_page); else _flip(_page, dir > 0 ? 'next' : 'prev');
 }
 
 function ufbGo(n) {
     n = parseInt(n, 10);
     if (isNaN(n) || n < 1 || n > _total) return;
-    var np = _snap(n);
-    if (np === _page) return;
+    var np = _snap(n); if (np === _page) return;
     var dir = np > _page ? 1 : -1;
     _busy = true; _page = np;
     _isMobile() ? _direct(_page) : _flip(_page, dir > 0 ? 'next' : 'prev');
 }
 
-/* ── ZOOM ── */
-function ufbZoom(d) {
-    if (!_pdf) return;
-    _zoom = Math.max(.35, Math.min(3.5, _zoom + d));
-    _busy = false; _direct(_page);
-}
-function ufbZoomReset() {
-    if (!_pdf) return;
-    _zoom = 1.0;
-    _calcScale().then(function(s) { _scale = s; _busy = false; _direct(_page); });
-}
+function ufbZoom(d) { if (!_pdf) return; _zoom = Math.max(.35, Math.min(3.5, _zoom + d)); _busy = false; _direct(_page); }
+function ufbZoomReset() { if (!_pdf) return; _zoom = 1.0; _calcScale().then(function(s) { _scale = s; _busy = false; _direct(_page); }); }
+function ufbFullscreen() { var el = _el('ufbOverlay'); if (!document.fullscreenElement) (el.requestFullscreen || el.webkitRequestFullscreen || function(){}).call(el); else (document.exitFullscreen || document.webkitExitFullscreen || function(){}).call(document); }
 
-/* ── FULLSCREEN ── */
-function ufbFullscreen() {
-    var el = _el('ufbOverlay');
-    if (!document.fullscreenElement)
-        (el.requestFullscreen || el.webkitRequestFullscreen || function(){}).call(el);
-    else
-        (document.exitFullscreen || document.webkitExitFullscreen || function(){}).call(document);
-}
-
-/* ── THUMBNAILS ── */
 function _buildThumbs() {
     if (_thumbsBuilt || !_pdf) return;
     _thumbsBuilt = true;
-    var strip = _el('ufbThumbs');
-    strip.innerHTML = '';
+    var strip = _el('ufbThumbs'); strip.innerHTML = '';
     for (var i = 1; i <= _total; i++) {
         (function(pn) {
-            var th = document.createElement('div');
-            th.className = 'ufb-thumb' + (pn === 1 ? ' active' : '');
-            th.dataset.page = pn;
-            var tc = document.createElement('canvas');
-            th.appendChild(tc);
-            var nn = document.createElement('div');
-            nn.className = 'ufb-thumb-n'; nn.textContent = pn;
-            th.appendChild(nn);
-            th.onclick = function() { ufbGo(pn); };
-            strip.appendChild(th);
-            _pdf.getPage(pn).then(function(pg) {
-                var vp0 = pg.getViewport({ scale: 1 });
-                var sc  = Math.min(48 / vp0.width, 68 / vp0.height);
-                var vp  = pg.getViewport({ scale: sc });
-                tc.width = vp.width; tc.height = vp.height;
-                pg.render({ canvasContext: tc.getContext('2d'), viewport: vp }).promise;
-            });
+            var th = document.createElement('div'); th.className = 'ufb-thumb'+(pn===1?' active':''); th.dataset.page = pn;
+            var tc = document.createElement('canvas'); th.appendChild(tc);
+            var nn = document.createElement('div'); nn.className = 'ufb-thumb-n'; nn.textContent = pn; th.appendChild(nn);
+            th.onclick = function() { ufbGo(pn); }; strip.appendChild(th);
+            _pdf.getPage(pn).then(function(pg) { var vp0 = pg.getViewport({scale:1}); var sc = Math.min(48/vp0.width, 68/vp0.height); var vp = pg.getViewport({scale:sc}); tc.width = vp.width; tc.height = vp.height; pg.render({canvasContext:tc.getContext('2d'),viewport:vp}).promise; });
         })(i);
     }
 }
@@ -1867,231 +1453,100 @@ function _buildThumbs() {
 function _updateThumb(p) {
     document.querySelectorAll('.ufb-thumb').forEach(function(t) {
         var tp = parseInt(t.dataset.page, 10);
-        var a  = _isMobile() ? (tp === p) : (tp === p || tp === p + 1);
+        var a = _isMobile() ? (tp===p) : (tp===p||tp===p+1);
         t.classList.toggle('active', a);
-        if (a) t.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        if (a) t.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
     });
 }
 
-/* ── SWIPE HINT ── */
 function _showSwipeHint() {
-    var h = _el('ufbSwipeHint');
-    h.classList.add('show');
-    setTimeout(function() { h.style.transition = 'opacity 1s'; h.style.opacity = '0'; }, 2400);
-    setTimeout(function() { h.classList.remove('show'); h.style.opacity = ''; h.style.transition = ''; }, 3600);
+    var h = _el('ufbSwipeHint'); h.classList.add('show');
+    setTimeout(function() { h.style.transition='opacity 1s'; h.style.opacity='0'; }, 2400);
+    setTimeout(function() { h.classList.remove('show'); h.style.opacity=''; h.style.transition=''; }, 3600);
 }
 
-/* ── OPEN ── */
 function openFlipbook(url, title) {
-    _el('ufbTitle').textContent  = title || 'Dokumen';
-    _el('ufbDlLink').href        = url;
+    _el('ufbTitle').textContent = title || 'Dokumen';
+    _el('ufbDlLink').href = url;
     _el('ufbOverlay').classList.add('active');
     document.body.style.overflow = 'hidden';
-
-    /* Reset */
     _pdf = null; _total = 0; _page = 1; _busy = false; _zoom = 1.0; _thumbsBuilt = false;
-
-    /* Clear canvases */
-    ['ufbCanvasL','ufbCanvasR','ufbFlipFront','ufbFlipBack'].forEach(function(id) {
-        var c = _el(id); c.width = 0; c.height = 0; c.style.display = 'none';
-    });
-    _el('ufbFlipper').style.display  = 'none';
-    _el('ufbFlipper').className      = 'ufb-flipper';
-    _el('ufbSpine').style.display    = 'none';
-    _el('ufbThumbs').innerHTML       = '';
-    _el('ufbPageBadge').textContent  = 'Memuat...';
-    _el('ufbLoading').style.display  = 'flex';
-    _el('ufbSceneOuter').style.display = 'none';
-
-    if (typeof pdfjsLib === 'undefined') {
-        _el('ufbLoading').innerHTML = '&#9888; PDF.js tidak ditemukan.'; return;
-    }
-
-    pdfjsLib.getDocument(url).promise.then(function(pdf) {
-        _pdf = pdf; _total = pdf.numPages;
-        return _calcScale();
-    }).then(function(s) {
-        _scale = s;
-        _el('ufbLoading').style.display    = 'none';
-        _el('ufbSceneOuter').style.display = 'flex';
-        _direct(1, function() {
-            _buildThumbs();
-            if (_isMobile()) _showSwipeHint();
-        });
-    }).catch(function(err) {
-        _el('ufbLoading').innerHTML = '&#9888; Gagal memuat: ' + (err.message || err);
-        _busy = false;
-    });
+    ['ufbCanvasL','ufbCanvasR','ufbFlipFront','ufbFlipBack'].forEach(function(id) { var c = _el(id); c.width = 0; c.height = 0; c.style.display = 'none'; });
+    _el('ufbFlipper').style.display = 'none'; _el('ufbFlipper').className = 'ufb-flipper';
+    _el('ufbSpine').style.display = 'none'; _el('ufbThumbs').innerHTML = '';
+    _el('ufbPageBadge').textContent = 'Memuat...';
+    _el('ufbLoading').style.display = 'flex'; _el('ufbSceneOuter').style.display = 'none';
+    if (typeof pdfjsLib === 'undefined') { _el('ufbLoading').innerHTML = '&#9888; PDF.js tidak ditemukan.'; return; }
+    pdfjsLib.getDocument(url).promise.then(function(pdf) { _pdf = pdf; _total = pdf.numPages; return _calcScale(); }).then(function(s) {
+        _scale = s; _el('ufbLoading').style.display = 'none'; _el('ufbSceneOuter').style.display = 'flex';
+        _direct(1, function() { _buildThumbs(); if (_isMobile()) _showSwipeHint(); });
+    }).catch(function(err) { _el('ufbLoading').innerHTML = '&#9888; Gagal memuat: '+(err.message||err); _busy = false; });
 }
-
-/* Alias lama */
 function openFlipbookHome(url, title) { openFlipbook(url, title); }
 
-/* ── CLOSE ── */
 function ufbClose() {
-    _el('ufbOverlay').classList.remove('active');
-    document.body.style.overflow = '';
-    ['ufbCanvasL','ufbCanvasR','ufbFlipFront','ufbFlipBack'].forEach(function(id) {
-        var c = _el(id); c.width = 0; c.height = 0; c.style.display = 'none';
-    });
-    _el('ufbFlipper').style.display = 'none';
-    _el('ufbFlipper').className     = 'ufb-flipper';
-    _el('ufbSpine').style.display   = 'none';
-    _pdf = null; _busy = false; _page = 1; _thumbsBuilt = false;
+    _el('ufbOverlay').classList.remove('active'); document.body.style.overflow = '';
+    ['ufbCanvasL','ufbCanvasR','ufbFlipFront','ufbFlipBack'].forEach(function(id) { var c = _el(id); c.width = 0; c.height = 0; c.style.display = 'none'; });
+    _el('ufbFlipper').style.display = 'none'; _el('ufbFlipper').className = 'ufb-flipper';
+    _el('ufbSpine').style.display = 'none'; _pdf = null; _busy = false; _page = 1; _thumbsBuilt = false;
 }
 
-/* ── KEYBOARD ── */
 document.addEventListener('keydown', function(e) {
     if (!_el('ufbOverlay').classList.contains('active')) return;
-    if (e.key === 'ArrowRight') ufbNav(1);
-    if (e.key === 'ArrowLeft')  ufbNav(-1);
-    if (e.key === 'Escape')     ufbClose();
-    if (e.key === '+' || e.key === '=') ufbZoom(.15);
-    if (e.key === '-')          ufbZoom(-.15);
-    if (e.key === '0')          ufbZoomReset();
+    if (e.key === 'ArrowRight') ufbNav(1); if (e.key === 'ArrowLeft') ufbNav(-1);
+    if (e.key === 'Escape') ufbClose();
+    if (e.key === '+' || e.key === '=') ufbZoom(.15); if (e.key === '-') ufbZoom(-.15); if (e.key === '0') ufbZoomReset();
 });
+_el('ufbOverlay').addEventListener('click', function(e) { if (e.target === this) ufbClose(); });
 
-/* ── BACKDROP CLICK ── */
-_el('ufbOverlay').addEventListener('click', function(e) {
-    if (e.target === this) ufbClose();
-});
-
-/* ══════════════════════════════
-   DRAG-TO-PAN + MOMENTUM (desktop)
-   Menggunakan scrollLeft/scrollTop pada wrap yang overflow:auto
-══════════════════════════════ */
+/* Drag-to-pan + momentum */
 (function() {
-    var wrap = _el('ufbWrap');
-    if (!wrap) return;
+    var wrap = _el('ufbWrap'); if (!wrap) return;
     var down = false, lx, ly, vx = 0, vy = 0, raf = null;
     var FRICTION = 0.88;
-
     function cancel() { if (raf) { cancelAnimationFrame(raf); raf = null; } }
-    function momentum() {
-        vx *= FRICTION; vy *= FRICTION;
-        wrap.scrollLeft -= vx;
-        wrap.scrollTop  -= vy;
-        if (Math.abs(vx) > .4 || Math.abs(vy) > .4) raf = requestAnimationFrame(momentum);
-        else raf = null;
-    }
-
-    wrap.addEventListener('mousedown', function(e) {
-        if (_isMobile()) return;
-        if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A' || e.target.tagName === 'INPUT') return;
-        cancel(); down = true; vx = 0; vy = 0;
-        lx = e.clientX; ly = e.clientY;
-        wrap.classList.add('is-dragging');
-        e.preventDefault();
-    }, { passive: false });
-
-    document.addEventListener('mousemove', function(e) {
-        if (!down || _isMobile()) return;
-        var dx = e.clientX - lx, dy = e.clientY - ly;
-        vx = vx * .35 + dx * .65;
-        vy = vy * .35 + dy * .65;
-        wrap.scrollLeft -= dx;
-        wrap.scrollTop  -= dy;
-        lx = e.clientX; ly = e.clientY;
-    });
-
-    document.addEventListener('mouseup', function() {
-        if (!down) return; down = false;
-        wrap.classList.remove('is-dragging');
-        if (Math.abs(vx) > 1.2 || Math.abs(vy) > 1.2) raf = requestAnimationFrame(momentum);
-    });
-
-    /* Wheel zoom (pinch-style) */
+    function momentum() { vx *= FRICTION; vy *= FRICTION; wrap.scrollLeft -= vx; wrap.scrollTop -= vy; if (Math.abs(vx) > .4 || Math.abs(vy) > .4) raf = requestAnimationFrame(momentum); else raf = null; }
+    wrap.addEventListener('mousedown', function(e) { if (_isMobile()) return; if (e.target.tagName==='BUTTON'||e.target.tagName==='A'||e.target.tagName==='INPUT') return; cancel(); down=true; vx=0; vy=0; lx=e.clientX; ly=e.clientY; wrap.classList.add('is-dragging'); e.preventDefault(); }, {passive:false});
+    document.addEventListener('mousemove', function(e) { if (!down||_isMobile()) return; var dx=e.clientX-lx,dy=e.clientY-ly; vx=vx*.35+dx*.65; vy=vy*.35+dy*.65; wrap.scrollLeft-=dx; wrap.scrollTop-=dy; lx=e.clientX; ly=e.clientY; });
+    document.addEventListener('mouseup', function() { if (!down) return; down=false; wrap.classList.remove('is-dragging'); if (Math.abs(vx)>1.2||Math.abs(vy)>1.2) raf=requestAnimationFrame(momentum); });
     wrap.addEventListener('wheel', function(e) {
-        if (!_pdf) return;
-        e.preventDefault();
-        cancel();
-        var step = 0.1;
-        var oldZoom = _zoom;
-        _zoom = Math.max(.35, Math.min(3.5, _zoom + (e.deltaY < 0 ? step : -step)));
-        if (_zoom === oldZoom) return;
-        /* Zoom toward cursor */
-        var wr    = wrap.getBoundingClientRect();
-        var cx    = e.clientX - wr.left + wrap.scrollLeft;
-        var cy    = e.clientY - wr.top  + wrap.scrollTop;
-        var ratio = _zoom / oldZoom;
-        _busy = false;
-        _direct(_page, function() {
-            wrap.scrollLeft = Math.round(cx * ratio - (e.clientX - wr.left));
-            wrap.scrollTop  = Math.round(cy * ratio - (e.clientY - wr.top));
-        });
-    }, { passive: false });
+        if (!_pdf) return; e.preventDefault(); cancel();
+        var oldZoom=_zoom; _zoom=Math.max(.35,Math.min(3.5,_zoom+(e.deltaY<0?.1:-.1)));
+        if (_zoom===oldZoom) return;
+        var wr=wrap.getBoundingClientRect(); var cx=e.clientX-wr.left+wrap.scrollLeft; var cy=e.clientY-wr.top+wrap.scrollTop; var ratio=_zoom/oldZoom;
+        _busy=false; _direct(_page, function() { wrap.scrollLeft=Math.round(cx*ratio-(e.clientX-wr.left)); wrap.scrollTop=Math.round(cy*ratio-(e.clientY-wr.top)); });
+    }, {passive:false});
 })();
 
-/* ══════════════════════════════
-   SWIPE GESTURE (mobile)
-══════════════════════════════ */
+/* Swipe (mobile) */
 (function() {
-    var wrap = _el('ufbWrap');
-    if (!wrap) return;
+    var wrap = _el('ufbWrap'); if (!wrap) return;
     var sx, sy, axis, deciding;
-
-    wrap.addEventListener('touchstart', function(e) {
-        if (e.touches.length !== 1) return;
-        sx = e.touches[0].clientX; sy = e.touches[0].clientY;
-        deciding = true; axis = null;
-    }, { passive: true });
-
-    wrap.addEventListener('touchmove', function(e) {
-        if (!deciding && axis !== 'h') return;
-        var dx = e.touches[0].clientX - sx;
-        var dy = e.touches[0].clientY - sy;
-        if (deciding && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
-            axis = Math.abs(dx) > Math.abs(dy) ? 'h' : 'v';
-            deciding = false;
-        }
-        if (axis === 'h') e.preventDefault();
-    }, { passive: false });
-
-    wrap.addEventListener('touchend', function(e) {
-        if (!_isMobile() || axis !== 'h') return;
-        var dx = e.changedTouches[0].clientX - sx;
-        if (Math.abs(dx) > 42) ufbNav(dx < 0 ? 1 : -1);
-    }, { passive: true });
+    wrap.addEventListener('touchstart', function(e) { if (e.touches.length!==1) return; sx=e.touches[0].clientX; sy=e.touches[0].clientY; deciding=true; axis=null; }, {passive:true});
+    wrap.addEventListener('touchmove', function(e) { if (!deciding&&axis!=='h') return; var dx=e.touches[0].clientX-sx,dy=e.touches[0].clientY-sy; if (deciding&&(Math.abs(dx)>8||Math.abs(dy)>8)) { axis=Math.abs(dx)>Math.abs(dy)?'h':'v'; deciding=false; } if (axis==='h') e.preventDefault(); }, {passive:false});
+    wrap.addEventListener('touchend', function(e) { if (!_isMobile()||axis!=='h') return; var dx=e.changedTouches[0].clientX-sx; if (Math.abs(dx)>42) ufbNav(dx<0?1:-1); }, {passive:true});
 })();
 
-/* ══════════════════════════════
-   RESIZE handler
-══════════════════════════════ */
+/* Resize */
 (function() {
     var t;
-    window.addEventListener('resize', function() {
-        clearTimeout(t);
-        t = setTimeout(function() {
-            if (!_pdf || !_el('ufbOverlay').classList.contains('active')) return;
-            _calcScale().then(function(s) { _scale = s; _busy = false; _direct(_page); });
-        }, 280);
-    });
+    window.addEventListener('resize', function() { clearTimeout(t); t=setTimeout(function() { if (!_pdf||!_el('ufbOverlay').classList.contains('active')) return; _calcScale().then(function(s) { _scale=s; _busy=false; _direct(_page); }); }, 280); });
 })();
 
-/* ══════════════════════════════
-   DOKUMENTASI SLIDER
-══════════════════════════════ */
+/* Dokumentasi Slider */
 var _dIdx = 0;
 var _dSlides = document.querySelectorAll('.dokum-slide');
-function _dokRender() {
-    document.getElementById('dokSlides').style.transform = 'translateX(-' + (_dIdx * 100) + '%)';
-    document.querySelectorAll('.dokum-dot').forEach(function(d, i) {
-        d.classList.toggle('active', i === _dIdx);
-    });
-}
-function dokumNav(dir) { _dIdx = (_dIdx + dir + _dSlides.length) % _dSlides.length; _dokRender(); }
-function dokumGo(i)    { _dIdx = i; _dokRender(); }
+function _dokRender() { document.getElementById('dokSlides').style.transform='translateX(-'+(_dIdx*100)+'%)'; document.querySelectorAll('.dokum-dot').forEach(function(d,i){d.classList.toggle('active',i===_dIdx);}); }
+function dokumNav(dir) { _dIdx=(_dIdx+dir+_dSlides.length)%_dSlides.length; _dokRender(); }
+function dokumGo(i) { _dIdx=i; _dokRender(); }
 if (_dSlides.length > 1) setInterval(function() { dokumNav(1); }, 5000);
 
-/* ══════════════════════════════
-   BOOKSHELF SEARCH
-══════════════════════════════ */
+/* Bookshelf Search */
 function filterBooksLP() {
     var q = document.getElementById('bookSearchInput').value.toLowerCase().trim();
     document.querySelectorAll('.book-card').forEach(function(card) {
-        var title = card.querySelector('.book-title');
-        if (!title) return;
-        card.style.display = (!q || title.textContent.toLowerCase().indexOf(q) !== -1) ? '' : 'none';
+        var title = card.querySelector('.book-title'); if (!title) return;
+        card.style.display = (!q||title.textContent.toLowerCase().indexOf(q)!==-1) ? '' : 'none';
     });
 }
 </script>

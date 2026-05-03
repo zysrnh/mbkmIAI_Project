@@ -3,7 +3,10 @@ echo '
 <style>
 /* ── HERO SECTION ── */
 .custom-hero {
-    background: linear-gradient(145deg, #306238 0%, #545837 60%, #3d5a2e 100%);
+    background: linear-gradient(145deg, rgba(27,67,50,0.85) 0%, rgba(27,67,50,0.7) 60%, rgba(45,106,79,0.85) 100%), url("images/Assets/Kampus.png");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
     color: #fff;
     padding: 140px 0 0;
     position: relative;
@@ -51,12 +54,12 @@ echo '
     font-weight: 700;
     letter-spacing: 2px;
     text-transform: uppercase;
-    color: #DDE5CD;
+    color: #F8F9FA;
     margin-bottom: 22px;
 }
 .hero-eyebrow span {
     width: 6px; height: 6px;
-    background: #9EBB97;
+    background: #F8F9FA;
     border-radius: 50%;
     display: inline-block;
 }
@@ -69,9 +72,10 @@ echo '
     line-height: 1.1;
     color: #ffffff;
     letter-spacing: -1.5px;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.4);
 }
 .custom-hero h1 .accent {
-    color: #DDE5CD;
+    color: #ffffff;
 }
 
 .custom-hero .hero-sub {
@@ -94,8 +98,8 @@ echo '
 .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
 .hero-btn-primary {
     display: inline-block;
-    background: #DDE5CD;
-    color: #306238;
+    background: #F8F9FA;
+    color: #1B4332;
     padding: 13px 32px;
     border-radius: 30px;
     font-weight: 700;
@@ -103,11 +107,11 @@ echo '
     text-decoration: none;
     letter-spacing: .2px;
     transition: all .28s cubic-bezier(.4,0,.2,1);
-    border: 2px solid #DDE5CD;
+    border: 2px solid #F8F9FA;
 }
 .hero-btn-primary:hover {
     background: transparent;
-    color: #DDE5CD;
+    color: #F8F9FA;
     text-decoration: none;
 }
 .hero-btn-outline {
@@ -122,8 +126,8 @@ echo '
     transition: all .28s cubic-bezier(.4,0,.2,1);
 }
 .hero-btn-outline:hover {
-    border-color: #DDE5CD;
-    color: #DDE5CD;
+    border-color: #F8F9FA;
+    color: #F8F9FA;
     text-decoration: none;
 }
 
@@ -156,7 +160,7 @@ echo '
     min-width: 130px;
 }
 .hero-stat-pill .sp-num {
-    color: #DDE5CD;
+    color: #F8F9FA;
     font-size: 26px;
     font-weight: 900;
     display: block;

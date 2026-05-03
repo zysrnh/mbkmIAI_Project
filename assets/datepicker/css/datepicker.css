@@ -21,8 +21,8 @@
   display: inline-block;
   border-left: 7px solid transparent;
   border-right: 7px solid transparent;
-  border-bottom: 7px solid #dae4e8;
-  border-bottom-color:#dae4e8;
+  border-bottom: 7px solid #F8F9FA;
+  border-bottom-color:#F8F9FA;
   position: absolute;
   top: -7px;
   left: 6px;
@@ -64,11 +64,11 @@
   border-radius: 50%;
 }
 .datepicker td.day:hover {
-  background: #eeeeee;
+  background: #F8F9FA;
   cursor: pointer;
 }
 .datepicker td.day.disabled {
-  color: #eeeeee;
+  color: #F8F9FA;
 }
 .datepicker td.old,
 .datepicker td.new {
@@ -77,7 +77,7 @@
 .datepicker td.active,
 .datepicker td.active:hover {
   color: #fff;
-  background: #ff9600;
+  background: #2D6A4F;
 }
 .datepicker td.active:hover,
 .datepicker td.active:hover:hover,
@@ -114,7 +114,7 @@
   border-radius: 50%;
 }
 .datepicker td span:hover {
-  background: #eeeeee;
+  background: #F8F9FA;
 }
 .datepicker td span.active {
   color: #ffffff;
@@ -163,7 +163,7 @@
   cursor: pointer;
 }
 .datepicker thead tr:first-child th:hover {
-  background: #eeeeee;
+  background: #F8F9FA;
 }
 .input-append.date .add-on i,
 .input-prepend.date .add-on i {

@@ -1855,7 +1855,7 @@ ul.gdlr-core-category-background-widget li.gdlr-core-with-bg a:hover{ color: #ff
 .gdlr-core-sly-slider .slides li .gdlr-core-media-image img{ max-height: 100%; width: auto; }
 .gdlr-core-sly-slider .slides:after{ content: " "; display: block; clear: both; visibility: hidden; line-height: 0; height: 0; }
 
-.gdlr-core-sly-scroll{ background: #eeeeee; }
+.gdlr-core-sly-scroll{ background: #F8F9FA; }
 .gdlr-core-sly-scroll .gdlr-core-sly-scroll-handle{ background: #717171; }
 
 .gdlr-core-sly-scroll{ height: 8px; margin-top: 30px; }

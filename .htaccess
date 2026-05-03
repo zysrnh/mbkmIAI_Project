@@ -79,3 +79,8 @@ RewriteRule ^forum.html$ ./index.php?pilih=forum&modul=yes [QSA,L]
   AddHandler application/x-httpd-ea-php56___lsphp .php .php5 .phtml
 </IfModule>
 # php -- END cPanel-generated handler, do not edit
+
+php_value upload_max_filesize 512M
+php_value post_max_size 512M
+php_value max_execution_time 300
+php_value max_input_time 300

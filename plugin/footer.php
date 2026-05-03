@@ -4,8 +4,8 @@
    FOOTER - MODERN CLASSIC AESTHETIC
    ============================================================ */
 .classic-footer {
-    background-color: #545837;
-    color: #DDE5CD;
+    background-color: #1B4332;
+    color: #F8F9FA;
     font-family: 'Inter', sans-serif;
     padding: 60px 20px 20px;
 }
@@ -31,7 +31,7 @@
     position: absolute;
     bottom: 0; left: 0;
     width: 40px; height: 2px;
-    background-color: #9EBB97;
+    background-color: #2D6A4F;
 }
 .footer-col p {
     font-size: 14px;
@@ -54,7 +54,7 @@
     display: inline-block;
 }
 .footer-links a:hover {
-    color: #9EBB97;
+    color: #2D6A4F;
     transform: translateX(4px);
 }
 .footer-socials {
@@ -65,12 +65,12 @@
     background-color: rgba(221,229,205,0.1);
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    color: #DDE5CD;
+    color: #F8F9FA;
     transition: all 0.3s ease;
     text-decoration: none;
 }
 .social-icon-modern:hover {
-    background-color: #618D4F;
+    background-color: #2D6A4F;
     color: #fff;
 }
 .footer-bottom {
@@ -186,9 +186,9 @@
         <!-- Kolom Contact Info -->
         <div class="footer-col" style="min-width: 280px;">
             <h4>Contact Info</h4>
-            <p><svg viewBox="0 0 24 24" width="16" height="16" fill="#9EBB97" style="vertical-align: middle; margin-right: 8px;"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg> <?= !empty($data['alamat']) ? htmlspecialchars($data['alamat']) : 'Jl. Ciganitri Mukti Raya, Bandung' ?></p>
-            <p><svg viewBox="0 0 24 24" width="16" height="16" fill="#9EBB97" style="vertical-align: middle; margin-right: 8px;"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg> <?= !empty($data['telp']) ? htmlspecialchars($data['telp']) : '+62 812-3456-7890' ?></p>
-            <p><svg viewBox="0 0 24 24" width="16" height="16" fill="#9EBB97" style="vertical-align: middle; margin-right: 8px;"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg> <?= !empty($data['email']) ? htmlspecialchars($data['email']) : 'info@iaipibandung.ac.id' ?></p>
+            <p><svg viewBox="0 0 24 24" width="16" height="16" fill="#2D6A4F" style="vertical-align: middle; margin-right: 8px;"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg> <?= !empty($data['alamat']) ? htmlspecialchars($data['alamat']) : 'Jl. Ciganitri Mukti Raya, Bandung' ?></p>
+            <p><svg viewBox="0 0 24 24" width="16" height="16" fill="#2D6A4F" style="vertical-align: middle; margin-right: 8px;"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg> <?= !empty($data['telp']) ? htmlspecialchars($data['telp']) : '+62 812-3456-7890' ?></p>
+            <p><svg viewBox="0 0 24 24" width="16" height="16" fill="#2D6A4F" style="vertical-align: middle; margin-right: 8px;"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg> <?= !empty($data['email']) ? htmlspecialchars($data['email']) : 'info@iaipibandung.ac.id' ?></p>
         </div>
     </div>
     

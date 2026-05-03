@@ -576,7 +576,7 @@ section {
 }
 .keo_navigation ul ul li a {
 	color: #ffffff;
-	border-bottom: 1px solid #333333;
+	border-bottom: 1px solid #212529;
 	display: block;
 	position: relative;
 	padding: 16px 28px;
@@ -1247,7 +1247,7 @@ ul.keo_rating_star li a {
 .keo_choose_des h6>a {
 	display: block;
 	text-transform: capitalize;
-	color: #333333;
+	color: #212529;
 	margin: 0px 0px 10px;
 	font-weight: 600;
 }
@@ -1794,7 +1794,7 @@ ul.keo_event_meta li>a {
 */
 
 .keo_breadcrumb_bg {
-	background-color: #eeeeee;
+	background-color: #F8F9FA;
 	border-bottom: 1px solid rgba(207, 207, 207, 0.5);
 }
 .keo_breadcrumb_wrap {
@@ -2083,7 +2083,7 @@ input[aria-invalid="true"] {
 	color: #666666;
 	line-height: 75px;
 	text-align: center;
-	background-color: #eeeeee;
+	background-color: #F8F9FA;
 	/*border: 1px solid #bababa;*/
 	font-size: 35px;
 	float: left;
@@ -2253,12 +2253,12 @@ ul.keo_aboutus_list li:before {
 	float: left;
 	width: 100%;
 	position: relative;
-	border: 1px solid #eeeeee;
+	border: 1px solid #F8F9FA;
 	padding: 15px 40px 15px 18px;
 	cursor: pointer;
 }
 .accord_hdg .accordion-open{
-	border-bottom: 1px solid #eeeeee;
+	border-bottom: 1px solid #F8F9FA;
 }
 .accord_hdg span {
 	position: absolute;
@@ -2425,7 +2425,7 @@ ul.keo_aboutus_list li:before {
 .keo_search_type ul li a {
 	display: block;
 	border: 1px solid rgba(51, 51, 51, 0.2);
-	color: #333333;
+	color: #212529;
 	height: 42px;
 	padding: 0px 15px;
 	line-height: 42px;
@@ -2468,7 +2468,7 @@ ul.keo_aboutus_list li:before {
 	color: #ffffff;
 }
 .keo_search_format ul li:hover a, .keo_search_format ul li:hover a i {
-	color: #333333;
+	color: #212529;
 }
 /*
 	  ==============================================================
@@ -3270,7 +3270,7 @@ ul.keo_scl_icon.on_share {
 .keo_comment_des h6>a {
 	display: inline-block;
 	font-size: 15px;
-	color: #333333;
+	color: #212529;
 	font-weight: 600;
 }
 .keo_comment_des>a {
@@ -3608,7 +3608,7 @@ ul.countdown li {
 	padding: 10px 5px;
 	width: 100%;
 	position: relative;
-	background-color: #eeeeee;
+	background-color: #F8F9FA;
 	font-size: 13px;
 	border-radius: 5px;
 	margin: 0px 0px 5px;
@@ -3857,7 +3857,7 @@ ul.countdown li p {
 	line-height: 32px;
 }
 .keo_404_02_wrap .keo_comming_soon_field input[type="text"] {
-	background-color: #eeeeee;
+	background-color: #F8F9FA;
 	/*border: 1px solid rgba(164, 164, 164, 0.30)*/
 	box-shadow: 0 1px 6px 0px rgba(0,0,0,0.05), 0 1px 6px 1px rgba(0,0,0,0.05), 0 0px 6px 0px rgba(0,0,0,0.05);
 	-webkit-box-shadow: 0 1px 6px 0px rgba(0,0,0,0.05), 0 1px 6px 1px rgba(0,0,0,0.05), 0 0px 6px 0px rgba(0,0,0,0.05);
@@ -4149,7 +4149,7 @@ ul.countdown li p {
 	padding-top: 14px;
 }
 .keo_hdr2_wrap .keo_top2_wrap {
-	background-color: #333333;
+	background-color: #212529;
 }
 .keo_top2_wrap .keo_top_element ul li {
 	padding-top: 0px;
@@ -4307,7 +4307,7 @@ ul.countdown li p {
 	border-right: 1px solid rgba(219, 219, 219, 0.5);
 }
 .keo_hdr2_wrap .keo_search_wrap>span {
-	background-color: #333333;
+	background-color: #212529;
 	width: 41px;
 	height: 41px;
 	line-height: 41px;
@@ -4350,7 +4350,7 @@ ul.countdown li p {
 	font-weight: 600;
 	text-transform: capitalize;
 	text-align: center;
-	background-color: #333333;
+	background-color: #212529;
 	height: 50px;
 	border: 0px;
 	font-size: 16px;
@@ -4742,7 +4742,7 @@ ul.keo_facts2_wrap li span {
 /*Hover*/
 
 .keo_see_more_btn>a:hover {
-	background-color: #333333;
+	background-color: #212529;
 }
 /*
 	  ==============================================================
@@ -4968,7 +4968,7 @@ ul.keo_facts2_wrap li span {
 
 .keo_latest_news_wrap {
 	border: 1px solid rgba(212, 212, 212, 0.5);
-	box-shadow: 0px 3px 0px 0px #eeeeee;
+	box-shadow: 0px 3px 0px 0px #F8F9FA;
 	border-radius: 5px;
 }
 .keo_latest_news_wrap figure img {
@@ -5056,7 +5056,7 @@ ul.keo_blog_meta li>a {
 .keo_news_des_wrap>span {
 	width: 40px;
 	height: 40px;
-	background-color: #eeeeee;
+	background-color: #F8F9FA;
 	color: #ffffff;
 	font-size: 18px;
 	font-weight: 600;
@@ -5553,7 +5553,7 @@ ul.keo_blog_meta li>a {
 	width: 100%;
 	position: relative;
 	border: 1px solid #d4d4d4;
-	background-color: #e9e9e9;
+	background-color: #F8F9FA;
 	overflow: hidden;
 	margin: 0px 0px 30px;
 	box-shadow: 0 1px 6px 0px rgba(0,0,0,0.05), 0 1px 6px 1px rgba(0,0,0,0.05), 0 0px 6px 0px rgba(0,0,0,0.05);
@@ -5561,7 +5561,7 @@ ul.keo_blog_meta li>a {
 }
 .keo_product_outer_wrap figure{
 	text-align: center;
-	background-color: #e9e9e9;
+	background-color: #F8F9FA;
 }
 .keo_product_outer_wrap figure img {
 	width: auto;
@@ -6376,7 +6376,7 @@ ul.keo_rating_start li a {
 }
 .keo_vir_nav ul ul li a {
 	color: #ffffff;
-	border-bottom: 1px solid #333333;
+	border-bottom: 1px solid #212529;
 	display: block;
 	position: relative;
 	padding: 16px 28px;
@@ -7109,7 +7109,7 @@ ul.keo_rating_start li a {
 }
 /*============ Media 767Px Start ============ */
 @media (max-width: 990px) {
-	.keo_menu_bg .keo_logo:before{content: "";position: absolute;bottom: 0px;left: -9999px;right: -9999px;border-bottom: 1px solid #333333;}
+	.keo_menu_bg .keo_logo:before{content: "";position: absolute;bottom: 0px;left: -9999px;right: -9999px;border-bottom: 1px solid #212529;}
 	.keo_mobile_menu{display: block;}
 	.keo_navigation{padding: 12px 0;right: 30px;}
 	.keo_navigation>ul{display: none;position: absolute;top: 100%;right: 0px;width: 300px;background-color: #16171C;}

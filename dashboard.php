@@ -1517,8 +1517,8 @@ elseif ($page === 'flipbook' && $db_ready):
                 <tbody>
                 <?php foreach ($rows as $i => $r):
                     $thumb = !empty($r['cover'])
-                        ? '<img src="/images/flipbook/'.htmlspecialchars($r['cover']).'" style="width:100px;height:141px;object-fit:cover;border-radius:2px;box-shadow:0 4px 10px rgba(0,0,0,.15);border:1px solid #eee;" alt="cover">'
-                        : '<div style="width:100px;height:141px;background:#f0f0f0;border-radius:2px;display:flex;align-items:center;justify-content:center;border:1px solid #eee;color:#ccc;font-size:11px;">No Cover</div>';
+                        ? '<img src="/images/flipbook/'.htmlspecialchars($r['cover']).'" style="width:100px;height:141px;object-fit:cover;border-radius:2px;box-shadow:0 4px 10px rgba(0,0,0,.15);border:1px solid #F8F9FA;" alt="cover">'
+                        : '<div style="width:100px;height:141px;background:#f0f0f0;border-radius:2px;display:flex;align-items:center;justify-content:center;border:1px solid #F8F9FA;color:#ccc;font-size:11px;">No Cover</div>';
                     $stat = $r['status'] == 1
                         ? '<span class="badge badge-aktif">Aktif</span>'
                         : '<span class="badge badge-nonaktif">Non</span>';
@@ -2226,7 +2226,7 @@ elseif ($page === 'sambutan' && $db_ready):
                     </div>
                     <?php if ($current_video): ?>
                     <div style="flex-shrink:0;width:160px">
-                        <img src="https://img.youtube.com/vi/<?php echo htmlspecialchars($current_video); ?>/mqdefault.jpg" style="width:100%;border-radius:8px;border:1px solid #eee;" alt="video thumbnail">
+                        <img src="https://img.youtube.com/vi/<?php echo htmlspecialchars($current_video); ?>/mqdefault.jpg" style="width:100%;border-radius:8px;border:1px solid #F8F9FA;" alt="video thumbnail">
                     </div>
                     <?php endif; ?>
                 </div>
@@ -2329,7 +2329,7 @@ elseif ($page === 'sambutan' && $db_ready):
                             $res = $koneksi_db->sql_query("SELECT * FROM mod_program ORDER BY id DESC");
                             if ($koneksi_db->sql_numrows($res) > 0) {
                                 while($row = $koneksi_db->sql_fetchrow($res)) {
-                                    $thumb = !empty($row['gambar']) ? '<img src="images/pages/'.$row['gambar'].'" style="width:60px;height:40px;object-fit:cover;border-radius:6px;box-shadow:0 2px 4px rgba(0,0,0,0.1)">' : '<div style="width:60px;height:40px;background:#eee;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#aaa">No Pic</div>';
+                                    $thumb = !empty($row['gambar']) ? '<img src="images/pages/'.$row['gambar'].'" style="width:60px;height:40px;object-fit:cover;border-radius:6px;box-shadow:0 2px 4px rgba(0,0,0,0.1)">' : '<div style="width:60px;height:40px;background:#F8F9FA;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#aaa">No Pic</div>';
                                     echo '<tr>
                                         <td>'.$n++.'</td>
                                         <td>'.$thumb.'</td>
