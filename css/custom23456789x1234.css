@@ -6525,4 +6525,4 @@ body.page-flipbook .blog-right,
 }
 .blog-wrapper:has(.fb-hero) { padding: 0 !important; }
 .blog-wrapper:has(.fb-hero) > .container { max-width: 100% !important; padding: 0 !important; }
-.blog-wrapper:has(.fb-hero) > .container > .row { margin: 0 !important; }
+.blog-wrapper:has(.fb-hero) > .container > .row { margin: 0 !important; }

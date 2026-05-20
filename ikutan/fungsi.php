@@ -1656,7 +1656,7 @@ else {
 function cms_login (){
 global $UserName,$Expire,$koneksi_db;
 
-$user          = $_POST['username'];
+$user          = $koneksi_db->sql_escape($_POST['username']);
 $password      = md5($_POST['password']);
 $query         = $koneksi_db->sql_query ("SELECT user,password,level,email FROM pengguna WHERE user='$user' AND password='$password' AND tipe='aktif' AND level='User' OR  user='$user' AND password='$password' AND tipe='aktif' AND level='Editor' ");
 $total         = $koneksi_db->sql_numrows($query);
@@ -1685,9 +1685,9 @@ return '<div class="error" style="width:96%">Username atau Password Salah</div>'
 function cms_loginadmin (){
 global $UserName,$Expire,$koneksi_db;
 
-$user          = $_POST['username'];
+$user          = $koneksi_db->sql_escape($_POST['username']);
 $password      = md5($_POST['password']);
-$query         = $koneksi_db->sql_query ("SELECT user,password,level,email FROM pengguna WHERE user='$user' AND password='$password' AND tipe='aktif' AND level='Administrator'");
+$query         = $koneksi_db->sql_query ("SELECT user,password,level,email FROM pengguna WHERE user='$user' AND password='$password' AND tipe='aktif'");
 $total         = $koneksi_db->sql_numrows($query);
 $data          = $koneksi_db->sql_fetchrow ($query);
 
@@ -2193,12 +2193,12 @@ function utf2html (&$str) {
     $max = strlen($str);
     $last = 0;  // keeps the index of the last regular character
     for ($i=0; $i<$max; $i++) {
-        $c = $str{$i};
+        $c = $str[$i];
         $c1 = ord($c);
         if ($c1>>5 == 6) {  // 110x xxxx, 110 prefix for 2 bytes unicode
             $ret .= substr($str, $last, $i-$last); // append all the regular characters we've passed
             $c1 &= 31; // remove the 3 bit two bytes prefix
-            $c2 = ord($str{++$i}); // the next byte
+            $c2 = ord($str[++$i]); // the next byte
             $c2 &= 63;  // remove the 2 bit trailing byte prefix
             $c2 |= (($c1 & 3) << 6); // last 2 bits of c1 become first 2 of c2
             $c1 >>= 2; // c1 shifts 2 to the right
@@ -2207,8 +2207,8 @@ function utf2html (&$str) {
         }
         elseif ($c1>>4 == 14) {  // 1110 xxxx, 110 prefix for 3 bytes unicode
             $ret .= substr($str, $last, $i-$last); // append all the regular characters we've passed
-            $c2 = ord($str{++$i}); // the next byte
-            $c3 = ord($str{++$i}); // the third byte
+            $c2 = ord($str[++$i]); // the next byte
+            $c3 = ord($str[++$i]); // the third byte
             $c1 &= 15; // remove the 4 bit three bytes prefix
             $c2 &= 63;  // remove the 2 bit trailing byte prefix
             $c3 &= 63;  // remove the 2 bit trailing byte prefix

@@ -13,4 +13,4 @@ if (!defined('cms-KONTEN')) {
 // Landing page konten ditampilkan langsung oleh template engine
 // (header, kiri, tengah, kanan, footer sudah di-handle index.php)
 // Tidak perlu output apapun di sini — konten utama sudah diurus oleh plugin/header.php dll.
-?>
+?>

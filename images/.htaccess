@@ -1,0 +1,15 @@
+# Disable PHP execution in the images upload directory
+<FilesMatch "\.(php|php3|php4|php5|php7|php8|phtml|pl|py|cgi|asp|aspx|sh|exe)$">
+    Order Deny,Allow
+    Deny from all
+</FilesMatch>
+
+<IfModule mod_php5.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>

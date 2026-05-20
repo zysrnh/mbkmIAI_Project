@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Mahasiswa - MBKM IAI PI Bandung</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { margin:0; padding:0; background:#f4f7f6; font-family:'Open Sans', sans-serif; display:flex; align-items:center; justify-content:center; height:100vh; }
+        .login-box { background:#fff; width:360px; border-radius:4px; box-shadow:0 1px 3px rgba(0,0,0,0.1); border-top:4px solid #306238; padding:30px; }
+        .login-logo { text-align:center; margin-bottom:20px; }
+        .login-logo img { width:80px; margin-bottom:10px; }
+        .login-logo h3 { margin:0; color:#333; font-size:18px; text-transform:uppercase; letter-spacing:1px; }
+        .form-group { margin-bottom:15px; }
+        .form-group label { display:block; font-size:12px; font-weight:700; color:#666; margin-bottom:5px; text-transform:uppercase; }
+        .form-control { width:100%; padding:10px; border:1px solid #ddd; border-radius:3px; box-sizing:border-box; outline:none; font-size:14px; }
+        .form-control:focus { border-color:#306238; }
+        .btn-login { width:100%; background:#306238; color:#fff; border:none; padding:12px; border-radius:3px; font-weight:700; cursor:pointer; font-size:14px; transition:0.3s; }
+        .btn-login:hover { background:#254a2a; }
+        .login-footer { margin-top:20px; text-align:center; font-size:12px; color:#888; border-top:1px solid #eee; padding-top:15px; }
+        .login-footer a { color:#306238; text-decoration:none; font-weight:700; }
+        .msg-info { background:#e8f5e9; color:#2e7d32; padding:10px; border-radius:3px; font-size:12px; margin-bottom:15px; text-align:center; border:1px solid #c8e6c9; }
+    </style>
+</head>
+<body>
+
+<div class="login-box">
+    <div class="login-logo">
+        <img src="images/logo.png" alt="Logo" onerror="this.style.display='none'">
+        <h3>PORTAL MAHASISWA</h3>
+    </div>
+
+    <div class="msg-info">Silakan login untuk upload laporan MBKM</div>
+
+    <form action="admin-login.php" method="POST">
+        <input type="hidden" name="loguser" value="1">
+        <input type="hidden" name="portal" value="user">
+        
+        <div class="form-group">
+            <label>Username</label>
+            <input type="text" name="username" class="form-control" placeholder="Username Anda" required autofocus>
+        </div>
+
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" name="password" class="form-control" placeholder="******" required>
+        </div>
+
+        <button type="submit" name="submit_login" class="btn-login">LOGIN SEKARANG</button>
+    </form>
+
+    <div class="login-footer">
+        Belum punya akun? <a href="register.html">Daftar Di Sini</a><br><br>
+        <a href="index.php">&larr; Beranda Website</a>
+    </div>
+</div>
+
+</body>
+</html>

@@ -600,12 +600,12 @@ foreach ($all_books as $bk) {
 <section class="fb-shelf-section">
     <div class="container">
         <div class="row">
-            <div class="col-md-8">
-                <!-- Search Box Premium -->
-                <div class="fb-search-bar" style="max-width: 100%; margin-bottom: 50px; background: #fff; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #eef2ed; padding: 5px;">
-                    <input type="text" id="fbSearchInput" placeholder="Cari judul buku atau pedoman..." oninput="fbSearch()" style="padding: 15px 25px; font-size: 15px;">
-                    <button type="button" onclick="fbSearch()" style="border-radius: 12px; padding: 0 25px;">
-                        <svg viewBox="0 0 24 24" style="width: 20px; height: 20px;"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            <div class="col-md-9">
+
+                <div class="fb-search-bar">
+                    <input type="text" id="fbSearchInput" placeholder="Cari buku pedoman..." oninput="fbSearch()">
+                    <button type="button" onclick="fbSearch()">
+                        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
                     </button>
                 </div>
 
@@ -617,12 +617,18 @@ foreach ($all_books as $bk) {
                     </div>
                     <h3>Belum Ada Buku</h3>
                     <p>Koleksi e-book pedoman MBKM belum tersedia saat ini.</p>
+                    <?php if ($is_admin): ?>
+                    <a href="admin.php?pilih=flipbook&modul=yes&aksi=tambah" class="fb-back-btn">
+                        <svg viewBox="0 0 24 24" style="width:17px;height:17px;fill:#fff"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                        Upload Buku Pertama
+                    </a>
+                    <?php endif; ?>
                 </div>
 
                 <?php else: ?>
 
                 <?php
-                $per_row = 5; // Disesuaikan buat kolom 8 biar gak sempit
+                $per_row = 7;
 
                 /* ── Buku dengan kategori ── */
                 if (!empty($all_cats)):
@@ -634,26 +640,26 @@ foreach ($all_books as $bk) {
                         $chunks = array_chunk($cat_books, $per_row);
                         foreach ($chunks as $ci => $row_books):
                 ?>
-                <div class="fb-shelf-row" data-cat="<?= htmlspecialchars($cat) ?>" style="margin-bottom: 60px;">
+                <div class="fb-shelf-row" data-cat="<?= htmlspecialchars($cat) ?>">
                     <?php if ($ci === 0): ?>
-                        <span class="fb-shelf-label" style="background: #1e4d27; top: -18px; padding: 6px 16px; font-size: 11px;"><?= htmlspecialchars($cat) ?></span>
+                        <span class="fb-shelf-label"><?= htmlspecialchars($cat) ?></span>
                     <?php endif; ?>
                     <?php foreach ($row_books as $bk):
                         $cs = !empty($bk['cover']) ? 'images/flipbook/' . htmlspecialchars($bk['cover']) : '';
                         $jd = htmlspecialchars($bk['judul']);
                         $pf = htmlspecialchars($bk['file_pdf']);
                     ?>
-                    <div class="fb-book" onclick="openFlipbook('<?= $pf ?>','<?= addslashes($jd) ?>')" data-cat="<?= htmlspecialchars($cat) ?>" style="width: 120px;">
-                        <div class="fb-book-cover" style="width: 120px; height: 170px;">
+                    <div class="fb-book" onclick="openFlipbook('<?= $pf ?>','<?= addslashes($jd) ?>')" data-cat="<?= htmlspecialchars($cat) ?>">
+                        <div class="fb-book-cover">
                             <div class="fb-book-spine"></div>
                             <?php if ($cs): ?>
                                 <img src="<?= $cs ?>" alt="<?= $jd ?>">
                             <?php else: ?>
-                                <div class="fb-book-no-cover" style="padding: 15px; font-size: 10px;"><?= $jd ?></div>
+                                <div class="fb-book-no-cover"><?= $jd ?></div>
                             <?php endif; ?>
-                            <div class="fb-book-overlay" style="background: rgba(30,77,39,0.8);"><span>&#128214; BUKA</span></div>
+                            <div class="fb-book-overlay"><span>&#128214; Buka</span></div>
                         </div>
-                        <div class="fb-book-title" style="font-size: 11px; margin-top: 12px;"><?= $jd ?></div>
+                        <div class="fb-book-title"><?= $jd ?></div>
                     </div>
                     <?php endforeach; ?>
                 </div>
@@ -669,24 +675,24 @@ foreach ($all_books as $bk) {
                         $chunks_nc = array_chunk($no_cat, $per_row);
                         foreach ($chunks_nc as $row_books):
                 ?>
-                <div class="fb-shelf-row" data-cat="all" style="margin-bottom: 60px;">
-                    <span class="fb-shelf-label" style="background: #3e6347; top: -18px; padding: 6px 16px; font-size: 11px;">Lainnya</span>
+                <div class="fb-shelf-row" data-cat="all">
+                    <span class="fb-shelf-label">Lainnya</span>
                     <?php foreach ($row_books as $bk):
                         $cs = !empty($bk['cover']) ? 'images/flipbook/' . htmlspecialchars($bk['cover']) : '';
                         $jd = htmlspecialchars($bk['judul']);
                         $pf = htmlspecialchars($bk['file_pdf']);
                     ?>
-                    <div class="fb-book" onclick="openFlipbook('<?= $pf ?>','<?= addslashes($jd) ?>')" data-cat="" style="width: 120px;">
-                        <div class="fb-book-cover" style="width: 120px; height: 170px;">
+                    <div class="fb-book" onclick="openFlipbook('<?= $pf ?>','<?= addslashes($jd) ?>')" data-cat="">
+                        <div class="fb-book-cover">
                             <div class="fb-book-spine"></div>
                             <?php if ($cs): ?>
                                 <img src="<?= $cs ?>" alt="<?= $jd ?>">
                             <?php else: ?>
-                                <div class="fb-book-no-cover" style="padding: 15px; font-size: 10px;"><?= $jd ?></div>
+                                <div class="fb-book-no-cover"><?= $jd ?></div>
                             <?php endif; ?>
-                            <div class="fb-book-overlay" style="background: rgba(30,77,39,0.8);"><span>&#128214; BUKA</span></div>
+                            <div class="fb-book-overlay"><span>&#128214; Buka</span></div>
                         </div>
-                        <div class="fb-book-title" style="font-size: 11px; margin-top: 12px;"><?= $jd ?></div>
+                        <div class="fb-book-title"><?= $jd ?></div>
                     </div>
                     <?php endforeach; ?>
                 </div>
@@ -699,23 +705,23 @@ foreach ($all_books as $bk) {
                     $chunks_all = array_chunk($all_books, $per_row);
                     foreach ($chunks_all as $row_books):
                 ?>
-                <div class="fb-shelf-row" style="margin-bottom: 60px;">
+                <div class="fb-shelf-row">
                     <?php foreach ($row_books as $bk):
                         $cs = !empty($bk['cover']) ? 'images/flipbook/' . htmlspecialchars($bk['cover']) : '';
                         $jd = htmlspecialchars($bk['judul']);
                         $pf = htmlspecialchars($bk['file_pdf']);
                     ?>
-                    <div class="fb-book" onclick="openFlipbook('<?= $pf ?>','<?= addslashes($jd) ?>')" style="width: 120px;">
-                        <div class="fb-book-cover" style="width: 120px; height: 170px;">
+                    <div class="fb-book" onclick="openFlipbook('<?= $pf ?>','<?= addslashes($jd) ?>')">
+                        <div class="fb-book-cover">
                             <div class="fb-book-spine"></div>
                             <?php if ($cs): ?>
                                 <img src="<?= $cs ?>" alt="<?= $jd ?>">
                             <?php else: ?>
-                                <div class="fb-book-no-cover" style="padding: 15px; font-size: 10px;"><?= $jd ?></div>
+                                <div class="fb-book-no-cover"><?= $jd ?></div>
                             <?php endif; ?>
-                            <div class="fb-book-overlay" style="background: rgba(30,77,39,0.8);"><span>&#128214; BUKA</span></div>
+                            <div class="fb-book-overlay"><span>&#128214; Buka</span></div>
                         </div>
-                        <div class="fb-book-title" style="font-size: 11px; margin-top: 12px;"><?= $jd ?></div>
+                        <div class="fb-book-title"><?= $jd ?></div>
                     </div>
                     <?php endforeach; ?>
                 </div>
@@ -726,19 +732,10 @@ foreach ($all_books as $bk) {
 
                 <?php endif; /* empty($all_books) */ ?>
 
-            </div><!-- end col-md-8 -->
+            </div><!-- end col-md-9 -->
 
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="modern-sidebar" style="margin-top:0 !important; text-align:left;">
-                    <?php if ($is_admin): ?>
-                    <div class="sidebar-section" style="background: #fff; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #f0f0f0; margin-bottom: 30px; text-align: center;">
-                        <h4 style="margin-bottom: 15px; font-size: 16px;">Panel Admin</h4>
-                        <a href="admin.php?pilih=flipbook&modul=yes" class="btn btn-success" style="width: 100%; border-radius: 30px; padding: 10px; font-weight: 700; background: #1e4d27; border: none;">
-                            <i class="fa fa-cog"></i> Kelola Koleksi Buku
-                        </a>
-                    </div>
-                    <?php endif; ?>
-                    
                     <?php
                     ob_start();
                     include "plugin/berita.php";
@@ -747,11 +744,7 @@ foreach ($all_books as $bk) {
                     echo ob_get_clean();
                     ?>
                 </div>
-            </div><!-- end col-md-4 -->
-
-        </div><!-- end row -->
-    </div>
-</section>
+            </div><!-- end col-md-3 -->
 
         </div><!-- end row -->
     </div>

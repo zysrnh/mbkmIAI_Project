@@ -636,15 +636,7 @@ if ($page === 'galeri' && $db_ready) {
             $galeri_error = 'Nama foto wajib diisi.';
         } else {
             $foto_name = 'na.jpg';
-            if (!empty($_POST['galeri_base64'])) {
-                $b64 = $_POST['galeri_base64'];
-                if (preg_match('/^data:image\/(\w+);base64,/', $b64, $type)) {
-                    $b64 = substr($b64, strpos($b64, ',') + 1);
-                    $ext = strtolower($type[1]);
-                    $foto_name = 'galeri_'.time().'.'.$ext;
-                    file_put_contents('images/foto/'.$foto_name, base64_decode($b64));
-                }
-            } elseif (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
+            if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
                 $ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
                 if (in_array($ext, array('jpg','jpeg','png','webp'))) {
                     $foto_name = 'galeri_'.time().'.'.$ext;
@@ -668,15 +660,7 @@ if ($page === 'galeri' && $db_ready) {
         if (!$row) { $galeri_error = "Unauthorized access."; $galeri_action = ''; }
         else {
             $foto_name = $row['foto'];
-        if (!empty($_POST['galeri_base64'])) {
-            $b64 = $_POST['galeri_base64'];
-            if (preg_match('/^data:image\/(\w+);base64,/', $b64, $type)) {
-                $b64 = substr($b64, strpos($b64, ',') + 1);
-                $ext = strtolower($type[1]);
-                $foto_name = 'galeri_'.time().'.'.$ext;
-                file_put_contents('images/foto/'.$foto_name, base64_decode($b64));
-            }
-        } elseif (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
+        if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
             $ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
             if (in_array($ext, array('jpg','jpeg','png','webp'))) {
                 $foto_name = 'galeri_'.time().'.'.$ext;
@@ -815,15 +799,7 @@ if ($page === 'berita' && $db_ready) {
             $berita_error = 'Judul wajib diisi.';
         } else {
             $foto_name = '';
-            if (!empty($_POST['gambar_base64'])) {
-                $b64 = $_POST['gambar_base64'];
-                if (preg_match('/^data:image\/(\w+);base64,/', $b64, $type)) {
-                    $b64 = substr($b64, strpos($b64, ',') + 1);
-                    $ext = strtolower($type[1]); 
-                    $foto_name = 'berita_'.time().'.'.$ext;
-                    file_put_contents('images/artikel/'.$foto_name, base64_decode($b64));
-                }
-            } elseif (isset($_FILES['gambar']) && $_FILES['gambar']['error'] === 0) {
+            if (isset($_FILES['gambar']) && $_FILES['gambar']['error'] === 0) {
                 $ext = strtolower(pathinfo($_FILES['gambar']['name'], PATHINFO_EXTENSION));
                 if (in_array($ext, array('jpg','jpeg','png','webp'))) {
                     $foto_name = 'berita_'.time().'.'.$ext;
@@ -848,15 +824,7 @@ if ($page === 'berita' && $db_ready) {
         if (!$row) { $berita_error = "Unauthorized access."; $berita_action = ''; }
         else {
             $foto_name = $row['gambar'];
-        if (!empty($_POST['gambar_base64'])) {
-            $b64 = $_POST['gambar_base64'];
-            if (preg_match('/^data:image\/(\w+);base64,/', $b64, $type)) {
-                $b64 = substr($b64, strpos($b64, ',') + 1);
-                $ext = strtolower($type[1]);
-                $foto_name = 'berita_'.time().'.'.$ext;
-                file_put_contents('images/artikel/'.$foto_name, base64_decode($b64));
-            }
-        } elseif (isset($_FILES['gambar']) && $_FILES['gambar']['error'] === 0) {
+        if (isset($_FILES['gambar']) && $_FILES['gambar']['error'] === 0) {
             $ext = strtolower(pathinfo($_FILES['gambar']['name'], PATHINFO_EXTENSION));
             if (in_array($ext, array('jpg','jpeg','png','webp'))) {
                 $foto_name = 'berita_'.time().'.'.$ext;
@@ -2179,38 +2147,17 @@ elseif ($page === 'galeri' && $db_ready):
             $ed  = $koneksi_db->sql_fetchrow($res);
         }
     ?>
-    <!-- Crop Modal Galeri -->
-    <div class="crop-modal" id="galeriCropModal">
-        <div class="crop-box">
-            <h5>Potong Foto Galeri (4:3)</h5>
-            <img id="galeriCropImgEl" src="" alt="crop">
-            <div class="crop-actions">
-                <button type="button" class="crop-ok" onclick="applyGaleriCrop()">Potong & Gunakan</button>
-                <button type="button" class="crop-cancel" onclick="cancelGaleriCrop()">Batal</button>
-            </div>
-        </div>
-    </div>
     <div class="panel">
         <div class="panel-body-padded">
         <form method="POST" action="" enctype="multipart/form-data">
             <div class="form-group"><label>Nama / Judul Foto</label><input type="text" name="nama" class="form-control" value="<?php echo htmlspecialchars($ed['nama']); ?>" required></div>
             <div class="form-group"><label>Keterangan</label><textarea name="ket" class="form-control" rows="4"><?php echo htmlspecialchars($ed['ket']); ?></textarea></div>
             <div class="form-group">
-                <label>Foto (4:3 Recommended)</label>
-                <input type="hidden" name="galeri_base64" id="galeri_gambar_base64">
-                <div class="cover-drop" id="galeriCoverWrap">
-                    <?php if ($galeri_action === 'edit' && !empty($ed['foto'])): ?>
-                        <img src="images/foto/<?php echo $ed['foto']; ?>" id="galeriPreviewImg" class="cover-preview" alt="foto">
-                        <div id="galeriPreviewLabel" style="margin-top:8px;font-size:11px;color:var(--text-muted)">Klik tombol di bawah untuk mengganti</div>
-                    <?php else: ?>
-                        <img id="galeriPreviewImg" class="cover-preview" style="display:none" alt="foto preview">
-                        <div id="galeriPreviewLabel" class="cover-drop-label">Belum ada foto dipilih</div>
-                    <?php endif; ?>
-                    <button type="button" class="btn btn-outline" style="margin-top:10px" onclick="document.getElementById('galeriRawInput').click()">
-                        <svg viewBox="0 0 24 24" width="14" style="margin-right:4px"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg> Pilih Foto
-                    </button>
-                    <input type="file" id="galeriRawInput" accept="image/*" style="display:none" onchange="initGaleriCrop(this)">
-                </div>
+                <label>Upload Foto (JPG/PNG/WebP)</label>
+                <input type="file" name="image" accept="image/*" class="form-control">
+                <?php if ($galeri_action === 'edit' && !empty($ed['foto'])): ?>
+                <div style="margin-top:10px"><img src="images/foto/<?php echo $ed['foto']; ?>" style="max-width:160px;border-radius:8px;" alt="foto"></div>
+                <?php endif; ?>
             </div>
             <div class="form-actions">
                 <button type="submit" name="submit" class="btn btn-primary">Simpan Foto</button>
@@ -2387,17 +2334,6 @@ elseif ($page === 'berita' && $db_ready):
             $ed  = $koneksi_db->sql_fetchrow($res);
         }
     ?>
-    <!-- Crop Modal Berita -->
-    <div class="crop-modal" id="beritaCropModal">
-        <div class="crop-box">
-            <h5>Potong Gambar Berita (2:1)</h5>
-            <img id="beritaCropImgEl" src="" alt="crop">
-            <div class="crop-actions">
-                <button type="button" class="crop-ok" onclick="applyBeritaCrop()">Potong & Gunakan</button>
-                <button type="button" class="crop-cancel" onclick="cancelBeritaCrop()">Batal</button>
-            </div>
-        </div>
-    </div>
     <div class="panel">
         <div class="panel-body-padded">
         <form method="POST" action="" enctype="multipart/form-data">
@@ -2406,21 +2342,11 @@ elseif ($page === 'berita' && $db_ready):
             <div class="form-grid">
                 <div class="form-group"><label>Tags / Kategori</label><input type="text" name="tags" class="form-control" value="<?php echo htmlspecialchars($ed['tags']); ?>" placeholder="MBKM, Pendidikan, dst"></div>
                 <div class="form-group">
-                    <label>Gambar Cover (2:1 Recommended)</label>
-                    <input type="hidden" name="gambar_base64" id="berita_gambar_base64">
-                    <div class="cover-drop" id="beritaCoverWrap">
-                        <?php if ($berita_action === 'edit' && !empty($ed['gambar'])): ?>
-                            <img src="images/artikel/<?php echo $ed['gambar']; ?>" id="beritaPreviewImg" class="cover-preview" alt="cover">
-                            <div id="beritaPreviewLabel" style="margin-top:8px;font-size:11px;color:var(--text-muted)">Klik tombol di bawah untuk mengganti</div>
-                        <?php else: ?>
-                            <img id="beritaPreviewImg" class="cover-preview" style="display:none" alt="cover preview">
-                            <div id="beritaPreviewLabel" class="cover-drop-label">Belum ada gambar dipilih</div>
-                        <?php endif; ?>
-                        <button type="button" class="btn btn-outline" style="margin-top:10px" onclick="document.getElementById('beritaRawInput').click()">
-                            <svg viewBox="0 0 24 24" width="14" style="margin-right:4px"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg> Pilih Gambar
-                        </button>
-                        <input type="file" id="beritaRawInput" accept="image/*" style="display:none" onchange="initBeritaCrop(this)">
-                    </div>
+                    <label>Gambar Cover</label>
+                    <input type="file" name="gambar" accept="image/*" class="form-control">
+                    <?php if ($berita_action === 'edit' && !empty($ed['gambar'])): ?>
+                    <div style="margin-top:10px"><img src="images/artikel/<?php echo $ed['gambar']; ?>" style="max-width:140px;border-radius:8px;" alt="cover"></div>
+                    <?php endif; ?>
                 </div>
             </div>
             <div class="form-actions">
@@ -3079,96 +3005,6 @@ if (_timForm) {
     _timForm.addEventListener('submit', function() {
         if (_timCropper) updateTimCropData();
     });
-}
-
-// ══════════════════════════════════════════════════════════════
-// BERITA CROPPER LOGIC (2:1)
-// ══════════════════════════════════════════════════════════════
-var _beritaCropper;
-var _beritaCropModal = document.getElementById('beritaCropModal');
-var _beritaCropImgEl = document.getElementById('beritaCropImgEl');
-var _beritaPreviewImg = document.getElementById('beritaPreviewImg');
-var _beritaBase64 = document.getElementById('berita_gambar_base64');
-var _beritaLabel = document.getElementById('beritaPreviewLabel');
-
-function initBeritaCrop(input) {
-    if (input.files && input.files[0]) {
-        var reader = new FileReader();
-        reader.onload = function(e) {
-            _beritaCropImgEl.src = e.target.result;
-            _beritaCropModal.classList.add('open');
-            if (_beritaCropper) _beritaCropper.destroy();
-            _beritaCropper = new Cropper(_beritaCropImgEl, {
-                aspectRatio: 2 / 1,
-                viewMode: 1,
-                dragMode: 'move',
-                autoCropArea: 0.9,
-                checkOrientation: true
-            });
-        };
-        reader.readAsDataURL(input.files[0]);
-    }
-}
-
-function applyBeritaCrop() {
-    if (!_beritaCropper) return;
-    var canvas = _beritaCropper.getCroppedCanvas({ width: 1200, height: 600 });
-    var b64 = canvas.toDataURL('image/jpeg', 0.9);
-    _beritaBase64.value = b64;
-    _beritaPreviewImg.src = b64;
-    _beritaPreviewImg.style.display = 'block';
-    _beritaLabel.innerHTML = '<b style="color:#2e7d32">Potongan siap diupload</b>';
-    _beritaCropModal.classList.remove('open');
-}
-
-function cancelBeritaCrop() {
-    _beritaCropModal.classList.remove('open');
-    document.getElementById('beritaRawInput').value = '';
-}
-
-// ══════════════════════════════════════════════════════════════
-// GALERI CROPPER LOGIC (4:3)
-// ══════════════════════════════════════════════════════════════
-var _galeriCropper;
-var _galeriCropModal = document.getElementById('galeriCropModal');
-var _galeriCropImgEl = document.getElementById('galeriCropImgEl');
-var _galeriPreviewImg = document.getElementById('galeriPreviewImg');
-var _galeriBase64 = document.getElementById('galeri_gambar_base64');
-var _galeriLabel = document.getElementById('galeriPreviewLabel');
-
-function initGaleriCrop(input) {
-    if (input.files && input.files[0]) {
-        var reader = new FileReader();
-        reader.onload = function(e) {
-            _galeriCropImgEl.src = e.target.result;
-            _galeriCropModal.classList.add('open');
-            if (_galeriCropper) _galeriCropper.destroy();
-            _galeriCropper = new Cropper(_galeriCropImgEl, {
-                aspectRatio: 4 / 3,
-                viewMode: 1,
-                dragMode: 'move',
-                autoCropArea: 0.9,
-                checkOrientation: true
-            });
-        };
-        reader.readAsDataURL(input.files[0]);
-    }
-}
-
-function applyGaleriCrop() {
-    if (!_galeriCropper) return;
-    var canvas = _galeriCropper.getCroppedCanvas({ width: 1024, height: 768 });
-    var b64 = canvas.toDataURL('image/jpeg', 0.9);
-    _galeriBase64.value = b64;
-    _galeriPreviewImg.src = b64;
-    _galeriPreviewImg.style.display = 'block';
-    _galeriLabel.innerHTML = '<b style="color:#2e7d32">Foto siap diupload</b>';
-    _galeriCropModal.classList.remove('open');
-}
-
-function cancelGaleriCrop() {
-    _galeriCropModal.classList.remove('open');
-    document.getElementById('galeriRawInput').value = '';
 }
 </script>
 </body>
